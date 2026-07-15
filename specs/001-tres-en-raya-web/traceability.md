@@ -46,7 +46,7 @@ Tooling commits use `(tooling)` with this GATE-ID and never claim a product user
 | AC-US4-INTERACCION-002 | T029 | T035 | E2E | `tests/e2e/tic-tac-toe.spec.ts` | `AC-US4-INTERACCION-002 activa una celda vacía mediante toque` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-TECLADO-003 | T030 | T035 | Component | `src/components/Board.test.tsx` | `AC-US4-TECLADO-003 activa una celda vacía mediante Enter` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-TECLADO-004 | T031 | T035 | Component | `src/components/Board.test.tsx` | `AC-US4-TECLADO-004 activa una celda vacía mediante Espacio` | PENDING | PENDING | PENDING | PLANNED |
-| AC-US4-TECLADO-005 | T015 | T022 | Component | `src/components/Board.test.tsx` | `AC-US4-TECLADO-005 ordena el foco por filas y después por reinicio` | PENDING | PENDING | PENDING | PLANNED |
+| AC-US4-TECLADO-005 | T015 | T022 | Component | `src/components/Board.test.tsx` | `AC-US4-TECLADO-005 ordena el foco por filas y después por reinicio` | `2026-07-14: test:component -t AC-US4-TECLADO-005 -> exit 1; missing src/App.tsx` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-FOCO-006 | T016 | T022 | Component + E2E | `src/components/Board.test.tsx`; `tests/e2e/tic-tac-toe.spec.ts` | `AC-US4-FOCO-006 muestra un contorno continuo en el control enfocado` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-FOCO-007 | T033 | T035 | Component | `src/components/Board.test.tsx` | `AC-US4-FOCO-007 conserva el foco al rechazar una celda ocupada` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-A11Y-008 | T017 | T022 | Component | `src/components/Board.test.tsx` | `AC-US4-A11Y-008 expone el tablero como cuadrícula de tres por tres` | PENDING | PENDING | PENDING | PLANNED |

@@ -23,4 +23,17 @@ describe('tablero de Tres en Raya', () => {
       view.unmount();
     }
   });
+
+  test('AC-US4-TECLADO-005 ordena el foco por filas y después por reinicio', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    for (let index = 0; index < 9; index += 1) {
+      await user.tab();
+      const row = Math.floor(index / 3) + 1;
+      const column = (index % 3) + 1;
+      expect(screen.getByRole('button', { name: `Fila ${row}, columna ${column}, vacía` })).toHaveFocus();
+    }
+    await user.tab();
+    expect(screen.getByRole('button', { name: 'Reiniciar partida' })).toHaveFocus();
+  });
 });
