@@ -51,4 +51,12 @@ describe('tablero de Tres en Raya', () => {
     expect(grid).toHaveAttribute('aria-rowcount', '3');
     expect(grid).toHaveAttribute('aria-colcount', '3');
   });
+
+  test('AC-US4-A11Y-009 expone fila columna y contenido en el nombre de cada celda', () => {
+    const board = ['X', 'O', null, null, null, null, null, null, null] as const;
+    render(<Board board={board} status="PLAYING_X" onCellActivate={() => undefined} />);
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 1, X' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 2, O' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 3, vacía' })).toBeInTheDocument();
+  });
 });
