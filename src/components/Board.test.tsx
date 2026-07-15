@@ -36,4 +36,12 @@ describe('tablero de Tres en Raya', () => {
     await user.tab();
     expect(screen.getByRole('button', { name: 'Reiniciar partida' })).toHaveFocus();
   });
+
+  test('AC-US4-FOCO-006 muestra un contorno continuo en el control enfocado', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.tab();
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' })).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' })).toHaveClass('cell');
+  });
 });
