@@ -98,4 +98,13 @@ describe('tablero de Tres en Raya', () => {
     await user.keyboard('{Enter}');
     expect(screen.getByRole('button', { name: 'Fila 1, columna 1, X' })).toBeInTheDocument();
   });
+
+  test('AC-US4-TECLADO-004 activa una celda vacía mediante Espacio', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const cell = screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' });
+    cell.focus();
+    await user.keyboard(' ');
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 1, X' })).toBeInTheDocument();
+  });
 });
