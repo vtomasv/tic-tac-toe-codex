@@ -1,6 +1,7 @@
 import { useReducer } from 'react';
 
 import { Board } from './components/Board';
+import { GameStatus } from './components/GameStatus';
 import { gameReducer, INITIAL_STATE, type GameState } from './domain/game';
 
 interface AppProps {
@@ -13,6 +14,7 @@ export default function App({ initialState = INITIAL_STATE }: AppProps) {
   return (
     <main className="game">
       <h1>Tres en Raya</h1>
+      <GameStatus status={state.status} />
       <Board
         board={state.board}
         status={state.status}
