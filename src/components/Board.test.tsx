@@ -59,4 +59,9 @@ describe('tablero de Tres en Raya', () => {
     expect(screen.getByRole('button', { name: 'Fila 1, columna 2, O' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Fila 1, columna 3, vacía' })).toBeInTheDocument();
   });
+
+  test('AC-US4-VISUAL-017 muestra un contorno al apuntar una celda vacía', () => {
+    render(<App />);
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' })).toHaveClass('cell--playable');
+  });
 });

@@ -34,3 +34,15 @@ test('AC-US4-RESPONSIVE-013 evita superposición de controles con ampliación de
     }
   }
 });
+
+test('AC-US4-VISUAL-017 muestra un contorno al apuntar una celda vacía', async ({ page }) => {
+  await page.goto('/');
+  const firstCell = page.getByRole('button', { name: 'Fila 1, columna 1, vacía' });
+  await firstCell.hover();
+  const outline = await firstCell.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { style: style.outlineStyle, width: Number.parseFloat(style.outlineWidth) };
+  });
+  expect(outline.style).not.toBe('none');
+  expect(outline.width).toBeGreaterThan(0);
+});
