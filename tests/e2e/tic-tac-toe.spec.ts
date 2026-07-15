@@ -46,3 +46,12 @@ test('AC-US4-VISUAL-017 muestra un contorno al apuntar una celda vacía', async 
   expect(outline.style).not.toBe('none');
   expect(outline.width).toBeGreaterThan(0);
 });
+
+test('AC-US4-INTERACCION-002 activa una celda vacía mediante toque', async ({ browser }) => {
+  const context = await browser.newContext({ hasTouch: true });
+  const page = await context.newPage();
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Fila 1, columna 1, vacía' }).tap();
+  await expect(page.getByRole('button', { name: 'Fila 1, columna 1, X' })).toBeVisible();
+  await context.close();
+});
