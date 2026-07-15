@@ -44,4 +44,11 @@ describe('tablero de Tres en Raya', () => {
     expect(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' })).toHaveFocus();
     expect(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' })).toHaveClass('cell');
   });
+
+  test('AC-US4-A11Y-008 expone el tablero como cuadrícula de tres por tres', () => {
+    render(<App />);
+    const grid = screen.getByRole('grid', { name: 'Tablero de Tres en Raya' });
+    expect(grid).toHaveAttribute('aria-rowcount', '3');
+    expect(grid).toHaveAttribute('aria-colcount', '3');
+  });
 });
