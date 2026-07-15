@@ -162,3 +162,10 @@ test('AC-US2-ESTADO-003 identifica a X como ganador en WON_X', () => {
   render(<App initialState={{ board, status: 'WON_X' }} />);
   expect(screen.getByText('Ganó X')).toBeInTheDocument();
 });
+
+
+test('AC-US2-ESTADO-004 identifica a O como ganador en WON_O', () => {
+  const board = ['O', 'O', 'O', 'X', 'X', null, 'X', null, null] as const;
+  render(<App initialState={{ board, status: 'WON_O' }} />);
+  expect(screen.getByText('Ganó O')).toBeInTheDocument();
+});
