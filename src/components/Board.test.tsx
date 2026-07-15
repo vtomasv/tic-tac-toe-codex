@@ -142,3 +142,9 @@ describe('tablero de Tres en Raya', () => {
     expect(screen.getByRole('button', { name: 'Fila 1, columna 2, O' })).toHaveTextContent('O');
   });
 });
+
+
+test('AC-US1-ESTADO-008 identifica a X durante PLAYING_X', () => {
+  render(<App />);
+  expect(screen.getByText('Turno de X')).toBeInTheDocument();
+});
