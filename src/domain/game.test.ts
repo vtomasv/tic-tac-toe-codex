@@ -34,6 +34,14 @@ describe('resultados', () => {
       expect(result.status).toBe('WON_O');
     }
   });
+
+  test('AC-US2-DOMINIO-005 resuelve DRAW en la novena jugada sin línea ganadora', () => {
+    const drawBoard = ['X', 'O', 'X', 'X', 'O', 'O', 'O', 'X', null] as const;
+    expect(gameReducer({ board: drawBoard, status: 'PLAYING_X' }, { type: 'PLAY_CELL', index: 8 }).status).toBe('DRAW');
+
+    const winningNinth = ['X', 'O', 'O', 'O', 'X', 'X', 'X', 'X', null] as const;
+    expect(gameReducer({ board: winningNinth, status: 'PLAYING_X' }, { type: 'PLAY_CELL', index: 8 }).status).toBe('WON_X');
+  });
 });
 
 describe('jugadas legales', () => {
