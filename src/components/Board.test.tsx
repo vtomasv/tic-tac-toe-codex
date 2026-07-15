@@ -148,3 +148,10 @@ test('AC-US1-ESTADO-008 identifica a X durante PLAYING_X', () => {
   render(<App />);
   expect(screen.getByText('Turno de X')).toBeInTheDocument();
 });
+
+
+test('AC-US1-ESTADO-009 identifica a O durante PLAYING_O', () => {
+  const board = ['X', null, null, null, null, null, null, null, null] as const;
+  render(<App initialState={{ board, status: 'PLAYING_O' }} />);
+  expect(screen.getByText('Turno de O')).toBeInTheDocument();
+});
