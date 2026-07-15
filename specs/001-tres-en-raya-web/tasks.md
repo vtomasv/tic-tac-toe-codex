@@ -32,7 +32,7 @@ before another RED begins. `[SHARED]` GREEN tasks enumerate every inseparable cr
 ### Initial state block
 
 - [X] T010 [US1] [AC:AC-US1-ESTADO-001] [RED] Add `AC-US1-ESTADO-001 inicia en PLAYING_X` to `src/domain/game.test.ts`, run its filtered unit test and record RED evidence in `specs/001-tres-en-raya-web/traceability.md`; Expected commit: `test(US1): T010 prove initial PLAYING_X is missing [AC-US1-ESTADO-001]`
-- [ ] T011 [US1] [AC:AC-US1-ESTADO-010] [RED] Add `AC-US1-ESTADO-010 inicia con nueve celdas vacías` to `src/domain/game.test.ts`, run its filtered unit test and record RED evidence in `specs/001-tres-en-raya-web/traceability.md`; Expected commit: `test(US1): T011 prove empty initial board is missing [AC-US1-ESTADO-010]`
+- [X] T011 [US1] [AC:AC-US1-ESTADO-010] [RED] Add `AC-US1-ESTADO-010 inicia con nueve celdas vacías` to `src/domain/game.test.ts`, run its filtered unit test and record RED evidence in `specs/001-tres-en-raya-web/traceability.md`; Expected commit: `test(US1): T011 prove empty initial board is missing [AC-US1-ESTADO-010]`
 - [ ] T012 [US1] [AC:AC-US1-ESTADO-001,AC-US1-ESTADO-010] [GREEN] Define immutable types and `INITIAL_STATE` in `src/domain/game.ts`, run mapped tests and the accumulated unit suite; Expected commit: `feat(US1): T012 initialize canonical game state [AC-US1-ESTADO-001 AC-US1-ESTADO-010]`
 
 ### Shared board structure block

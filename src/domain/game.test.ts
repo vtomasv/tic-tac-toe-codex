@@ -6,4 +6,8 @@ describe('estado inicial', () => {
   test('AC-US1-ESTADO-001 inicia en PLAYING_X', () => {
     expect(INITIAL_STATE.status).toBe('PLAYING_X');
   });
+
+  test('AC-US1-ESTADO-010 inicia con nueve celdas vacías', () => {
+    expect(INITIAL_STATE.board).toEqual(Array(9).fill(null));
+  });
 });
