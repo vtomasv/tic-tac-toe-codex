@@ -38,7 +38,7 @@ Tooling commits use `(tooling)` with this GATE-ID and never claim a product user
 | AC-US2-ESTADO-006 | T040 | T042 | Component | `src/components/Board.test.tsx` | `AC-US2-ESTADO-006 identifica el resultado como empate en DRAW` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US2-UNWANTED-007 | T048 | T050 | Domain | `src/domain/game.test.ts` | `AC-US2-UNWANTED-007 conserva el tablero en estados terminales` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US2-UNWANTED-008 | T049 | T050 | Domain | `src/domain/game.test.ts` | `AC-US2-UNWANTED-008 conserva el estado terminal vigente` | PENDING | PENDING | PENDING | PLANNED |
-| AC-US3-INTERACCION-001 | T014 | T022 | Component | `src/components/Board.test.tsx` | `AC-US3-INTERACCION-001 presenta Reiniciar partida en todos los estados` | PENDING | PENDING | PENDING | PLANNED |
+| AC-US3-INTERACCION-001 | T014 | T022 | Component | `src/components/Board.test.tsx` | `AC-US3-INTERACCION-001 presenta Reiniciar partida en todos los estados` | `2026-07-14: test:component -t AC-US3-INTERACCION-001 -> exit 1; missing src/App.tsx` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US3-ESTADO-002 | T051 | T056 | Domain | `src/domain/game.test.ts` | `AC-US3-ESTADO-002 vacía las nueve celdas al reiniciar` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US3-ESTADO-003 | T052 | T056 | Domain | `src/domain/game.test.ts` | `AC-US3-ESTADO-003 vuelve a PLAYING_X al reiniciar` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US3-FOCO-004 | T053 | T056 | Component | `src/components/Board.test.tsx` | `AC-US3-FOCO-004 mueve el foco a la primera celda al reiniciar` | PENDING | PENDING | PENDING | PLANNED |
