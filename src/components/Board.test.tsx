@@ -75,4 +75,11 @@ describe('tablero de Tres en Raya', () => {
       view.unmount();
     }
   });
+
+  test('AC-US1-INTERACCION-003 coloca la marca del jugador del turno en una celda vacía', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' }));
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 1, X' })).toHaveTextContent('X');
+  });
 });
