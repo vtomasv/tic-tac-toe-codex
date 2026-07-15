@@ -54,7 +54,7 @@ Tooling commits use `(tooling)` with this GATE-ID and never claim a product user
 | AC-US4-A11Y-010 | T057 | T060 | Component | `src/components/Board.test.tsx` | `AC-US4-A11Y-010 anuncia el jugador del nuevo turno` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-A11Y-011 | T058 | T060 | Component | `src/components/Board.test.tsx` | `AC-US4-A11Y-011 anuncia el resultado terminal` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-RESPONSIVE-012 | T055 | T056 | E2E | `tests/e2e/tic-tac-toe.spec.ts` | `AC-US4-RESPONSIVE-012 evita desplazamiento horizontal entre 320 y 1920 píxeles` | PENDING | PENDING | PENDING | PLANNED |
-| AC-US4-RESPONSIVE-013 | T019 | T022 | E2E | `tests/e2e/tic-tac-toe.spec.ts` | `AC-US4-RESPONSIVE-013 evita superposición de controles con ampliación del 200 por ciento` | PENDING | PENDING | PENDING | PLANNED |
+| AC-US4-RESPONSIVE-013 | T019 | T022 | E2E | `tests/e2e/tic-tac-toe.spec.ts` | `AC-US4-RESPONSIVE-013 evita superposición de controles con ampliación del 200 por ciento` | `2026-07-14: test:e2e -g AC-US4-RESPONSIVE-013 -> exit 1; expected 10 controls, received 0` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-VISUAL-014 | T041 | T042 | Component | `src/components/Board.test.tsx` | `AC-US4-VISUAL-014 comunica la información esencial sin depender del color` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-UNWANTED-015 | T032 | T035 | Component | `src/components/Board.test.tsx` | `AC-US4-UNWANTED-015 acepta Enter y Espacio sin puntero` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-TECLADO-016 | T054 | T056 | Component + E2E | `src/components/Board.test.tsx`; `tests/e2e/tic-tac-toe.spec.ts` | `AC-US4-TECLADO-016 reinicia mediante Enter y Espacio` | PENDING | PENDING | PENDING | PLANNED |
