@@ -42,6 +42,13 @@ describe('resultados', () => {
     const winningNinth = ['X', 'O', 'O', 'O', 'X', 'X', 'X', 'X', null] as const;
     expect(gameReducer({ board: winningNinth, status: 'PLAYING_X' }, { type: 'PLAY_CELL', index: 8 }).status).toBe('WON_X');
   });
+
+  test('AC-US2-UNWANTED-007 conserva el tablero en estados terminales', () => {
+    const board = [null, 'X', 'O', 'X', 'O', 'X', 'O', 'X', 'O'] as const;
+    for (const status of ['WON_X', 'WON_O', 'DRAW'] as const) {
+      expect(gameReducer({ board, status }, { type: 'PLAY_CELL', index: 0 }).board).toEqual(board);
+    }
+  });
 });
 
 describe('jugadas legales', () => {
