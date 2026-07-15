@@ -24,6 +24,17 @@ const EMPTY_BOARD: Board = Object.freeze([
   null,
 ]);
 
+export const WINNING_LINES = Object.freeze([
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+] as const);
+
 export const INITIAL_STATE: GameState = Object.freeze({
   board: EMPTY_BOARD,
   status: 'PLAYING_X',
@@ -42,8 +53,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
   const board = [...state.board] as Cell[];
   board[action.index] = player;
 
+  const won = WINNING_LINES.some(([first, second, third]) =>
+    board[first] === player && board[second] === player && board[third] === player,
+  );
+
   return {
     board: board as unknown as Board,
-    status: player === 'X' ? 'PLAYING_O' : 'PLAYING_X',
+    status: won ? (player === 'X' ? 'WON_X' : 'WON_O') : player === 'X' ? 'PLAYING_O' : 'PLAYING_X',
   };
 }
