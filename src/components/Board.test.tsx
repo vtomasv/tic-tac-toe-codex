@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import App from '../App';
 import { Board } from './Board';
@@ -119,5 +119,17 @@ describe('tablero de Tres en Raya', () => {
     second.focus();
     await user.keyboard(' ');
     expect(screen.getByRole('button', { name: 'Fila 1, columna 2, O' })).toBeInTheDocument();
+  });
+
+  test('AC-US4-FOCO-007 conserva el foco al rechazar una celda ocupada', async () => {
+    const user = userEvent.setup();
+    const activate = vi.fn();
+    const board = ['X', null, null, null, null, null, null, null, null] as const;
+    render(<Board board={board} status="PLAYING_O" onCellActivate={activate} />);
+    const occupied = screen.getByRole('button', { name: 'Fila 1, columna 1, X' });
+    occupied.focus();
+    await user.keyboard('{Enter}');
+    expect(activate).not.toHaveBeenCalled();
+    expect(occupied).toHaveFocus();
   });
 });
