@@ -58,6 +58,17 @@ describe('resultados', () => {
   });
 });
 
+describe('reinicio', () => {
+  const markedBoard = ['X', 'O', 'X', null, null, null, null, null, null] as const;
+  const statuses = ['PLAYING_X', 'PLAYING_O', 'WON_X', 'WON_O', 'DRAW'] as const;
+
+  test('AC-US3-ESTADO-002 vacía las nueve celdas al reiniciar', () => {
+    for (const status of statuses) {
+      expect(gameReducer({ board: markedBoard, status }, { type: 'RESET' }).board).toEqual(Array(9).fill(null));
+    }
+  });
+});
+
 describe('jugadas legales', () => {
   test('AC-US1-ESTADO-004 cambia de X a PLAYING_O tras una jugada no terminal', () => {
     expect(gameReducer(INITIAL_STATE, { type: 'PLAY_CELL', index: 0 }).status).toBe('PLAYING_O');
