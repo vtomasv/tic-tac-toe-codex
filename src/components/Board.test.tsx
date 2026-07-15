@@ -192,3 +192,11 @@ test('AC-US4-VISUAL-014 comunica la información esencial sin depender del color
     view.unmount();
   }
 });
+
+test('AC-US3-FOCO-004 mueve el foco a la primera celda al reiniciar', async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  await user.click(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' }));
+  await user.click(screen.getByRole('button', { name: 'Reiniciar partida' }));
+  expect(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' })).toHaveFocus();
+});
