@@ -56,9 +56,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
   const won = WINNING_LINES.some(([first, second, third]) =>
     board[first] === player && board[second] === player && board[third] === player,
   );
+  const draw = !won && board.every((cell) => cell !== null);
 
   return {
     board: board as unknown as Board,
-    status: won ? (player === 'X' ? 'WON_X' : 'WON_O') : player === 'X' ? 'PLAYING_O' : 'PLAYING_X',
+    status: won
+      ? player === 'X' ? 'WON_X' : 'WON_O'
+      : draw ? 'DRAW'
+      : player === 'X' ? 'PLAYING_O' : 'PLAYING_X',
   };
 }
