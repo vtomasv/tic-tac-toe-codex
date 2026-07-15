@@ -231,3 +231,14 @@ test('AC-US4-A11Y-011 anuncia el resultado terminal', () => {
     view.unmount();
   }
 });
+
+test('AC-US4-A11Y-019 anuncia el turno de X al comenzar y reiniciar', async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  const initialAnnouncement = screen.getByRole('status');
+  expect(initialAnnouncement).toHaveTextContent('Turno de X');
+  await user.click(screen.getByRole('button', { name: 'Reiniciar partida' }));
+  const resetAnnouncement = screen.getByRole('status');
+  expect(resetAnnouncement).toHaveTextContent('Turno de X');
+  expect(resetAnnouncement).not.toBe(initialAnnouncement);
+});
