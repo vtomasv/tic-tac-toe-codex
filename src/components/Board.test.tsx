@@ -107,4 +107,17 @@ describe('tablero de Tres en Raya', () => {
     await user.keyboard(' ');
     expect(screen.getByRole('button', { name: 'Fila 1, columna 1, X' })).toBeInTheDocument();
   });
+
+  test('AC-US4-UNWANTED-015 acepta Enter y Espacio sin puntero', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const first = screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' });
+    first.focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 1, X' })).toBeInTheDocument();
+    const second = screen.getByRole('button', { name: 'Fila 1, columna 2, vacía' });
+    second.focus();
+    await user.keyboard(' ');
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 2, O' })).toBeInTheDocument();
+  });
 });
