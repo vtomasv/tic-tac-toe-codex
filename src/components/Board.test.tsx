@@ -200,3 +200,17 @@ test('AC-US3-FOCO-004 mueve el foco a la primera celda al reiniciar', async () =
   await user.click(screen.getByRole('button', { name: 'Reiniciar partida' }));
   expect(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' })).toHaveFocus();
 });
+
+test('AC-US4-TECLADO-016 reinicia mediante Enter y Espacio', async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  await user.click(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' }));
+  const restart = screen.getByRole('button', { name: 'Reiniciar partida' });
+  restart.focus();
+  await user.keyboard('{Enter}');
+  expect(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Fila 1, columna 2, vacía' }));
+  restart.focus();
+  await user.keyboard(' ');
+  expect(screen.getByRole('button', { name: 'Fila 1, columna 2, vacía' })).toBeInTheDocument();
+});

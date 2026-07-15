@@ -55,3 +55,20 @@ test('AC-US4-INTERACCION-002 activa una celda vacía mediante toque', async ({ b
   await expect(page.getByRole('button', { name: 'Fila 1, columna 1, X' })).toBeVisible();
   await context.close();
 });
+
+test('AC-US4-TECLADO-016 reinicia mediante Enter y Espacio', async ({ page }) => {
+  await page.goto('/');
+  const first = page.getByRole('button', { name: 'Fila 1, columna 1, vacía' });
+  await first.focus();
+  await page.keyboard.press('Enter');
+  const restart = page.getByRole('button', { name: 'Reiniciar partida' });
+  await restart.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('button', { name: 'Fila 1, columna 1, vacía' })).toBeVisible();
+  const second = page.getByRole('button', { name: 'Fila 1, columna 2, vacía' });
+  await second.focus();
+  await page.keyboard.press('Space');
+  await restart.focus();
+  await page.keyboard.press('Space');
+  await expect(page.getByRole('button', { name: 'Fila 1, columna 2, vacía' })).toBeVisible();
+});
