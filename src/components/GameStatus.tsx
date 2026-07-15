@@ -13,5 +13,9 @@ interface GameStatusProps {
 }
 
 export function GameStatus({ status }: GameStatusProps) {
-  return <p className="game-status">{STATUS_TEXT[status]}</p>;
+  return (
+    <p aria-atomic="true" aria-live="polite" className="game-status" role="status">
+      {STATUS_TEXT[status]}
+    </p>
+  );
 }
