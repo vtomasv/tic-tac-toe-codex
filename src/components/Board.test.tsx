@@ -132,4 +132,13 @@ describe('tablero de Tres en Raya', () => {
     expect(activate).not.toHaveBeenCalled();
     expect(occupied).toHaveFocus();
   });
+
+  test('AC-US4-VISUAL-018 muestra el símbolo correspondiente dentro de una celda marcada', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' }));
+    await user.click(screen.getByRole('button', { name: 'Fila 1, columna 2, vacía' }));
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 1, X' })).toHaveTextContent('X');
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 2, O' })).toHaveTextContent('O');
+  });
 });
