@@ -20,7 +20,7 @@ Tooling commits use `(tooling)` with this GATE-ID and never claim a product user
 
 | AC-ID | RED task | GREEN task | Planned level | Test file | Exact planned test name | RED evidence | Test commit | Implementation commit | Status |
 |-------|----------|------------|---------------|-----------|-------------------------|--------------|-------------|-----------------------|--------|
-| AC-US1-ESTADO-001 | T010 | T012 | Domain | `src/domain/game.test.ts` | `AC-US1-ESTADO-001 inicia en PLAYING_X` | PENDING | PENDING | PENDING | PLANNED |
+| AC-US1-ESTADO-001 | T010 | T012 | Domain | `src/domain/game.test.ts` | `AC-US1-ESTADO-001 inicia en PLAYING_X` | `2026-07-14: test:unit -t AC-US1-ESTADO-001 -> exit 1; Cannot find module ./game` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US1-DOMINIO-002 | T013 | T022 | Component | `src/components/Board.test.tsx` | `AC-US1-DOMINIO-002 presenta una cuadrícula de tres por tres` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US1-INTERACCION-003 | T023 | T035 | Component | `src/components/Board.test.tsx` | `AC-US1-INTERACCION-003 coloca la marca del jugador del turno en una celda vacía` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US1-ESTADO-004 | T024 | T035 | Domain | `src/domain/game.test.ts` | `AC-US1-ESTADO-004 cambia de X a PLAYING_O tras una jugada no terminal` | PENDING | PENDING | PENDING | PLANNED |

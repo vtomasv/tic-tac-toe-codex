@@ -15,15 +15,15 @@ before another RED begins. `[SHARED]` GREEN tasks enumerate every inseparable cr
 - [X] T001 Initialize `.git/` and create an empty audit commit; Expected commit: `chore(setup): T001 initialize Git repository`
 - [X] T002 Commit the amended source of truth in `specs/001-tres-en-raya-web/spec.md`; Expected commit: `docs(spec): T002 define cohesive shared behavior traceability`
 - [X] T003 Commit regenerated planning artifacts in `specs/001-tres-en-raya-web/plan.md`, `specs/001-tres-en-raya-web/research.md`, `specs/001-tres-en-raya-web/contracts/traceability-contract.md`, and `specs/001-tres-en-raya-web/contracts/ui-contract.md`; Expected commit: `docs(plan): T003 regenerate cohesive TDD design`
-- [ ] T004 Commit executable task artifacts in `specs/001-tres-en-raya-web/tasks.md` and `specs/001-tres-en-raya-web/traceability.md`; Expected commit: `docs(tasks): T004 regenerate ordered RED GREEN work`
-- [ ] T005 Create exact pinned dependencies and scripts in `package.json` and `package-lock.json` for Node.js 24.18.0; Expected commit: `chore(setup): T005 pin project dependencies and lockfile`
-- [ ] T006 Configure strict TypeScript and the Vite shell in `tsconfig.json`, `tsconfig.app.json`, `tsconfig.node.json`, `index.html`, `vite.config.ts`, and `src/main.tsx`; Expected commit: `chore(setup): T006 configure strict Vite client shell`
-- [ ] T007 Configure Vitest and Playwright in `vitest.config.ts`, `src/test/setup.ts`, and `playwright.config.ts`, and create `.gitignore`; Expected commit: `chore(test): T007 configure test runners and ignores`
+- [X] T004 Commit executable task artifacts in `specs/001-tres-en-raya-web/tasks.md` and `specs/001-tres-en-raya-web/traceability.md`; Expected commit: `docs(tasks): T004 regenerate ordered RED GREEN work`
+- [X] T005 Create exact pinned dependencies and scripts in `package.json` and `package-lock.json` for Node.js 24.18.0; Expected commit: `chore(setup): T005 pin project dependencies and lockfile`
+- [X] T006 Configure strict TypeScript and the Vite shell in `tsconfig.json`, `tsconfig.app.json`, `tsconfig.node.json`, `index.html`, `vite.config.ts`, and `src/main.tsx`; Expected commit: `chore(setup): T006 configure strict Vite client shell`
+- [X] T007 Configure Vitest and Playwright in `vitest.config.ts`, `src/test/setup.ts`, and `playwright.config.ts`, and create `.gitignore`; Expected commit: `chore(test): T007 configure test runners and ignores`
 
 ## Phase 2: Foundational traceability gate
 
-- [ ] T008 [GATE:GATE-TRACEABILITY-001] [RED] Add `GATE-TRACEABILITY-001 rejects an unrelated RED before a shared GREEN closes its block` to `scripts/verify-traceability.test.mjs`, run `node --test --test-name-pattern='unrelated RED' scripts/verify-traceability.test.mjs`, record RED evidence in `specs/001-tres-en-raya-web/traceability.md`, and commit only the test and evidence; Expected commit: `test(tooling): T008 reject open unrelated RED blocks [GATE-TRACEABILITY-001]`
-- [ ] T009 [GATE:GATE-TRACEABILITY-001] [GREEN] Implement cohesive shared-block validation in `scripts/verify-traceability.mjs`, wire `verify:traceability` in `package.json`, run `node --test scripts/verify-traceability.test.mjs` and `node scripts/verify-traceability.mjs --phase=tasks`; Expected commit: `feat(tooling): T009 enforce cohesive shared RED GREEN blocks [GATE-TRACEABILITY-001]`
+- [X] T008 [GATE:GATE-TRACEABILITY-001] [RED] Add `GATE-TRACEABILITY-001 rejects an unrelated RED before a shared GREEN closes its block` to `scripts/verify-traceability.test.mjs`, run `node --test --test-name-pattern='unrelated RED' scripts/verify-traceability.test.mjs`, record RED evidence in `specs/001-tres-en-raya-web/traceability.md`, and commit only the test and evidence; Expected commit: `test(tooling): T008 reject open unrelated RED blocks [GATE-TRACEABILITY-001]`
+- [X] T009 [GATE:GATE-TRACEABILITY-001] [GREEN] Implement cohesive shared-block validation in `scripts/verify-traceability.mjs`, wire `verify:traceability` in `package.json`, run `node --test scripts/verify-traceability.test.mjs` and `node scripts/verify-traceability.mjs --phase=tasks`; Expected commit: `feat(tooling): T009 enforce cohesive shared RED GREEN blocks [GATE-TRACEABILITY-001]`
 
 ## Phase 3: US-001 and shared board foundations (Priority: P1)
 
@@ -31,7 +31,7 @@ before another RED begins. `[SHARED]` GREEN tasks enumerate every inseparable cr
 
 ### Initial state block
 
-- [ ] T010 [US1] [AC:AC-US1-ESTADO-001] [RED] Add `AC-US1-ESTADO-001 inicia en PLAYING_X` to `src/domain/game.test.ts`, run its filtered unit test and record RED evidence in `specs/001-tres-en-raya-web/traceability.md`; Expected commit: `test(US1): T010 prove initial PLAYING_X is missing [AC-US1-ESTADO-001]`
+- [X] T010 [US1] [AC:AC-US1-ESTADO-001] [RED] Add `AC-US1-ESTADO-001 inicia en PLAYING_X` to `src/domain/game.test.ts`, run its filtered unit test and record RED evidence in `specs/001-tres-en-raya-web/traceability.md`; Expected commit: `test(US1): T010 prove initial PLAYING_X is missing [AC-US1-ESTADO-001]`
 - [ ] T011 [US1] [AC:AC-US1-ESTADO-010] [RED] Add `AC-US1-ESTADO-010 inicia con nueve celdas vacías` to `src/domain/game.test.ts`, run its filtered unit test and record RED evidence in `specs/001-tres-en-raya-web/traceability.md`; Expected commit: `test(US1): T011 prove empty initial board is missing [AC-US1-ESTADO-010]`
 - [ ] T012 [US1] [AC:AC-US1-ESTADO-001,AC-US1-ESTADO-010] [GREEN] Define immutable types and `INITIAL_STATE` in `src/domain/game.ts`, run mapped tests and the accumulated unit suite; Expected commit: `feat(US1): T012 initialize canonical game state [AC-US1-ESTADO-001 AC-US1-ESTADO-010]`
 
