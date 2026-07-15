@@ -176,3 +176,19 @@ test('AC-US2-ESTADO-006 identifica el resultado como empate en DRAW', () => {
   render(<App initialState={{ board, status: 'DRAW' }} />);
   expect(screen.getByText('Empate')).toBeInTheDocument();
 });
+
+
+test('AC-US4-VISUAL-014 comunica la información esencial sin depender del color', () => {
+  const statuses: Array<[GameStatus, string]> = [
+    ['PLAYING_X', 'Turno de X'], ['PLAYING_O', 'Turno de O'], ['WON_X', 'Ganó X'],
+    ['WON_O', 'Ganó O'], ['DRAW', 'Empate'],
+  ];
+  for (const [status, text] of statuses) {
+    const board = ['X', 'O', null, null, null, null, null, null, null] as const;
+    const view = render(<App initialState={{ board, status }} />);
+    expect(screen.getByText(text)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 1, X' })).toHaveTextContent('X');
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 2, O' })).toHaveTextContent('O');
+    view.unmount();
+  }
+});
