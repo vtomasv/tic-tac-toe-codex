@@ -26,4 +26,9 @@ describe('jugadas legales', () => {
     const occupied = gameReducer(INITIAL_STATE, { type: 'PLAY_CELL', index: 0 });
     expect(gameReducer(occupied, { type: 'PLAY_CELL', index: 0 }).board).toEqual(occupied.board);
   });
+
+  test('AC-US1-UNWANTED-007 conserva el estado al activar una celda ocupada', () => {
+    const occupied = gameReducer(INITIAL_STATE, { type: 'PLAY_CELL', index: 0 });
+    expect(gameReducer(occupied, { type: 'PLAY_CELL', index: 0 }).status).toBe(occupied.status);
+  });
 });
