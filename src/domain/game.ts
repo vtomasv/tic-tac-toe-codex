@@ -45,6 +45,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     return state;
   }
 
+  if (state.status === 'WON_X' || state.status === 'WON_O' || state.status === 'DRAW') {
+    return state;
+  }
+
   if (state.board[action.index] !== null) {
     return state;
   }
