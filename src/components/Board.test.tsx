@@ -221,3 +221,13 @@ test('AC-US4-A11Y-010 anuncia el jugador del nuevo turno', async () => {
   await user.click(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' }));
   expect(screen.getByRole('status')).toHaveTextContent('Turno de O');
 });
+
+test('AC-US4-A11Y-011 anuncia el resultado terminal', () => {
+  const cases: Array<[GameStatus, string]> = [['WON_X', 'Ganó X'], ['WON_O', 'Ganó O'], ['DRAW', 'Empate']];
+  const board = ['X', 'O', 'X', 'O', 'X', 'O', 'O', 'X', 'X'] as const;
+  for (const [status, result] of cases) {
+    const view = render(<App initialState={{ board, status }} />);
+    expect(screen.getByRole('status')).toHaveTextContent(result);
+    view.unmount();
+  }
+});
