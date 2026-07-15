@@ -23,6 +23,17 @@ describe('resultados', () => {
       expect(result.status).toBe('WON_X');
     }
   });
+
+  test('AC-US2-DOMINIO-002 detecta las ocho líneas ganadoras de O', () => {
+    expect(WINNING_LINES).toHaveLength(8);
+    for (const [first, second, final] of WINNING_LINES) {
+      const board = Array(9).fill(null) as Array<'O' | null>;
+      board[first] = 'O';
+      board[second] = 'O';
+      const result = gameReducer({ board: board as unknown as Board, status: 'PLAYING_O' }, { type: 'PLAY_CELL', index: final });
+      expect(result.status).toBe('WON_O');
+    }
+  });
 });
 
 describe('jugadas legales', () => {
