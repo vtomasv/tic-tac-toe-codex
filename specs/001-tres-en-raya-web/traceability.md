@@ -42,7 +42,7 @@ Tooling commits use `(tooling)` with this GATE-ID and never claim a product user
 | AC-US3-ESTADO-002 | T051 | T056 | Domain | `src/domain/game.test.ts` | `AC-US3-ESTADO-002 vacía las nueve celdas al reiniciar` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US3-ESTADO-003 | T052 | T056 | Domain | `src/domain/game.test.ts` | `AC-US3-ESTADO-003 vuelve a PLAYING_X al reiniciar` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US3-FOCO-004 | T053 | T056 | Component | `src/components/Board.test.tsx` | `AC-US3-FOCO-004 mueve el foco a la primera celda al reiniciar` | PENDING | PENDING | PENDING | PLANNED |
-| AC-US4-INTERACCION-001 | T028 | T035 | Component | `src/components/Board.test.tsx` | `AC-US4-INTERACCION-001 activa una celda vacía mediante clic` | PENDING | PENDING | PENDING | PLANNED |
+| AC-US4-INTERACCION-001 | T028 | T035 | Component | `src/components/Board.test.tsx` | `AC-US4-INTERACCION-001 activa una celda vacía mediante clic` | `2026-07-14: FAIL — no se encontró la celda marcada con X` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-INTERACCION-002 | T029 | T035 | E2E | `tests/e2e/tic-tac-toe.spec.ts` | `AC-US4-INTERACCION-002 activa una celda vacía mediante toque` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-TECLADO-003 | T030 | T035 | Component | `src/components/Board.test.tsx` | `AC-US4-TECLADO-003 activa una celda vacía mediante Enter` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-TECLADO-004 | T031 | T035 | Component | `src/components/Board.test.tsx` | `AC-US4-TECLADO-004 activa una celda vacía mediante Espacio` | PENDING | PENDING | PENDING | PLANNED |

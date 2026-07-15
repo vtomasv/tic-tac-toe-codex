@@ -82,4 +82,11 @@ describe('tablero de Tres en Raya', () => {
     await user.click(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' }));
     expect(screen.getByRole('button', { name: 'Fila 1, columna 1, X' })).toHaveTextContent('X');
   });
+
+  test('AC-US4-INTERACCION-001 activa una celda vacía mediante clic', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' }));
+    expect(screen.getByRole('button', { name: 'Fila 1, columna 1, X' })).toBeInTheDocument();
+  });
 });
