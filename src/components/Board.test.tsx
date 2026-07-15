@@ -214,3 +214,10 @@ test('AC-US4-TECLADO-016 reinicia mediante Enter y Espacio', async () => {
   await user.keyboard(' ');
   expect(screen.getByRole('button', { name: 'Fila 1, columna 2, vacía' })).toBeInTheDocument();
 });
+
+test('AC-US4-A11Y-010 anuncia el jugador del nuevo turno', async () => {
+  const user = userEvent.setup();
+  render(<App />);
+  await user.click(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' }));
+  expect(screen.getByRole('status')).toHaveTextContent('Turno de O');
+});
