@@ -14,7 +14,7 @@ execution; Definition of Done requires every row to reach `VERIFIED`.
 
 | GATE-ID | RED task | GREEN task | Test file | RED evidence | Test commit | Implementation commit | Status |
 |---------|----------|------------|-----------|--------------|-------------|-----------------------|--------|
-| GATE-TRACEABILITY-001 | T008 | T009 | `scripts/verify-traceability.test.mjs` | PENDING | PENDING | PENDING | PLANNED |
+| GATE-TRACEABILITY-001 | T008 | T009 | `scripts/verify-traceability.test.mjs` | `2026-07-14: node@24.18.0 --test --test-name-pattern='unrelated RED' -> exit 1; expected /unrelated RED block/, actual no error` | PENDING | PENDING | PLANNED |
 
 Tooling commits use `(tooling)` with this GATE-ID and never claim a product user story or AC-ID.
 
