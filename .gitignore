@@ -10,5 +10,6 @@ playwright-report/
 Thumbs.db
 *.tmp
 *.swp
+*.tsbuildinfo
 .vscode/
 .idea/

@@ -109,7 +109,7 @@ before another RED begins. `[SHARED]` GREEN tasks enumerate every inseparable cr
 
 ## Phase 7: Final traceability and Definition of Done
 
-- [ ] T061 Update every AC/GATE row with RED evidence, commit hashes and `VERIFIED` status in `specs/001-tres-en-raya-web/traceability.md`; run `npm run test:unit`, `npm run test:component`, `npm run test:e2e`, `npm run build`, and `npm run verify:traceability`; Expected commit: `docs(traceability): T061 verify complete acceptance coverage`
+- [X] T061 Update every AC/GATE row with RED evidence, commit hashes and `VERIFIED` status in `specs/001-tres-en-raya-web/traceability.md`; run `npm run test:unit`, `npm run test:component`, `npm run test:e2e`, `npm run build`, and `npm run verify:traceability`; Expected commit: `docs(traceability): T061 verify complete acceptance coverage`
 
 ## Dependencies and execution order
 
