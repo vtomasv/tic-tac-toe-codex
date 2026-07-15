@@ -49,6 +49,13 @@ describe('resultados', () => {
       expect(gameReducer({ board, status }, { type: 'PLAY_CELL', index: 0 }).board).toEqual(board);
     }
   });
+
+  test('AC-US2-UNWANTED-008 conserva el estado terminal vigente', () => {
+    const board = [null, 'X', 'O', 'X', 'O', 'X', 'O', 'X', 'O'] as const;
+    for (const status of ['WON_X', 'WON_O', 'DRAW'] as const) {
+      expect(gameReducer({ board, status }, { type: 'PLAY_CELL', index: 0 }).status).toBe(status);
+    }
+  });
 });
 
 describe('jugadas legales', () => {
