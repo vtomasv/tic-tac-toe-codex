@@ -72,3 +72,16 @@ test('AC-US4-TECLADO-016 reinicia mediante Enter y Espacio', async ({ page }) =>
   await page.keyboard.press('Space');
   await expect(page.getByRole('button', { name: 'Fila 1, columna 2, vacía' })).toBeVisible();
 });
+
+test('AC-US4-RESPONSIVE-012 evita desplazamiento horizontal entre 320 y 1920 píxeles', async ({ page }) => {
+  for (const width of [320, 375, 768, 1280, 1920]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+    expect(overflow).toBe(false);
+    await page.getByRole('button', { name: 'Fila 1, columna 1, vacía' }).click();
+    await expect(page.getByRole('button', { name: 'Fila 1, columna 1, X' })).toBeVisible();
+    await page.getByRole('button', { name: 'Reiniciar partida' }).click();
+    await expect(page.getByRole('button', { name: 'Fila 1, columna 1, vacía' })).toBeVisible();
+  }
+});
