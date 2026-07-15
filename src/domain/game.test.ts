@@ -67,6 +67,12 @@ describe('reinicio', () => {
       expect(gameReducer({ board: markedBoard, status }, { type: 'RESET' }).board).toEqual(Array(9).fill(null));
     }
   });
+
+  test('AC-US3-ESTADO-003 vuelve a PLAYING_X al reiniciar', () => {
+    for (const status of statuses) {
+      expect(gameReducer({ board: markedBoard, status }, { type: 'RESET' }).status).toBe('PLAYING_X');
+    }
+  });
 });
 
 describe('jugadas legales', () => {
