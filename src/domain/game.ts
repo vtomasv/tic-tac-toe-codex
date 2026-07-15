@@ -42,7 +42,7 @@ export const INITIAL_STATE: GameState = Object.freeze({
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   if (action.type === 'RESET') {
-    return state;
+    return INITIAL_STATE;
   }
 
   if (state.status === 'WON_X' || state.status === 'WON_O' || state.status === 'DRAW') {

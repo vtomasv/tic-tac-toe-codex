@@ -20,6 +20,7 @@ button {
 .game {
   display: flex;
   width: min(100%, 32rem);
+  max-width: 100vw;
   min-height: 100vh;
   margin-inline: auto;
   padding: clamp(1rem, 4vw, 2rem);
