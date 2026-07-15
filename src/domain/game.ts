@@ -28,3 +28,22 @@ export const INITIAL_STATE: GameState = Object.freeze({
   board: EMPTY_BOARD,
   status: 'PLAYING_X',
 });
+
+export function gameReducer(state: GameState, action: GameAction): GameState {
+  if (action.type === 'RESET') {
+    return state;
+  }
+
+  if (state.board[action.index] !== null) {
+    return state;
+  }
+
+  const player: Player = state.status === 'PLAYING_O' ? 'O' : 'X';
+  const board = [...state.board] as Cell[];
+  board[action.index] = player;
+
+  return {
+    board: board as unknown as Board,
+    status: player === 'X' ? 'PLAYING_O' : 'PLAYING_X',
+  };
+}

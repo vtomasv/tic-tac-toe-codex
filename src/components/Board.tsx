@@ -34,7 +34,11 @@ export function Board({ board, status, onCellActivate, firstCellRef }: BoardProp
                   aria-disabled={unavailable ? 'true' : undefined}
                   aria-label={label}
                   className={`cell${unavailable ? '' : ' cell--playable'}`}
-                  onClick={() => onCellActivate(index)}
+                  onClick={() => {
+                    if (!unavailable) {
+                      onCellActivate(index);
+                    }
+                  }}
                   ref={index === 0 ? firstCellRef : undefined}
                   type="button"
                 >
