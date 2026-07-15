@@ -64,4 +64,15 @@ describe('tablero de Tres en Raya', () => {
     render(<App />);
     expect(screen.getByRole('button', { name: 'Fila 1, columna 1, vacía' })).toHaveClass('cell--playable');
   });
+
+  test('AC-US4-A11Y-020 expone las celdas como no disponibles en estados terminales', () => {
+    const emptyBoard = [null, null, null, null, null, null, null, null, null] as const;
+    for (const status of ['WON_X', 'WON_O', 'DRAW'] as const) {
+      const view = render(<Board board={emptyBoard} status={status} onCellActivate={() => undefined} />);
+      for (const cell of screen.getAllByRole('button')) {
+        expect(cell).toHaveAttribute('aria-disabled', 'true');
+      }
+      view.unmount();
+    }
+  });
 });

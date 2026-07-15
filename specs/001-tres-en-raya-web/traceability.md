@@ -61,7 +61,7 @@ Tooling commits use `(tooling)` with this GATE-ID and never claim a product user
 | AC-US4-VISUAL-017 | T020 | T022 | Component + E2E | `src/components/Board.test.tsx`; `tests/e2e/tic-tac-toe.spec.ts` | `AC-US4-VISUAL-017 muestra un contorno al apuntar una celda vacía` | `2026-07-14: component and E2E filtered tests -> exit 1; missing App/cell and hover timed out` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-VISUAL-018 | T034 | T035 | Component | `src/components/Board.test.tsx` | `AC-US4-VISUAL-018 muestra el símbolo correspondiente dentro de una celda marcada` | PENDING | PENDING | PENDING | PLANNED |
 | AC-US4-A11Y-019 | T059 | T060 | Component | `src/components/Board.test.tsx` | `AC-US4-A11Y-019 anuncia el turno de X al comenzar y reiniciar` | PENDING | PENDING | PENDING | PLANNED |
-| AC-US4-A11Y-020 | T021 | T022 | Component | `src/components/Board.test.tsx` | `AC-US4-A11Y-020 expone las celdas como no disponibles en estados terminales` | PENDING | PENDING | PENDING | PLANNED |
+| AC-US4-A11Y-020 | T021 | T022 | Component | `src/components/Board.test.tsx` | `AC-US4-A11Y-020 expone las celdas como no disponibles en estados terminales` | `2026-07-14: test:component -t AC-US4-A11Y-020 -> exit 1; missing src/components/Board.tsx` | PENDING | PENDING | PENDING | PLANNED |
 
 ## Planned Coverage Summary
 
