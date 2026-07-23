@@ -1,6 +1,6 @@
 # Traceability Ledger: Feature 002 Undo
 
-**Phase**: Implementing
+**Phase**: Planned
 
 **Canonical criteria**: [spec.md](./spec.md)
 
@@ -15,7 +15,7 @@ amplió con `GATE-SWARM-001`. Dominio y UI no cambiaron.
 |---|---|
 | `contracts/domain-contract.md` | `d148f79d15827834867de57c86c4c545906194a6f2225e3d18de01200a3046e8` |
 | `contracts/ui-contract.md` | `58307ec5492446d4669dcb6b187b7a30988a61f09bd7f5c41ea47898d051d23e` |
-| `contracts/traceability-contract.md` | `cb346c5e20b2dc9483b129a9f072a0d689c300254457b92b3bf9c1ce37608840` |
+| `contracts/traceability-contract.md` | `d015ea437be34f40a89b9f5e435f20924b860b0f6e8f3af847e432d1c3b58942` |
 
 ## Foundational quality gates
 
@@ -68,11 +68,11 @@ reemplazan la evidencia primaria.
 | AC-US5-HISTORIAL-016 | T083 | T103 | E2E | `tests/e2e/game.spec.ts` | `AC-US5-HISTORIAL-016 ignora intento en celda ocupada para Undo` | PENDING | PENDING | PENDING | PENDING |
 | AC-US5-HISTORIAL-017 | T064 | T065 | Domain | `src/domain/game.test.ts` | `AC-US5-HISTORIAL-017 no añade historial por intento en estado terminal` | PENDING | PENDING | PENDING | PENDING |
 | AC-US5-HISTORIAL-017 | T083 | T103 | E2E | `tests/e2e/game.spec.ts` | `AC-US5-HISTORIAL-017 ignora intento terminal para Undo` | PENDING | PENDING | PENDING | PENDING |
-| AC-US5-RESET-018 | T072 | T073 | Domain | `src/domain/game.test.ts` | `AC-US5-RESET-018 RESET deja nueve celdas vacías` | PENDING | PENDING | PENDING | PENDING |
+| AC-US5-RESET-018 | T070 | T071 | Domain | `src/domain/game.test.ts` | `AC-US5-RESET-018 RESET deja nueve celdas vacías` | PENDING | PENDING | PENDING | PENDING |
 | AC-US5-RESET-018 | T083 | T093 | E2E | `tests/e2e/game.spec.ts` | `AC-US5-RESET-018 reset deja tablero vacío en navegador` | PENDING | PENDING | PENDING | PENDING |
-| AC-US5-RESET-019 | T072 | T073 | Domain | `src/domain/game.test.ts` | `AC-US5-RESET-019 RESET restaura PLAYING_X` | PENDING | PENDING | PENDING | PENDING |
+| AC-US5-RESET-019 | T070 | T071 | Domain | `src/domain/game.test.ts` | `AC-US5-RESET-019 RESET restaura PLAYING_X` | PENDING | PENDING | PENDING | PENDING |
 | AC-US5-RESET-019 | T083 | T093 | E2E | `tests/e2e/game.spec.ts` | `AC-US5-RESET-019 reset restaura turno X en navegador` | PENDING | PENDING | PENDING | PENDING |
-| AC-US5-RESET-020 | T072 | T073 | Domain | `src/domain/game.test.ts` | `AC-US5-RESET-020 RESET elimina historial y deja canUndo falso` | PENDING | PENDING | PENDING | PENDING |
+| AC-US5-RESET-020 | T070 | T071 | Domain | `src/domain/game.test.ts` | `AC-US5-RESET-020 RESET elimina historial y deja canUndo falso` | PENDING | PENDING | PENDING | PENDING |
 | AC-US5-RESET-020 | T083 | T093 | E2E | `tests/e2e/game.spec.ts` | `AC-US5-RESET-020 reset impide recuperar la partida anterior` | PENDING | PENDING | PENDING | PENDING |
 | AC-US5-PUNTERO-021 | T078 | T079 | Component | `src/components/UndoButton.test.tsx` | `AC-US5-PUNTERO-021 una activación de puntero invoca onUndo una vez` | PENDING | PENDING | PENDING | PENDING |
 | AC-US5-PUNTERO-021 | T084 | T104 | Integration | `src/components/App.integration.test.tsx` | `AC-US5-PUNTERO-021 clic deshace una sola jugada` | PENDING | PENDING | PENDING | PENDING |
@@ -114,5 +114,8 @@ reemplazan la evidencia primaria.
 - El fan-out reparado completó interfaz y domain T064–T069; T070 nació verde porque duplicaba la
   obligación de T067. Este retorno explícito volvió a `Planned`; Analyze H y T119 reunieron
   repetición y límite vacío en un bloque RED cohesivo y restauraron `Implementing`.
+- Al reanudar, T070/T071 cerraron repetición y vacío, pero el RED RESET posterior nació verde
+  porque T065 y T071 ya lo satisfacían. Este retorno vuelve a `Planned` hasta Analyze I y T120;
+  RESET se incorpora al mismo bloque cohesivo y solo se reconstruyen los dos commits locales.
 - Los workers no editan este archivo; T097/T098 consolidan evidencia desde handoffs y git log.
 - `Release_Candidate` y `Verified` exigen cero `PENDING`.

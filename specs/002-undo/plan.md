@@ -266,8 +266,9 @@ comandos de frontera inequívocos.
 RED precede a GREEN y se conserva en commits separados. El contrato `contracts/traceability-contract.md` asigna los 34 AC a nombres de test concretos; cada test contiene literalmente su AC-ID.
 El bloque domain de repetición y límite vacío es cohesivo: las aserciones de repetición pueden quedar
 satisfechas por la restauración mínima anterior, pero el commit RED se conserva real porque el mismo
-bloque exige el guard observable `canUndo` aún ausente. Su GREEN cierra conjuntamente
-`AC-US5-HISTORIAL-010/011` y `AC-US5-UNWANTED-012/013/014` antes de continuar a RESET.
+bloque exige el guard observable `canUndo` aún ausente. El mismo RED incluye RESET porque
+`AC-US5-RESET-020` también depende de ese guard. Su GREEN cierra conjuntamente
+`AC-US5-HISTORIAL-010/011`, `AC-US5-UNWANTED-012/013/014` y `AC-US5-RESET-018/019/020`.
 
 | Nivel | Propietario | Alcance principal | Sensores |
 |---|---|---|---|

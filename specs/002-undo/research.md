@@ -277,3 +277,6 @@ de crear cada worktree; el enlace también es ignorado y no altera commits.
   rechazado porque esa implementación ya satisface ambas aserciones y el test nace verde. Repetición
   y límite vacío forman un bloque RED cohesivo; el guard `canUndo` ausente conserva el RED real sin
   degradar una implementación ya correcta.
+- Mantener RESET como un RED posterior a `canUndo`: rechazado porque `RESET` ya devuelve
+  `INITIAL_STATE` y T065 hizo vacío su historial; sus tres pruebas nacen verdes después de T071.
+  RESET se incorpora al RED cohesivo anterior, donde `AC-US5-RESET-020` falla por `canUndo` ausente.

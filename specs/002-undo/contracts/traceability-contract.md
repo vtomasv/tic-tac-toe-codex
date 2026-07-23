@@ -179,10 +179,10 @@ sentencia bajo `set -u`. El último bloque exige raíces escribibles explícitas
 la caché Vite, ignora el enlace local de dependencias y convierte `REQUEST_ORCHESTRATOR` en un exit
 no cero del runner.
 
-Para producto, `AC-US5-HISTORIAL-010/011` y `AC-US5-UNWANTED-012/013/014` comparten un único bloque
-RED domain: todas las pruebas se commitean antes del GREEN y el bloque falla por la ausencia
-observable de `canUndo`. No se exige que una aserción individual vuelva a fallar si ya quedó
-satisfecha por un GREEN anterior del mismo reducer.
+Para producto, `AC-US5-HISTORIAL-010/011`, `AC-US5-UNWANTED-012/013/014` y
+`AC-US5-RESET-018/019/020` comparten un único bloque RED domain: todas las pruebas se commitean
+antes del GREEN y el bloque falla por la ausencia observable de `canUndo`. No se exige que una
+aserción individual vuelva a fallar si ya quedó satisfecha por un GREEN anterior del mismo reducer.
 
 ## Ledger lifecycle and obligations
 
