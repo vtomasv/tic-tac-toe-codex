@@ -105,6 +105,8 @@ function featureFixture({
   const status = pending ? 'PENDING' : 'VERIFIED';
   return {
     slug: `${String(number).padStart(3, '0')}-${slug}`,
+    ac,
+    gate,
     spec: `- **${ac}** — **EARS: Event-driven**: Cuando ocurre A, el sistema DEBE mostrar A.\n`,
     tasks: [
       `- [ ] ${gateRed} [OWNER:orchestrator] [GATE:${gate}] [RED] Add gate test; Expected commit: \`test(tooling): ${gateRed} test gate [${gate}]\``,
@@ -262,8 +264,8 @@ test('GATE-MULTIFEATURE-001 accepts all lifecycle phases case-insensitively and 
   const fixtures = [
     featureFixture({ number: 1, slug: 'planned', phase: 'planned', start: 10 }),
     featureFixture({ number: 2, slug: 'implementing', phase: 'IMPLEMENTING', start: 20 }),
-    featureFixture({ number: 3, slug: 'candidate', phase: 'Release_Candidate', start: 30 }),
-    featureFixture({ number: 4, slug: 'verified', phase: 'Verified', start: 40 }),
+    featureFixture({ number: 3, slug: 'candidate', phase: 'Release_Candidate', start: 30, pending: false }),
+    featureFixture({ number: 4, slug: 'verified', phase: 'Verified', start: 40, pending: false }),
   ];
   const root = createRepository(t, fixtures);
   const accepted = captureCli(['--phase=tasks', `--root=${root}`]);
