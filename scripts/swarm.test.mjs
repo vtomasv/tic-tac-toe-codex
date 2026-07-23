@@ -17,6 +17,11 @@ const interfacePrompt = readFileSync(
   path.join(root, '.prompts', '10-speckit-implement-interfaz.md'),
   'utf8',
 );
+const e2ePrompt = readFileSync(
+  path.join(root, '.prompts', '11-speckit-implement-e2e.md'),
+  'utf8',
+);
+const e2eAgent = readFileSync(path.join(root, '.codex', 'agents', 'e2e.toml'), 'utf8');
 
 test('GATE-SWARM-001 resolves launch-parallel prompts from the versioned root', () => {
   assert.match(script, /PROMPT_ROOT="\$ROOT\/\.prompts"/);
@@ -138,6 +143,55 @@ test('GATE-SWARM-001 provides browser-capable E2E execution and propagates chang
     );
     if (result.status === 0) {
       problems.push('REQUEST_CHANGES must produce a non-zero exit');
+    }
+  } finally {
+    rmSync(logRoot, { recursive: true, force: true });
+  }
+
+  assert.deepEqual(problems, []);
+});
+
+test('GATE-SWARM-001 supports planned RED E2E resumes and Markdown change requests', () => {
+  const problems = [];
+  for (const source of [e2ePrompt, e2eAgent]) {
+    if (!source.includes('PASE INICIAL')) {
+      problems.push('E2E instructions must define the initial green-baseline pass');
+    }
+    if (!source.includes('REANUDACIÓN POST-RED')) {
+      problems.push('E2E instructions must define the committed planned-RED resume pass');
+    }
+    if (!source.includes('T080–T085')) {
+      problems.push('E2E resume must identify the planned RED block literally');
+    }
+    if (!source.includes('fallo ajeno')) {
+      problems.push('E2E resume must still stop for failures outside the planned RED block');
+    }
+  }
+
+  const functionSource = script.match(/reject_blocked_handoff\(\)\{[\s\S]*?\n\}/)?.[0];
+  assert.ok(functionSource, 'reject_blocked_handoff must exist');
+  const logRoot = mkdtempSync(path.join(tmpdir(), 'swarm-markdown-request-'));
+  try {
+    for (const marker of ['REQUEST_CHANGES', '`REQUEST_CHANGES`']) {
+      writeFileSync(path.join(logRoot, 'e2e.out'), `${marker}\n`);
+      const result = spawnSync(
+        'bash',
+        [
+          '-c',
+          [
+            'fail(){ exit 1; }',
+            'LOG_ROOT="$1"',
+            functionSource,
+            'reject_blocked_handoff e2e',
+          ].join('\n'),
+          'swarm-markdown-request-test',
+          logRoot,
+        ],
+        { encoding: 'utf8' },
+      );
+      if (result.status === 0) {
+        problems.push(`${marker} must produce a non-zero exit`);
+      }
     }
   } finally {
     rmSync(logRoot, { recursive: true, force: true });
