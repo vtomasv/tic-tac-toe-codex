@@ -1,6 +1,6 @@
 # Traceability Ledger: Feature 002 Undo
 
-**Phase**: Planned
+**Phase**: Implementing
 
 **Canonical criteria**: [spec.md](./spec.md)
 
@@ -112,7 +112,7 @@ reemplazan la evidencia primaria.
   común ni la caché de Vite; ambos devolvieron `REQUEST_ORCHESTRATOR` con exit `0`. Este retorno
   explícito volvió a `Planned`; Analyze G y T116/T117/T118 restauraron `Implementing`.
 - El fan-out reparado completó interfaz y domain T064–T069; T070 nació verde porque duplicaba la
-  obligación de T067. Este retorno explícito vuelve a `Planned` hasta Analyze H y T119, con
-  repetición y límite vacío reunidos en un bloque RED cohesivo.
+  obligación de T067. Este retorno explícito volvió a `Planned`; Analyze H y T119 reunieron
+  repetición y límite vacío en un bloque RED cohesivo y restauraron `Implementing`.
 - Los workers no editan este archivo; T097/T098 consolidan evidencia desde handoffs y git log.
 - `Release_Candidate` y `Verified` exigen cero `PENDING`.
