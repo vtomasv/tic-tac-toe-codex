@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -67,4 +69,34 @@ test('GATE-SWARM-001 grants linked worktree writes and propagates blocked handof
   assert.match(script, /REQUEST_ORCHESTRATOR/);
   assert.match(gitignore, /^node_modules$/m);
   assert.doesNotMatch(gitignore, /^node_modules\/$/m);
+});
+
+test('GATE-SWARM-001 preserves success for an unblocked handoff under errexit', () => {
+  const functionSource = script.match(/reject_blocked_handoff\(\)\{[\s\S]*?\n\}/)?.[0];
+  assert.ok(functionSource, 'reject_blocked_handoff must exist');
+
+  const logRoot = mkdtempSync(path.join(tmpdir(), 'swarm-handoff-'));
+  try {
+    writeFileSync(path.join(logRoot, 'domain.out'), 'READY_FOR_ORCHESTRATOR\n');
+    const result = spawnSync(
+      'bash',
+      [
+        '-c',
+        [
+          'set -e',
+          'fail(){ exit 1; }',
+          'LOG_ROOT="$1"',
+          functionSource,
+          'reject_blocked_handoff domain',
+        ].join('\n'),
+        'swarm-handoff-test',
+        logRoot,
+      ],
+      { encoding: 'utf8' },
+    );
+
+    assert.equal(result.status, 0, result.stderr);
+  } finally {
+    rmSync(logRoot, { recursive: true, force: true });
+  }
 });
