@@ -8,14 +8,15 @@
 
 Este ledger representa exclusivamente el pase bootstrap anterior a Analyze A. Contiene una fila
 canónica por cada uno de los 34 AC y una fila para `GATE-MULTIFEATURE-001`. Cada AC tiene exactamente
-un par RED/GREEN; no existe todavía evidencia suplementaria. Los campos de evidencia y commits
-permanecen `PENDING` porque ninguna implementación está autorizada.
+un par RED/GREEN; no existe todavía evidencia suplementaria. La fila del gate registra T062/T063
+completadas con evidencia y SHAs observados. Las filas de producto permanecen `PENDING` y no están
+autorizadas por este pase.
 
 ## Foundational Quality Gates
 
 | GATE-ID | RED task | GREEN task | Test file | RED evidence | Test commit | Implementation commit | Status |
 |---------|----------|------------|-----------|--------------|-------------|-----------------------|--------|
-| GATE-MULTIFEATURE-001 | T062 | T063 | `scripts/verify-traceability.test.mjs` | PENDING | PENDING | PENDING | PENDING |
+| GATE-MULTIFEATURE-001 | T062 | T063 | `scripts/verify-traceability.test.mjs` | `2026-07-22: node --test --test-name-pattern='GATE-MULTIFEATURE-001' scripts/verify-traceability.test.mjs -> exit 1; 11 tests failed because multi-feature lifecycle capabilities were absent` | 587accca01f3fc9675d72bd9262a3827ae29800d | 4035eaced59f8933a970b9c238c663bf677fc157 | VERIFIED |
 
 ## Canonical acceptance evidence
 
@@ -60,8 +61,7 @@ permanecen `PENDING` porque ninguna implementación está autorizada.
 
 - Analyze A valida esta estructura con `node scripts/verify-traceability.mjs --phase=tasks`.
 - Un Analyze A en GO autoriza solo `T062/T063`.
-- Después de integrar T063, el orquestador sustituye los `PENDING` de la fila del gate por evidencia y
-  SHAs reales.
+- T062/T063 ya están integradas y su fila contiene evidencia y SHAs reales.
 - El segundo pase preserva los pares canónicos, añade evidencia suplementaria con IDs nuevos y
   mantiene la fase `Planned` hasta Analyze B.
 - Ningún worker edita este archivo; solo el orquestador consolida evidencia observada.
