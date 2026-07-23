@@ -26,7 +26,9 @@ verify_baseline(){
 }
 
 mk_wt(){
-  local role="$1" branch="swarm/${FEATURE_SLUG}-${role}" path="$WT_ROOT/$role"
+  local role="$1"
+  local branch="swarm/${FEATURE_SLUG}-${role}"
+  local path="$WT_ROOT/$role"
   if git show-ref --verify --quiet "refs/heads/$branch"; then
     [[ -d "$path" ]] || git worktree add "$path" "$branch"
   else
