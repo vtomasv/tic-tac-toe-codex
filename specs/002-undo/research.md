@@ -245,15 +245,20 @@ familia.
 ## 17. Raíz única de prompts para el swarm
 
 **Decision**: `scripts/swarm.sh` usa `.prompts/` como raíz única y `GATE-SWARM-001`, implementado con
-un test Node sin dependencias, valida la ruta y la presencia de los prompts domain e interfaz antes
-del fan-out.
+tests Node sin dependencias, valida la ruta, la presencia de prompts, el acceso de cada worktree al
+`node_modules` raíz ya validado y los comandos explícitos de frontera domain/interfaz antes del
+fan-out.
 
 **Rationale**: Los prompts existentes están versionados bajo `.prompts/`. Una ruta distinta permite
 que baseline y `prepare` pasen, pero hace fallar `launch-parallel` después de crear worktrees. El
-preflight aislado detecta esa divergencia sin lanzar Codex ni crear estado externo.
+preflight aislado detecta esa divergencia sin lanzar Codex ni crear estado externo. Los worktrees
+Git no copian directorios ignorados, por lo que el runner enlaza localmente `node_modules` después
+de crear cada worktree; el enlace también es ignorado y no altera commits.
 
 **Alternatives considered**:
 
 - Copiar los prompts a `prompts/`: rechazado porque duplicaría fuentes y permitiría divergencia.
 - Detectar ambas rutas con fallback: rechazado porque ocultaría una configuración incoherente.
 - Descubrir el fallo durante `launch-parallel`: rechazado porque ocurre después de mutar worktrees.
+- Ejecutar `npm ci` dos veces en paralelo: rechazado porque duplica I/O y acceso de red después de
+  que la raíz ya pasó el baseline con el lockfile vigente.

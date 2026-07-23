@@ -208,12 +208,17 @@ inventa ni reconstruye retrospectivamente el mapeo.
   `.prompts/10-speckit-implement-interfaz.md`;
 - RED debe fallar por la ruta legacy `prompts/`, antes de modificar el runner;
 - GREEN cambia únicamente la resolución de ruta y el texto de ayuda asociado;
+- un segundo par RED/GREEN exige que cada worktree tenga acceso explícito al `node_modules` ya
+  validado en la raíz, mediante un enlace local no versionado, antes de invocar Codex;
+- ese segundo par exige que los prompts domain/interfaz nombren el gate estructural y una auditoría
+  de diff limitada a su ownership, en vez de referirse a un “gate de frontera” inexistente;
 - el gate queda verde y con SHAs reales antes de cambiar el ledger a `IMPLEMENTING`;
 - `launch-parallel` conserva sus comprobaciones de rama, árbol limpio y baseline completo antes de
   crear worktrees o invocar Codex.
 
-El test del gate no lanza agentes ni crea worktrees. Su única responsabilidad es demostrar que el
-runner localiza de forma determinista los prompts que ya pertenecen al repositorio.
+Los tests del gate no lanzan agentes ni crean worktrees. Demuestran estáticamente que el runner
+localiza prompts versionados, prepara resolución de dependencias para cada rol y entrega comandos de
+frontera inequívocos.
 
 ### Descubrimiento
 

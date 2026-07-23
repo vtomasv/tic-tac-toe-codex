@@ -17,6 +17,7 @@ evidencia suplementaria y vuelve a Analyze antes del fan-out.
 - `T063` queda reservado para GREEN de `GATE-MULTIFEATURE-001`.
 - `T088/T089` completan el modelo multi-familia del mismo gate.
 - `T090/T091` quedan reservados para RED/GREEN de `GATE-SWARM-001`.
+- `T105/T106` completan el mismo gate con dependencias y frontera explícita de workers.
 - Tasks asignará IDs consecutivos desde `T064` al trabajo de producto, sin reutilizar IDs de feature 001.
 - Ningún AC, GATE o Task ID puede redefinirse en otra feature.
 
@@ -166,8 +167,8 @@ Los tests `GATE-MULTIFEATURE-001` cubren como mínimo:
 No se añaden dependencias: se reutiliza `node:test`, archivos temporales y las funciones exportadas del verificador.
 
 Los tests `GATE-SWARM-001` cubren la raíz canónica `.prompts/`, la presencia de los prompts domain
-e interfaz consumidos por `launch-parallel` y la ausencia de fallback a una raíz paralela. El gate
-no lanza agentes ni crea worktrees.
+e interfaz, el enlace local de `node_modules` para domain/interfaz/e2e y comandos explícitos de
+trazabilidad/ownership en los prompts paralelos. El gate no lanza agentes ni crea worktrees.
 
 ## Ledger lifecycle and obligations
 

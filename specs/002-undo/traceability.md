@@ -1,6 +1,6 @@
 # Traceability Ledger: Feature 002 Undo
 
-**Phase**: Implementing
+**Phase**: Planned
 
 **Canonical criteria**: [spec.md](./spec.md)
 
@@ -15,7 +15,7 @@ amplió con `GATE-SWARM-001`. Dominio y UI no cambiaron.
 |---|---|
 | `contracts/domain-contract.md` | `d148f79d15827834867de57c86c4c545906194a6f2225e3d18de01200a3046e8` |
 | `contracts/ui-contract.md` | `58307ec5492446d4669dcb6b187b7a30988a61f09bd7f5c41ea47898d051d23e` |
-| `contracts/traceability-contract.md` | `9bf7992e5961490e37d51175653c083dd940f311e272f2bcd056786ab2a6dd05` |
+| `contracts/traceability-contract.md` | `a650fe29bd5f90e1a07d89fb1270df3358887a317a1c2771d9662629cebcd293` |
 
 ## Foundational quality gates
 
@@ -24,6 +24,7 @@ amplió con `GATE-SWARM-001`. Dominio y UI no cambiaron.
 | GATE-MULTIFEATURE-001 | T062 | T063 | `scripts/verify-traceability.test.mjs` | `2026-07-22 exit 1; 11 tests failed because lifecycle aggregation was absent` | 587accca01f3fc9675d72bd9262a3827ae29800d | 4035eaced59f8933a970b9c238c663bf677fc157 | VERIFIED |
 | GATE-MULTIFEATURE-001 | T088 | T089 | `scripts/verify-traceability.test.mjs` | `2026-07-23 exit 1; T005 reported unrelated RED T004` | e17b047b47effcd44d1970dc7398e36a825ab5aa | 652c7d1d694961b1da55ed1914a96280cdf7a340 | VERIFIED |
 | GATE-SWARM-001 | T090 | T091 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; PROMPT_ROOT did not match the versioned .prompts root` | f113f2a388990246e55762b77fcf5bb85f8a2dd6 | fd3ba03d65f24a9d026dfb864a0de468ec1fd827 | VERIFIED |
+| GATE-SWARM-001 | T105 | T106 | `scripts/swarm.test.mjs` | PENDING | PENDING | PENDING | PENDING |
 
 ## Acceptance evidence
 
@@ -95,8 +96,9 @@ reemplazan la evidencia primaria.
 
 ## Update policy
 
-- Analyze C concluyó GO sin CRITICAL/HIGH sobre el ledger `Planned`.
-- T090/T091 están integradas con RED/GREEN real.
-- T092 cambió a `Implementing` y revalidó los hashes congelados antes del baseline y `prepare`.
+- Analyze C concluyó GO sin CRITICAL/HIGH y T090/T091/T092 quedaron integradas.
+- El preflight posterior detectó que los worktrees no heredan `node_modules`; este retorno explícito
+  a Plan/Tasks conserva T092 como evidencia histórica y vuelve temporalmente a `Planned`.
+- Analyze D debe dar GO antes de T105/T106; T109 restaura `Implementing`.
 - Los workers no editan este archivo; T097/T098 consolidan evidencia desde handoffs y git log.
 - `Release_Candidate` y `Verified` exigen cero `PENDING`.
