@@ -86,6 +86,7 @@ reemplazan la evidencia primaria.
 | AC-US5-FOCO-025 | T078 | T079 | Component | `src/components/UndoButton.test.tsx` | `AC-US5-FOCO-025 conserva el mismo botón enfocado tras activación y rerender` | `2026-07-23 exit 1; Enter and Space paths failed` | fcc105723f64d9bf098fa2ced714912ca764e69f | 5da0ae858ab27dba2430ca0a2859d7f098fa513f | VERIFIED |
 | AC-US5-FOCO-025 | T084 | T094 | Integration | `src/components/App.integration.test.tsx` | `AC-US5-FOCO-025 mantiene foco en Deshacer jugada después de Undo` | PENDING | PENDING | PENDING | PENDING |
 | AC-US5-FOCO-026 | T080 | T086 | Integration | `src/components/App.integration.test.tsx` | `AC-US5-FOCO-026 ordena nueve celdas Undo y Reiniciar en la secuencia de foco` | PENDING | PENDING | PENDING | PENDING |
+| AC-US5-FOCO-026 | T127 | T086 | Component compatibility | `src/components/Board.test.tsx` | `AC-US4-TECLADO-005 AC-US5-FOCO-026 ordena nueve celdas Deshacer jugada y reinicio` | PENDING | PENDING | PENDING | PENDING |
 | AC-US5-FOCO-027 | T085 | T101 | E2E | `tests/e2e/game.spec.ts` | `AC-US5-FOCO-027 muestra contorno continuo al enfocar Deshacer jugada` | PENDING | PENDING | PENDING | PENDING |
 | AC-US5-A11Y-028 | T076 | T077 | Component | `src/components/UndoButton.test.tsx` | `AC-US5-A11Y-028 tiene nombre visible y accesible exacto Deshacer jugada` | `2026-07-23 exit 1; UndoButton module was absent` | a414055a345575f5a9b2b7ae2694185675722b73 | 47aaae9cfbb5d35110251d25c590b40240931374 | VERIFIED |
 | AC-US5-A11Y-028 | T084 | T094 | Integration | `src/components/App.integration.test.tsx` | `AC-US5-A11Y-028 conserva nombre exacto en App` | PENDING | PENDING | PENDING | PENDING |
@@ -123,5 +124,9 @@ reemplazan la evidencia primaria.
   `workspace-write` y el runner aceptó `REQUEST_CHANGES` con exit `0`; T124/T125 repararon el
   entorno E2E y la propagación. Analyze J dio GO y T126 autorizó reanudar desde T082 conservando
   ambos commits RED, sin tocar contratos ni código de producto.
+- El segundo `launch-e2e` completó T082–T085 y detectó durante el GREEN T086 que los fixtures
+  legacy de `Board.test.tsx` omitían `history` y conservaban el orden de foco anterior. El worker
+  revirtió su ensayo de App y devolvió `REQUEST_CHANGES`; T127 asigna el RED compatible a interfaz
+  y T086 permanece como GREEN posterior en la rama e2e.
 - Los workers no editan este archivo; T097/T098 consolidan evidencia desde handoffs y git log.
 - `Release_Candidate` y `Verified` exigen cero `PENDING`.

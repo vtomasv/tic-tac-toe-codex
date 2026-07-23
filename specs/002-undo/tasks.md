@@ -117,10 +117,11 @@ ejecuta component/build/baseline. E2E no nace antes de ambos merges verdes.
 - [ ] T083 [US5] [OWNER:e2e] [AC:AC-US5-HISTORIAL-015,AC-US5-HISTORIAL-016,AC-US5-HISTORIAL-017,AC-US5-RESET-018,AC-US5-RESET-019,AC-US5-RESET-020] [RED] Añadir en `tests/e2e/game.spec.ts` tests literales para punto de historial legal, intentos rechazados y reset irreversible de tablero/status/historial; comando `npm run test:e2e -- --grep='AC-US5-(HISTORIAL-01[5-7]|RESET-0(18|19|20))'`; evidencia `.swarm/handoffs/e2e/T083.md`; Expected commit: `test(US5): T083 prove legal history and irreversible reset flows [AC-US5-HISTORIAL-015 AC-US5-HISTORIAL-016 AC-US5-HISTORIAL-017 AC-US5-RESET-018 AC-US5-RESET-019 AC-US5-RESET-020]`
 - [ ] T084 [US5] [OWNER:e2e] [AC:AC-US5-PUNTERO-021,AC-US5-PUNTERO-022,AC-US5-TECLADO-023,AC-US5-TECLADO-024,AC-US5-FOCO-025,AC-US5-A11Y-028,AC-US5-A11Y-029,AC-US5-A11Y-030,AC-US5-A11Y-031] [RED] Añadir en `src/components/App.integration.test.tsx` y `tests/e2e/game.spec.ts` tests literales para clic/toque/Enter/Espacio, permanencia de foco, nombre exacto, anuncios exactos X/O y ausencia de anuncio falso; comandos `npm run test:component -- --testNamePattern='AC-US5-(PUNTERO-021|TECLADO-02[3-4]|FOCO-025|A11Y-0(28|29|30|31))'` y `npm run test:e2e -- --grep='AC-US5-PUNTERO-022'`; evidencia `.swarm/handoffs/e2e/T084.md`; Expected commit: `test(US5): T084 prove composed input focus and announcements [AC-US5-PUNTERO-021 AC-US5-PUNTERO-022 AC-US5-TECLADO-023 AC-US5-TECLADO-024 AC-US5-FOCO-025 AC-US5-A11Y-028 AC-US5-A11Y-029 AC-US5-A11Y-030 AC-US5-A11Y-031]`
 - [ ] T085 [US5] [OWNER:e2e] [AC:AC-US5-FOCO-027,AC-US5-RESPONSIVE-032,AC-US5-RESPONSIVE-033,AC-US5-VISUAL-034] [RED] Añadir en `tests/e2e/game.spec.ts` tests literales para foco visible, señal textual no cromática, 320/768/1280/1920 px y zoom 200 %; comando `npm run test:e2e -- --grep='AC-US5-(FOCO-027|RESPONSIVE-03[2-3]|VISUAL-034)'`; evidencia `.swarm/handoffs/e2e/T085.md`; Expected commit: `test(US5): T085 prove focus responsive and non-color boundaries [AC-US5-FOCO-027 AC-US5-RESPONSIVE-032 AC-US5-RESPONSIVE-033 AC-US5-VISUAL-034]`
+- [ ] T127 [US5] [OWNER:interfaz] [AC:AC-US5-FOCO-026] [RED] En `src/components/Board.test.tsx`, migrar todos los fixtures `App.initialState` a estados explícitos con `history: []` y ampliar el nombre/aserción de `AC-US4-TECLADO-005` con el literal `AC-US5-FOCO-026` para exigir nueve celdas→Deshacer jugada→Reiniciar partida; comando `npm run test:component -- --testNamePattern='AC-US(4-TECLADO-005|5-FOCO-026)'`, exigir RED solo por la composición Undo todavía ausente y registrar `.swarm/handoffs/interfaz/T127.md`; Expected commit: `test(US5): T127 migrate legacy App fixtures for Undo order [AC-US5-FOCO-026]`
 
 ### GREEN granulares posteriores a todas las RED
 
-- [ ] T086 [US5] [OWNER:e2e] [AC:AC-US5-INTERACCION-001,AC-US5-INTERACCION-002,AC-US5-DISPONIBILIDAD-003,AC-US5-DISPONIBILIDAD-004,AC-US5-FOCO-026] [GREEN] Integrar `UndoButton` en `src/App.tsx` después del tablero y antes de Reset, con `available={canUndo(state)}` y orden DOM estable; comandos `npm run test:component -- --testNamePattern='AC-US5-(INTERACCION-00[1-2]|DISPONIBILIDAD-00[3-4]|FOCO-026)'` y `npm run test:component`; evidencia `.swarm/handoffs/e2e/T086.md`; Expected commit: `feat(US5): T086 compose Undo shell availability and order [AC-US5-INTERACCION-001 AC-US5-INTERACCION-002 AC-US5-DISPONIBILIDAD-003 AC-US5-DISPONIBILIDAD-004 AC-US5-FOCO-026]`
+- [ ] T086 [US5] [OWNER:e2e] [AC:AC-US5-INTERACCION-001,AC-US5-INTERACCION-002,AC-US5-DISPONIBILIDAD-003,AC-US5-DISPONIBILIDAD-004,AC-US5-FOCO-026] [GREEN] Después de incorporar el commit RED T127 de interfaz, integrar `UndoButton` en `src/App.tsx` después del tablero y antes de Reset, con `available={canUndo(state)}` y orden DOM estable; comandos `npm run test:component -- --testNamePattern='AC-US5-(INTERACCION-00[1-2]|DISPONIBILIDAD-00[3-4]|FOCO-026)'` y `npm run test:component`; evidencia `.swarm/handoffs/e2e/T086.md`; Expected commit: `feat(US5): T086 compose Undo shell availability and order [AC-US5-INTERACCION-001 AC-US5-INTERACCION-002 AC-US5-DISPONIBILIDAD-003 AC-US5-DISPONIBILIDAD-004 AC-US5-FOCO-026]`
 - [ ] T087 [US5] [OWNER:e2e] [AC:AC-US5-DOMINIO-005,AC-US5-ESTADO-006,AC-US5-ESTADO-007,AC-US5-DOMINIO-008] [GREEN] Conectar en `src/App.tsx` un único callback `dispatch({type:'UNDO'})` y restaurar tablero/status exclusivamente mediante el dominio; comandos `npm run test:component -- --testNamePattern='AC-US5-(DOMINIO-(005|008)|ESTADO-00[6-7])'` y `npm run test:component`; evidencia `.swarm/handoffs/e2e/T087.md`; Expected commit: `feat(US5): T087 connect exact Undo restoration [AC-US5-DOMINIO-005 AC-US5-ESTADO-006 AC-US5-ESTADO-007 AC-US5-DOMINIO-008]`
 - [ ] T103 [US5] [OWNER:e2e] [AC:AC-US5-UNWANTED-012,AC-US5-UNWANTED-013,AC-US5-UNWANTED-014,AC-US5-HISTORIAL-015,AC-US5-HISTORIAL-016,AC-US5-HISTORIAL-017] [GREEN] Conservar en `src/App.tsx` la disponibilidad derivada de `canUndo(state)` sin deducir historial, cubriendo jugadas legales, intentos rechazados y no-op vacío; comandos `npm run test:e2e -- --grep='AC-US5-(UNWANTED-01[2-4]|HISTORIAL-01[5-7])'` y `npm run test:e2e`; evidencia `.swarm/handoffs/e2e/T103.md`; Expected commit: `feat(US5): T103 compose legal and empty history boundaries [AC-US5-UNWANTED-012 AC-US5-UNWANTED-013 AC-US5-UNWANTED-014 AC-US5-HISTORIAL-015 AC-US5-HISTORIAL-016 AC-US5-HISTORIAL-017]`
 - [ ] T104 [US5] [OWNER:e2e] [AC:AC-US5-PUNTERO-021,AC-US5-PUNTERO-022,AC-US5-TECLADO-023,AC-US5-TECLADO-024] [GREEN] Usar el mismo callback nativo de `UndoButton` en `src/App.tsx` para clic, toque, Enter y Espacio sin listeners alternativos; comandos `npm run test:component -- --testNamePattern='AC-US5-(PUNTERO-021|TECLADO-02[3-4])'`, `npm run test:e2e -- --grep='AC-US5-PUNTERO-022'` y suites component/E2E; evidencia `.swarm/handoffs/e2e/T104.md`; Expected commit: `feat(US5): T104 compose native Undo input paths [AC-US5-PUNTERO-021 AC-US5-PUNTERO-022 AC-US5-TECLADO-023 AC-US5-TECLADO-024]`
@@ -158,6 +159,8 @@ T088 → T089 → Tasks ampliadas → Analyze C → T090 → T091 → T092
                                   ↓
                        e2e RED T080–T085
                                   ↓
+                interfaz RED T127 → merge en rama e2e
+                                  ↓
                     e2e GREEN T086,T087,T103,T104,T093,T094,T101
                                   ↓
                         T098 → T099 → T100 → T102
@@ -167,6 +170,8 @@ T088 → T089 → Tasks ampliadas → Analyze C → T090 → T091 → T092
   desde la misma base; dentro de cada track las tareas son secuenciales porque comparten archivos.
 - `e2e` depende explícitamente de ambos merges; si detecta un defecto ajeno, registra hallazgo y
   devuelve el trabajo al owner.
+- T127 es un handoff RED de compatibilidad bajo ownership interfaz: el orquestador lo incorpora
+  directamente en la rama e2e, sin dejar rojo el árbol principal; T086 es su GREEN de composición.
 - Ningún worker toca `tasks.md` o `traceability.md`; T097/T098 consolidan desde la sesión principal.
 
 ## Coverage audit
@@ -198,7 +203,7 @@ T088 → T089 → Tasks ampliadas → Analyze C → T090 → T091 → T092
 | AC-US5-TECLADO-023 | T078, T084 | T079, T104 | componente/integración Enter | interfaz/e2e |
 | AC-US5-TECLADO-024 | T078, T084 | T079, T104 | componente/integración Espacio | interfaz/e2e |
 | AC-US5-FOCO-025 | T078, T084 | T079, T094 | componente/integración foco | interfaz/e2e |
-| AC-US5-FOCO-026 | T080 | T086 | integración orden de foco | e2e |
+| AC-US5-FOCO-026 | T080, T127 | T086 | integración y fixture legacy del orden de foco | interfaz/e2e |
 | AC-US5-FOCO-027 | T085 | T101 | E2E contorno | e2e |
 | AC-US5-A11Y-028 | T076, T084 | T077, T094 | componente/integración nombre | interfaz/e2e |
 | AC-US5-A11Y-029 | T095, T084 | T096, T094 | GameStatus/integración anuncio X | interfaz/e2e |
