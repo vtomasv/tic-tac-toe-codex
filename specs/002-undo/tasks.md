@@ -1,307 +1,203 @@
-# Tasks: Deshacer la última jugada — reparación del gate previo al pase ampliado
+# Tasks: Deshacer la última jugada — pase ampliado ejecutable
 
-**Input**: Artefactos de diseño de `specs/002-undo/`
+**Input**: `specs/002-undo/spec.md`, plan, research, data-model, quickstart y contratos congelados.
 
-**Prerequisites**: `spec.md`, `plan.md`, `research.md`, `data-model.md`,
-`contracts/domain-contract.md`, `contracts/ui-contract.md`,
-`contracts/traceability-contract.md` y `quickstart.md`
+**Lifecycle**: `PLANNED` hasta que Analyze C dé GO y se completen los gates fundacionales.
 
-**Lifecycle**: `PLANNED` — pase de reparación compatible con el verificador vigente.
+**Global numbering**: Se preservan `T062–T089`; los nuevos IDs continúan en `T090+`. El orden de
+ejecución se define por fases y dependencias, no por orden numérico, porque `T064–T087` ya estaban
+reservados antes del pase ampliado.
 
-**Scope guard**: Los pares canónicos de producto `T064–T087` continúan reservados. El preflight del
-pase ampliado detectó que T063 no representa todavía varias familias RED no relacionadas abiertas
-antes de GREEN granulares, como exige el plan. Analyze B puede autorizar exclusivamente `T088/T089`
-para completar `GATE-MULTIFEATURE-001`. Ninguna task de producto puede ejecutarse ni abrir un
-worktree antes de integrar T089, regenerar el pase ampliado, obtener Analyze C en GO y confirmar el
-baseline verde.
+**Ownership**: `orchestrator` escribe SDD, scripts, configuración raíz y merges; `domain` solo
+`src/domain/**`; `interfaz` solo los archivos asignados bajo `src/components/**`; `e2e` solo
+`src/App.tsx`, `src/components/App.integration.test.tsx`, `tests/e2e/**` y `src/styles.css`;
+`reviewer` es read-only. Los workers registran evidencia en `.swarm/handoffs/<rol>/` y nunca editan
+SDD, scripts, package/lockfiles ni archivos de otro owner.
 
-**Tests**: Todo nombre de test indicado contiene literalmente su AC-ID o GATE-ID. Cada RED debe
-ejecutarse y registrar fallo por comportamiento ausente antes de su GREEN.
+**TDD**: Cada nombre de test contiene literalmente su AC-ID o GATE-ID. Cada RED se confirma y
+commitea antes de su GREEN. En integración, todo el bloque RED precede a cualquier cambio de App o
+estilos.
 
-**Ownership**: `orchestrator` escribe tooling y SDD; `domain` solo `src/domain/**`; `interfaz` solo
-`src/components/**` salvo integración de App; `e2e` solo `src/App.tsx`,
-`src/components/App.integration.test.tsx`, `tests/e2e/**` y `src/styles.css`. Ningún worker modifica
-`specs/**`, scripts, configuración raíz, package files o lockfiles.
+## Phase 1: Setup y gates fundacionales — `OWNER:orchestrator`
 
-## Phase 1: Bootstrap SDD
+Las tareas completadas conservan evidencia y SHAs reales. Analyze C debe dar GO antes de ejecutar
+`T090`; ningún worktree de producto se crea durante esta fase.
 
-**Purpose**: Declarar el grafo canónico y el ledger `Planned` que Analyze A puede inspeccionar.
+- [x] T062 [OWNER:orchestrator] [GATE:GATE-MULTIFEATURE-001] [RED] Añadir en `scripts/verify-traceability.test.mjs` tests literales `GATE-MULTIFEATURE-001` para descubrimiento de tripletas, validación por feature, duplicados globales, unión con git log, fases, evidencia suplementaria, errores deterministas y exit code binario; comando filtrado `node --test --test-name-pattern='GATE-MULTIFEATURE-001' scripts/verify-traceability.test.mjs`; evidencia `.swarm/handoffs/orchestrator/T062.md`; Expected commit: `test(tooling): T062 define multi-feature lifecycle gate [GATE-MULTIFEATURE-001]`
+- [x] T063 [OWNER:orchestrator] [GATE:GATE-MULTIFEATURE-001] [GREEN] Implementar en `scripts/verify-traceability.mjs` descubrimiento y agregación multi-feature, ciclo del ledger, unicidad global y validación de evidencia; comandos `node --test scripts/verify-traceability.test.mjs`, `node scripts/verify-traceability.mjs --phase=tasks` y `npm run verify:traceability`; evidencia `.swarm/handoffs/orchestrator/T063.md`; Expected commit: `feat(tooling): T063 implement multi-feature lifecycle gate [GATE-MULTIFEATURE-001]`
+- [x] T088 [OWNER:orchestrator] [GATE:GATE-MULTIFEATURE-001] [RED] Añadir en `scripts/verify-traceability.test.mjs` `GATE-MULTIFEATURE-001 accepts cohesive multi-family RED blocks before granular GREEN` y conservar el test legacy de RED ajeno; comando `node --test --test-name-pattern='GATE-MULTIFEATURE-001.*multi-family|GATE-TRACEABILITY-001.*unrelated RED' scripts/verify-traceability.test.mjs`; evidencia `.swarm/handoffs/orchestrator/T088.md`; Expected commit: `test(tooling): T088 define cohesive multi-family TDD blocks [GATE-MULTIFEATURE-001]`
+- [x] T089 [OWNER:orchestrator] [GATE:GATE-MULTIFEATURE-001] [GREEN] Ajustar `validateCohesiveBlocks` en `scripts/verify-traceability.mjs` para seguir enlaces RED→GREEN cuando existe fase declarada y preservar la regla legacy sin fase; comandos `node --test scripts/verify-traceability.test.mjs`, `node scripts/verify-traceability.mjs --phase=tasks` y `npm run verify:traceability`; evidencia `.swarm/handoffs/orchestrator/T089.md`; Expected commit: `fix(tooling): T089 support cohesive multi-family TDD blocks [GATE-MULTIFEATURE-001]`
+- [ ] T090 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [RED] Crear `scripts/swarm.test.mjs` con tests cuyo nombre contiene `GATE-SWARM-001` para exigir `PROMPT_ROOT="$ROOT/.prompts"`, la presencia de `.prompts/09-speckit-implement-domain.md` y `.prompts/10-speckit-implement-interfaz.md`, y ausencia de fallback a `prompts/`; ejecutar `node --test --test-name-pattern='GATE-SWARM-001' scripts/swarm.test.mjs`, exigir RED por la ruta legacy y registrar `.swarm/handoffs/orchestrator/T090.md`; Expected commit: `test(tooling): T090 define versioned swarm prompt preflight [GATE-SWARM-001]`
+- [ ] T091 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [GREEN] Cambiar solo la raíz de prompts y la ayuda asociada en `scripts/swarm.sh` para usar `.prompts/`; ejecutar `node --test scripts/swarm.test.mjs`, `bash -n scripts/swarm.sh`, `node scripts/verify-traceability.mjs --phase=tasks` y `npm run verify:traceability`, registrar `.swarm/handoffs/orchestrator/T091.md`; Expected commit: `fix(tooling): T091 resolve versioned swarm prompts [GATE-SWARM-001]`
 
-Esta invocación crea `tasks.md` y `traceability.md`; no genera una task de implementación para
-autorregistrar esos artefactos. La validación estructural obligatoria al cierre de esta fase es:
+**Checkpoint**: Ambos gates están GREEN, feature 001 y 002 pasan juntas y los contratos conservan
+sus hashes congelados.
 
-```bash
-node scripts/verify-traceability.mjs --phase=tasks
-```
+## Phase 2: Contratos congelados y entrada a implementación — `OWNER:orchestrator`
 
-**Checkpoint**: 34 AC con un único par canónico, una fila de gate, cero evidencia suplementaria y
-cero IDs globales duplicados.
+- [ ] T092 [OWNER:orchestrator] [GREEN] Revalidar con `shasum -a 256` los contratos `specs/002-undo/contracts/domain-contract.md`, `ui-contract.md` y `traceability-contract.md`, cambiar exclusivamente `**Phase**` a `Implementing` en `specs/002-undo/traceability.md`, marcar T090–T092 completadas en `specs/002-undo/tasks.md`, registrar los SHAs reales de ambos gates y ejecutar `node scripts/verify-traceability.mjs --phase=tasks`; evidencia `.swarm/handoffs/orchestrator/T092.md`; Expected commit: `docs(traceability): T092 enter implementing lifecycle`
 
----
-
-## Phase 2: Foundational gate — `GATE-MULTIFEATURE-001`
-
-**Purpose**: Implementar, después de Analyze A en GO, el modelo multi-feature y de ciclo de vida que
-habilita el segundo pase Tasks.
-
-**Blocking rule**: Solo estas dos tasks quedan autorizadas por Analyze A. `T063` debe estar verde
-antes de regenerar Tasks; no se crean worktrees de producto.
-
-- [x] T062 [OWNER:orchestrator] [GATE:GATE-MULTIFEATURE-001] [RED] Añadir tests con nombre literal `GATE-MULTIFEATURE-001` en `scripts/verify-traceability.test.mjs` para descubrimiento de todas las tripletas `spec.md`/`tasks.md`/`traceability.md`, validación por feature, duplicados globales AC/GATE/Task, unión de tasks contra `git log`, features parciales, orden determinista, exit code binario, fases `Planned`/`Implementing`/`Release_Candidate`/`Verified` y evidencia suplementaria; ejecutar `node --test --test-name-pattern='GATE-MULTIFEATURE-001' scripts/verify-traceability.test.mjs`, exigir RED por capacidades ausentes y registrar salida en `.swarm/handoffs/orchestrator/T062.md`; Expected commit: `test(tooling): T062 define multi-feature lifecycle gate [GATE-MULTIFEATURE-001]`
-- [x] T063 [OWNER:orchestrator] [GATE:GATE-MULTIFEATURE-001] [GREEN] Extender `scripts/verify-traceability.mjs` para descubrir y validar cada feature, normalizar fases, agregar IDs y tasks globalmente, aplicar evidencia final según ciclo de vida, representar varios pares RED/GREEN por AC y emitir diagnósticos deterministas con exit code `0`/`1`; ejecutar `node --test scripts/verify-traceability.test.mjs`, `node scripts/verify-traceability.mjs --phase=tasks` y `npm run verify:traceability`, exigir GREEN y registrar salida en `.swarm/handoffs/orchestrator/T063.md`; Expected commit: `feat(tooling): T063 implement multi-feature lifecycle gate [GATE-MULTIFEATURE-001]`
-
-**Checkpoint**: Después de T063, el orquestador completa la fila del gate con SHAs reales, regenera
-Tasks/ledger mediante el pase ampliado y repite Analyze. No ejecuta T064 todavía.
-
----
-
-## Phase 2B: Foundational gate repair — cohesive multi-family TDD
-
-**Purpose**: Completar el modelo prometido por T063 para que el pase ampliado pueda declarar varias
-familias RED consecutivas antes de GREEN granulares sin relajar el rechazo legacy de un RED ajeno no
-declarado como parte del bloque.
-
-**Blocking rule**: Solo `T088/T089` pueden ejecutarse después de Analyze B en GO limitado. T089 debe
-estar verde antes de regenerar el pase ampliado; no se crean worktrees de producto.
-
-- [ ] T088 [OWNER:orchestrator] [GATE:GATE-MULTIFEATURE-001] [RED] Añadir en `scripts/verify-traceability.test.mjs` tests con nombre literal `GATE-MULTIFEATURE-001` que demuestren que un ledger con fase declarada acepta familias RED consecutivas enlazadas por sus filas a GREEN granulares posteriores, conserva el orden RED→GREEN de cada par y mantiene el rechazo legacy de un RED ajeno sin modelo de ciclo de vida; ejecutar `node --test --test-name-pattern='GATE-MULTIFEATURE-001.*multi-family|GATE-TRACEABILITY-001.*unrelated RED' scripts/verify-traceability.test.mjs`, exigir RED por el diagnóstico `unrelated RED block is open` y registrar salida en `.swarm/handoffs/orchestrator/T088.md`; Expected commit: `test(tooling): T088 define cohesive multi-family TDD blocks [GATE-MULTIFEATURE-001]`
-- [ ] T089 [OWNER:orchestrator] [GATE:GATE-MULTIFEATURE-001] [GREEN] Ajustar `validateCohesiveBlocks` en `scripts/verify-traceability.mjs` para usar los enlaces RED→GREEN del ledger con fase declarada, permitir que cada RED permanezca abierto hasta completar todas sus GREEN vinculadas y conservar la regla legacy cuando la fase no está declarada; ejecutar `node --test scripts/verify-traceability.test.mjs`, `node scripts/verify-traceability.mjs --phase=tasks` y `npm run verify:traceability`, exigir GREEN y registrar salida en `.swarm/handoffs/orchestrator/T089.md`; Expected commit: `fix(tooling): T089 support cohesive multi-family TDD blocks [GATE-MULTIFEATURE-001]`
-
-**Checkpoint**: Después de T089, el orquestador completa la segunda fila del gate con SHAs reales,
-regenera Tasks/ledger con toda la evidencia suplementaria y ejecuta Analyze C. No ejecuta T064.
-
----
-
-## Phase 3: US-005 — Pares canónicos reservados (Priority: P1) 🎯 MVP
-
-**Goal**: Añadir “Deshacer jugada” con dominio puro, control accesible, composición real y
-compatibilidad con los 42 AC previos.
-
-**Independent Test**: Desde cada estado canónico, comprobar tablero y estado por separado, consumir
-una jugada por activación hasta vacío, rechazar Undo vacío, eliminar historial con RESET, operar por
-puntero/teclado, conservar foco/anuncios exactos y mantener responsive entre 320–1920 px y al 200 %.
-
-**Bootstrap restriction**: Los pares siguientes son la evidencia primaria mínima y permanecen
-reservados hasta que T089 permita insertar la evidencia suplementaria y Analyze C dé GO.
-
-### Domain track — `OWNER:domain`
-
-#### Historial creado solo por jugadas legales
-
-- [ ] T064 [US5] [OWNER:domain] [AC:AC-US5-HISTORIAL-015,AC-US5-HISTORIAL-016,AC-US5-HISTORIAL-017] [RED] Añadir en `src/domain/game.test.ts` los tests `AC-US5-HISTORIAL-015 añade exactamente un snapshot por jugada legal`, `AC-US5-HISTORIAL-016 no añade historial por intento en celda ocupada` y `AC-US5-HISTORIAL-017 no añade historial por intento en estado terminal`; ejecutar `npm run test:unit -- --testNamePattern='AC-US5-HISTORIAL-01[5-7]'`, exigir RED por historial ausente y registrar salida en `.swarm/handoffs/domain/T064.md`; Expected commit: `test(US5): T064 prove legal-only history points [AC-US5-HISTORIAL-015 AC-US5-HISTORIAL-016 AC-US5-HISTORIAL-017]`
-- [ ] T065 [US5] [OWNER:domain] [AC:AC-US5-HISTORIAL-015,AC-US5-HISTORIAL-016,AC-US5-HISTORIAL-017] [GREEN] Añadir `GameSnapshot`, historial requerido e inmutable y captura posterior a la validación de `PLAY_CELL` en `src/domain/game.ts`, migrando los fixtures de `src/domain/game.test.ts` sin cambiar reglas previas; ejecutar `npm run test:unit -- --testNamePattern='AC-US5-HISTORIAL-01[5-7]'` y `npm run test:unit`, exigir GREEN y registrar salida en `.swarm/handoffs/domain/T065.md`; Expected commit: `feat(US5): T065 record legal-only history points [AC-US5-HISTORIAL-015 AC-US5-HISTORIAL-016 AC-US5-HISTORIAL-017]`
-
-#### Restauración exacta de una jugada y turno
-
-- [ ] T066 [US5] [OWNER:domain] [AC:AC-US5-DOMINIO-005,AC-US5-ESTADO-006,AC-US5-ESTADO-007,AC-US5-DOMINIO-008] [RED] Añadir en `src/domain/game.test.ts` los tests `AC-US5-DOMINIO-005 restaura exactamente las nueve celdas del último snapshot`, `AC-US5-ESTADO-006 restaura por separado el estado canónico del último snapshot`, `AC-US5-ESTADO-007 devuelve el turno al jugador cuya jugada se retira` y `AC-US5-DOMINIO-008 elimina una sola marca por acción UNDO`; ejecutar `npm run test:unit -- --testNamePattern='AC-US5-(DOMINIO-(005|008)|ESTADO-00[6-7])'`, exigir RED por acción UNDO ausente y registrar salida en `.swarm/handoffs/domain/T066.md`; Expected commit: `test(US5): T066 prove exact single-move restoration [AC-US5-DOMINIO-005 AC-US5-ESTADO-006 AC-US5-ESTADO-007 AC-US5-DOMINIO-008]`
-- [ ] T067 [US5] [OWNER:domain] [AC:AC-US5-DOMINIO-005,AC-US5-ESTADO-006,AC-US5-ESTADO-007,AC-US5-DOMINIO-008] [GREEN] Añadir `UNDO` a `GameAction` y restaurar atómicamente el último snapshot eliminando exactamente una entrada en `src/domain/game.ts`, sin mutación ni conocimiento de interfaz; ejecutar `npm run test:unit -- --testNamePattern='AC-US5-(DOMINIO-(005|008)|ESTADO-00[6-7])'` y `npm run test:unit`, exigir GREEN y registrar salida en `.swarm/handoffs/domain/T067.md`; Expected commit: `feat(US5): T067 restore one immutable snapshot [AC-US5-DOMINIO-005 AC-US5-ESTADO-006 AC-US5-ESTADO-007 AC-US5-DOMINIO-008]`
-
-#### Recuperación desde estados terminales
-
-- [ ] T068 [US5] [OWNER:domain] [AC:AC-US5-TERMINAL-009] [RED] Añadir `AC-US5-TERMINAL-009 restaura PLAYING desde WON_X WON_O y DRAW` en `src/domain/game.test.ts` mediante tres secuencias legales y ejecutar `npm run test:unit -- --testNamePattern='AC-US5-TERMINAL-009'`, exigiendo RED porque el bloqueo terminal aún impide UNDO y registrando salida en `.swarm/handoffs/domain/T068.md`; Expected commit: `test(US5): T068 prove terminal recovery is missing [AC-US5-TERMINAL-009]`
-- [ ] T069 [US5] [OWNER:domain] [AC:AC-US5-TERMINAL-009] [GREEN] Evaluar `UNDO` antes del rechazo terminal en `src/domain/game.ts` y restaurar el estado de juego previo desde `WON_X`, `WON_O` y `DRAW`; ejecutar `npm run test:unit -- --testNamePattern='AC-US5-TERMINAL-009'` y `npm run test:unit`, exigir GREEN y registrar salida en `.swarm/handoffs/domain/T069.md`; Expected commit: `feat(US5): T069 restore play from terminal states [AC-US5-TERMINAL-009]`
-
-#### Repetición hasta el tablero inicial
-
-- [ ] T070 [US5] [OWNER:domain] [AC:AC-US5-HISTORIAL-010,AC-US5-HISTORIAL-011] [RED] Añadir en `src/domain/game.test.ts` `AC-US5-HISTORIAL-010 deshace repetidamente la siguiente jugada más reciente` y `AC-US5-HISTORIAL-011 llega a nueve celdas vacías al consumir el historial`; ejecutar `npm run test:unit -- --testNamePattern='AC-US5-HISTORIAL-01[0-1]'`, exigir RED por consumo repetido ausente y registrar salida en `.swarm/handoffs/domain/T070.md`; Expected commit: `test(US5): T070 prove repeated Undo to empty board [AC-US5-HISTORIAL-010 AC-US5-HISTORIAL-011]`
-- [ ] T071 [US5] [OWNER:domain] [AC:AC-US5-HISTORIAL-010,AC-US5-HISTORIAL-011] [GREEN] Conservar entradas anteriores y retirar solo la última en cada `UNDO` de `src/domain/game.ts` hasta restaurar `INITIAL_STATE`; ejecutar `npm run test:unit -- --testNamePattern='AC-US5-HISTORIAL-01[0-1]'` y `npm run test:unit`, exigir GREEN y registrar salida en `.swarm/handoffs/domain/T071.md`; Expected commit: `feat(US5): T071 consume Undo history one entry at a time [AC-US5-HISTORIAL-010 AC-US5-HISTORIAL-011]`
-
-#### No-op determinista con historial vacío
-
-- [ ] T072 [US5] [OWNER:domain] [AC:AC-US5-UNWANTED-012,AC-US5-UNWANTED-013,AC-US5-UNWANTED-014] [RED] Añadir en `src/domain/game.test.ts` `AC-US5-UNWANTED-012 conserva por separado el tablero con historial vacío`, `AC-US5-UNWANTED-013 conserva por separado el status con historial vacío` y `AC-US5-UNWANTED-014 mantiene canUndo falso tras UNDO vacío`; ejecutar `npm run test:unit -- --testNamePattern='AC-US5-UNWANTED-01[2-4]'`, exigir RED por selector/no-op ausentes y registrar salida en `.swarm/handoffs/domain/T072.md`; Expected commit: `test(US5): T072 prove deterministic empty-history no-op [AC-US5-UNWANTED-012 AC-US5-UNWANTED-013 AC-US5-UNWANTED-014]`
-- [ ] T073 [US5] [OWNER:domain] [AC:AC-US5-UNWANTED-012,AC-US5-UNWANTED-013,AC-US5-UNWANTED-014] [GREEN] Implementar no-op por historial vacío y exportar `canUndo(state)` en `src/domain/game.ts`, conservando la misma referencia sin crear historial; ejecutar `npm run test:unit -- --testNamePattern='AC-US5-UNWANTED-01[2-4]'` y `npm run test:unit`, exigir GREEN y registrar salida en `.swarm/handoffs/domain/T073.md`; Expected commit: `feat(US5): T073 expose deterministic empty-history guard [AC-US5-UNWANTED-012 AC-US5-UNWANTED-013 AC-US5-UNWANTED-014]`
-
-#### RESET elimina todo el historial
-
-- [ ] T074 [US5] [OWNER:domain] [AC:AC-US5-RESET-018,AC-US5-RESET-019,AC-US5-RESET-020] [RED] Añadir en `src/domain/game.test.ts` `AC-US5-RESET-018 RESET deja nueve celdas vacías`, `AC-US5-RESET-019 RESET restaura PLAYING_X` y `AC-US5-RESET-020 RESET elimina historial y deja canUndo falso`; ejecutar `npm run test:unit -- --testNamePattern='AC-US5-RESET-0(18|19|20)'`, exigir RED por historial retenido y registrar salida en `.swarm/handoffs/domain/T074.md`; Expected commit: `test(US5): T074 prove RESET destroys prior history [AC-US5-RESET-018 AC-US5-RESET-019 AC-US5-RESET-020]`
-- [ ] T075 [US5] [OWNER:domain] [AC:AC-US5-RESET-018,AC-US5-RESET-019,AC-US5-RESET-020] [GREEN] Hacer que `RESET` produzca tablero vacío, `PLAYING_X` e historial nuevo vacío en `src/domain/game.ts`, sin referencia recuperable al historial anterior; ejecutar `npm run test:unit -- --testNamePattern='AC-US5-RESET-0(18|19|20)'`, `npm run test:unit` y `npm run build`, exigir GREEN y registrar salida en `.swarm/handoffs/domain/T075.md`; Expected commit: `feat(US5): T075 reset board status and history atomically [AC-US5-RESET-018 AC-US5-RESET-019 AC-US5-RESET-020]`
-
-### Interface track — `OWNER:interfaz`
-
-#### Presentación, disponibilidad, nombre y señal no cromática
-
-- [ ] T076 [US5] [OWNER:interfaz] [AC:AC-US5-DISPONIBILIDAD-003,AC-US5-DISPONIBILIDAD-004,AC-US5-A11Y-028,AC-US5-VISUAL-034] [RED] Crear `src/components/UndoButton.test.tsx` con `AC-US5-DISPONIBILIDAD-003 expone disponible el control cuando available es true`, `AC-US5-DISPONIBILIDAD-004 expone semántica no disponible cuando available es false`, `AC-US5-A11Y-028 tiene nombre visible y accesible exacto Deshacer jugada` y `AC-US5-VISUAL-034 comunica No disponible sin depender solo del color`; ejecutar `npm run test:component -- --testNamePattern='AC-US5-(DISPONIBILIDAD-00[3-4]|A11Y-028|VISUAL-034)'`, exigir RED por componente ausente y registrar salida en `.swarm/handoffs/interfaz/T076.md`; Expected commit: `test(US5): T076 prove Undo control states and name [AC-US5-DISPONIBILIDAD-003 AC-US5-DISPONIBILIDAD-004 AC-US5-A11Y-028 AC-US5-VISUAL-034]`
-- [ ] T077 [US5] [OWNER:interfaz] [AC:AC-US5-DISPONIBILIDAD-003,AC-US5-DISPONIBILIDAD-004,AC-US5-A11Y-028,AC-US5-VISUAL-034] [GREEN] Crear `src/components/UndoButton.tsx` como botón nativo controlado por `available`/`onUndo`, con texto y nombre `Deshacer jugada`, `aria-disabled`, guard de callback e indicación textual `No disponible`; ejecutar `npm run test:component -- --testNamePattern='AC-US5-(DISPONIBILIDAD-00[3-4]|A11Y-028|VISUAL-034)'` y `npm run test:component`, exigir GREEN y registrar salida en `.swarm/handoffs/interfaz/T077.md`; Expected commit: `feat(US5): T077 render accessible Undo control states [AC-US5-DISPONIBILIDAD-003 AC-US5-DISPONIBILIDAD-004 AC-US5-A11Y-028 AC-US5-VISUAL-034]`
-
-#### Activación nativa y permanencia del foco
-
-- [ ] T078 [US5] [OWNER:interfaz] [AC:AC-US5-PUNTERO-021,AC-US5-TECLADO-023,AC-US5-TECLADO-024,AC-US5-FOCO-025] [RED] Añadir en `src/components/UndoButton.test.tsx` `AC-US5-PUNTERO-021 una activación de puntero invoca onUndo una vez`, `AC-US5-TECLADO-023 Enter invoca onUndo una vez con historial`, `AC-US5-TECLADO-024 Espacio invoca onUndo una vez con historial` y `AC-US5-FOCO-025 conserva el mismo botón enfocado tras activación y rerender`; ejecutar `npm run test:component -- --testNamePattern='AC-US5-(PUNTERO-021|TECLADO-02[3-4]|FOCO-025)'`, exigir RED por activación/foco ausentes y registrar salida en `.swarm/handoffs/interfaz/T078.md`; Expected commit: `test(US5): T078 prove native Undo activation and focus [AC-US5-PUNTERO-021 AC-US5-TECLADO-023 AC-US5-TECLADO-024 AC-US5-FOCO-025]`
-- [ ] T079 [US5] [OWNER:interfaz] [AC:AC-US5-PUNTERO-021,AC-US5-TECLADO-023,AC-US5-TECLADO-024,AC-US5-FOCO-025] [GREEN] Completar en `src/components/UndoButton.tsx` la activación única por semántica nativa y conservar el mismo nodo enfocado al cambiar `available`, sin listeners globales ni `focus()` programático; ejecutar `npm run test:component -- --testNamePattern='AC-US5-(PUNTERO-021|TECLADO-02[3-4]|FOCO-025)'`, `npm run test:component` y `npm run build`, exigir GREEN y registrar salida en `.swarm/handoffs/interfaz/T079.md`; Expected commit: `feat(US5): T079 preserve native activation and focused node [AC-US5-PUNTERO-021 AC-US5-TECLADO-023 AC-US5-TECLADO-024 AC-US5-FOCO-025]`
-
-### Composition track — `OWNER:e2e`
-
-#### Visibilidad, ubicación y orden de foco
-
-- [ ] T080 [US5] [OWNER:e2e] [AC:AC-US5-INTERACCION-001,AC-US5-INTERACCION-002,AC-US5-FOCO-026] [RED] Crear `src/components/App.integration.test.tsx` con `AC-US5-INTERACCION-001 muestra Deshacer jugada en cada estado canónico`, `AC-US5-INTERACCION-002 ubica Undo entre tablero y Reiniciar partida` y `AC-US5-FOCO-026 ordena nueve celdas Undo y Reiniciar en la secuencia de foco`; ejecutar `npm run test:component -- --testNamePattern='AC-US5-(INTERACCION-00[1-2]|FOCO-026)'`, exigir RED por composición ausente y registrar salida en `.swarm/handoffs/e2e/T080.md`; Expected commit: `test(US5): T080 prove Undo shell placement and focus order [AC-US5-INTERACCION-001 AC-US5-INTERACCION-002 AC-US5-FOCO-026]`
-- [ ] T081 [US5] [OWNER:e2e] [AC:AC-US5-INTERACCION-001,AC-US5-INTERACCION-002,AC-US5-FOCO-026] [GREEN] Integrar el contrato congelado de `UndoButton` en `src/App.tsx` después del tablero y antes de Reiniciar, conservando el orden DOM y el nodo estable sin duplicar reglas de dominio; ejecutar `npm run test:component -- --testNamePattern='AC-US5-(INTERACCION-00[1-2]|FOCO-026)'` y `npm run test:component`, exigir GREEN y registrar salida en `.swarm/handoffs/e2e/T081.md`; Expected commit: `feat(US5): T081 compose Undo shell and focus order [AC-US5-INTERACCION-001 AC-US5-INTERACCION-002 AC-US5-FOCO-026]`
-
-#### Anuncios exactos y ausencia de anuncio falso
-
-- [ ] T082 [US5] [OWNER:e2e] [AC:AC-US5-A11Y-029,AC-US5-A11Y-030,AC-US5-A11Y-031] [RED] Añadir en `src/components/App.integration.test.tsx` `AC-US5-A11Y-029 anuncia exactamente Jugada deshecha Turno de X`, `AC-US5-A11Y-030 anuncia exactamente Jugada deshecha Turno de O` y `AC-US5-A11Y-031 no cambia la región de estado al intentar Undo vacío`; ejecutar `npm run test:component -- --testNamePattern='AC-US5-A11Y-0(29|30|31)'`, exigir RED por integración de anuncio ausente y registrar salida en `.swarm/handoffs/e2e/T082.md`; Expected commit: `test(US5): T082 prove exact Undo announcements [AC-US5-A11Y-029 AC-US5-A11Y-030 AC-US5-A11Y-031]`
-- [ ] T083 [US5] [OWNER:e2e] [AC:AC-US5-A11Y-029,AC-US5-A11Y-030,AC-US5-A11Y-031] [GREEN] Consumir desde `src/App.tsx` el contrato congelado `GameStatus(status, announcement?)`, publicar una vez el mensaje derivado del estado restaurado y no crear evento para Undo no disponible; ejecutar `npm run test:component -- --testNamePattern='AC-US5-A11Y-0(29|30|31)'`, `npm run test:component` y `npm run build`, exigir GREEN y registrar salida en `.swarm/handoffs/e2e/T083.md`; Expected commit: `feat(US5): T083 compose exact Undo announcements [AC-US5-A11Y-029 AC-US5-A11Y-030 AC-US5-A11Y-031]`
-
-### Browser track — `OWNER:e2e`
-
-#### Activación táctil real
-
-- [ ] T084 [US5] [OWNER:e2e] [AC:AC-US5-PUNTERO-022] [RED] Añadir `AC-US5-PUNTERO-022 toque real deshace una jugada legal` en `tests/e2e/game.spec.ts` y ejecutar `npm run test:e2e -- --grep='AC-US5-PUNTERO-022'`, exigiendo RED por composición táctil ausente y registrando salida en `.swarm/handoffs/e2e/T084.md`; Expected commit: `test(US5): T084 prove real touch Undo is missing [AC-US5-PUNTERO-022]`
-- [ ] T085 [US5] [OWNER:e2e] [AC:AC-US5-PUNTERO-022] [GREEN] Conectar en `src/App.tsx` el callback nativo de `UndoButton` con un único `dispatch({ type: 'UNDO' })` y disponibilidad obtenida exclusivamente mediante `canUndo(state)`; ejecutar `npm run test:e2e -- --grep='AC-US5-PUNTERO-022'`, `npm run test:component` y `npm run test:e2e`, exigir GREEN y registrar salida en `.swarm/handoffs/e2e/T085.md`; Expected commit: `feat(US5): T085 connect real touch Undo dispatch [AC-US5-PUNTERO-022]`
-
-#### Foco visible y responsive
-
-- [ ] T086 [US5] [OWNER:e2e] [AC:AC-US5-FOCO-027,AC-US5-RESPONSIVE-032,AC-US5-RESPONSIVE-033] [RED] Añadir en `tests/e2e/game.spec.ts` `AC-US5-FOCO-027 muestra contorno continuo al enfocar Deshacer jugada`, `AC-US5-RESPONSIVE-032 evita overflow horizontal entre 320 y 1920 px` y `AC-US5-RESPONSIVE-033 evita superposición de controles con zoom 200 por ciento`; ejecutar `npm run test:e2e -- --grep='AC-US5-(FOCO-027|RESPONSIVE-03[2-3])'`, exigir RED por estilos ausentes y registrar salida en `.swarm/handoffs/e2e/T086.md`; Expected commit: `test(US5): T086 prove focus and responsive boundaries [AC-US5-FOCO-027 AC-US5-RESPONSIVE-032 AC-US5-RESPONSIVE-033]`
-- [ ] T087 [US5] [OWNER:e2e] [AC:AC-US5-FOCO-027,AC-US5-RESPONSIVE-032,AC-US5-RESPONSIVE-033] [GREEN] Ajustar `src/styles.css` para contorno continuo, bloque de acciones sin overflow a 320/768/1280/1920 px y ausencia de solapamiento al 200 %, sin ocultar textos ni controles; ejecutar `npm run test:e2e -- --grep='AC-US5-(FOCO-027|RESPONSIVE-03[2-3])'`, `npm run test:e2e` y `npm run build`, exigir GREEN y registrar salida en `.swarm/handoffs/e2e/T087.md`; Expected commit: `feat(US5): T087 enforce focus and responsive boundaries [AC-US5-FOCO-027 AC-US5-RESPONSIVE-032 AC-US5-RESPONSIVE-033]`
-
-**Checkpoint US5 reservado**: Los 34 AC tienen evidencia primaria prevista, pero ninguna task
-T064–T087 se ejecuta con este pase. El pase ampliado posterior a T089 preservará estos IDs, añadirá
-evidencia suplementaria con IDs nuevos y resolverá el orden TDD de composición antes de Analyze C.
-
----
-
-## Final Phase: Bootstrap validation and handoff
-
-No hay tasks adicionales en este pase. El orquestador ejecuta de forma read-only:
+Después del commit T092, el orquestador ejecuta, sobre árbol limpio:
 
 ```bash
-node scripts/verify-traceability.mjs --phase=tasks
+npm run test:unit
+npm run test:component
+npm run test:e2e
+npm run build
+npm run verify:traceability
+scripts/swarm.sh prepare
 ```
 
-Después ejecuta `$speckit-analyze`. Un GO autoriza solo `T088/T089`; cualquier CRITICAL/HIGH vuelve
-a Plan o Tasks. La consolidación, transiciones `IMPLEMENTING`/`RELEASE_CANDIDATE`/`VERIFIED`,
-regresión completa y reviewer se incorporan en el pase ampliado posterior.
+Solo un PASS completo autoriza `scripts/swarm.sh launch-parallel`.
 
----
+## Phase 3: US-005 Domain — `OWNER:domain` (paralelo con interfaz)
 
-## Dependencies and execution order
+### Historial de jugadas legales
 
-### Bootstrap lifecycle
+- [ ] T064 [P] [US5] [OWNER:domain] [AC:AC-US5-HISTORIAL-015,AC-US5-HISTORIAL-016,AC-US5-HISTORIAL-017] [RED] Añadir en `src/domain/game.test.ts` `AC-US5-HISTORIAL-015 añade exactamente un snapshot por jugada legal`, `AC-US5-HISTORIAL-016 no añade historial por intento en celda ocupada` y `AC-US5-HISTORIAL-017 no añade historial por intento en estado terminal`; comando `npm run test:unit -- --testNamePattern='AC-US5-HISTORIAL-01[5-7]'`; evidencia `.swarm/handoffs/domain/T064.md`; Expected commit: `test(US5): T064 prove legal-only history points [AC-US5-HISTORIAL-015 AC-US5-HISTORIAL-016 AC-US5-HISTORIAL-017]`
+- [ ] T065 [P] [US5] [OWNER:domain] [AC:AC-US5-HISTORIAL-015,AC-US5-HISTORIAL-016,AC-US5-HISTORIAL-017] [GREEN] Añadir en `src/domain/game.ts` snapshot mínimo, historial requerido e inmutable y captura solo después de validar `PLAY_CELL`; migrar fixtures de `src/domain/game.test.ts`; comandos `npm run test:unit -- --testNamePattern='AC-US5-HISTORIAL-01[5-7]'` y `npm run test:unit`; evidencia `.swarm/handoffs/domain/T065.md`; Expected commit: `feat(US5): T065 record legal-only history points [AC-US5-HISTORIAL-015 AC-US5-HISTORIAL-016 AC-US5-HISTORIAL-017]`
 
-1. Esta generación deja `tasks.md` y `traceability.md` en forma canónica `Planned`.
-2. `node scripts/verify-traceability.mjs --phase=tasks` debe pasar con el verificador vigente.
-3. T062/T063 permanecen integradas y verificadas.
-4. Analyze B debe dar GO limitado para `T088/T089`.
-5. Solo entonces se ejecuta `T088 → T089`.
-6. Después de T089 se regenera Tasks/ledger, se añade evidencia suplementaria y se repite Analyze.
-7. Ninguna task T064–T087 ni worktree de producto comienza antes de Analyze C y baseline verde.
+### Una jugada, tablero, estado y turno
+
+- [ ] T066 [US5] [OWNER:domain] [AC:AC-US5-DOMINIO-005,AC-US5-ESTADO-006,AC-US5-ESTADO-007,AC-US5-DOMINIO-008] [RED] Añadir en `src/domain/game.test.ts` `AC-US5-DOMINIO-005 restaura exactamente las nueve celdas del último snapshot`, `AC-US5-ESTADO-006 restaura por separado el estado canónico del último snapshot`, `AC-US5-ESTADO-007 devuelve el turno al jugador cuya jugada se retira` y `AC-US5-DOMINIO-008 elimina una sola marca por acción UNDO`; comando `npm run test:unit -- --testNamePattern='AC-US5-(DOMINIO-(005|008)|ESTADO-00[6-7])'`; evidencia `.swarm/handoffs/domain/T066.md`; Expected commit: `test(US5): T066 prove exact single-move restoration [AC-US5-DOMINIO-005 AC-US5-ESTADO-006 AC-US5-ESTADO-007 AC-US5-DOMINIO-008]`
+- [ ] T067 [US5] [OWNER:domain] [AC:AC-US5-DOMINIO-005,AC-US5-ESTADO-006,AC-US5-ESTADO-007,AC-US5-DOMINIO-008] [GREEN] Añadir `UNDO` a `GameAction` y restaurar atómicamente el último snapshot en `src/domain/game.ts`, eliminando exactamente una entrada; comandos `npm run test:unit -- --testNamePattern='AC-US5-(DOMINIO-(005|008)|ESTADO-00[6-7])'` y `npm run test:unit`; evidencia `.swarm/handoffs/domain/T067.md`; Expected commit: `feat(US5): T067 restore one immutable snapshot [AC-US5-DOMINIO-005 AC-US5-ESTADO-006 AC-US5-ESTADO-007 AC-US5-DOMINIO-008]`
+
+### Terminales, repetición y vacío
+
+- [ ] T068 [US5] [OWNER:domain] [AC:AC-US5-TERMINAL-009] [RED] Añadir `AC-US5-TERMINAL-009 restaura PLAYING desde WON_X WON_O y DRAW` con tres secuencias legales en `src/domain/game.test.ts`; comando `npm run test:unit -- --testNamePattern='AC-US5-TERMINAL-009'`; evidencia `.swarm/handoffs/domain/T068.md`; Expected commit: `test(US5): T068 prove terminal recovery is missing [AC-US5-TERMINAL-009]`
+- [ ] T069 [US5] [OWNER:domain] [AC:AC-US5-TERMINAL-009] [GREEN] Resolver `UNDO` antes del bloqueo terminal en `src/domain/game.ts`; comandos `npm run test:unit -- --testNamePattern='AC-US5-TERMINAL-009'` y `npm run test:unit`; evidencia `.swarm/handoffs/domain/T069.md`; Expected commit: `feat(US5): T069 restore play from terminal states [AC-US5-TERMINAL-009]`
+- [ ] T070 [US5] [OWNER:domain] [AC:AC-US5-HISTORIAL-010,AC-US5-HISTORIAL-011] [RED] Añadir en `src/domain/game.test.ts` `AC-US5-HISTORIAL-010 deshace repetidamente la siguiente jugada más reciente` y `AC-US5-HISTORIAL-011 llega a nueve celdas vacías al consumir el historial`; comando `npm run test:unit -- --testNamePattern='AC-US5-HISTORIAL-01[0-1]'`; evidencia `.swarm/handoffs/domain/T070.md`; Expected commit: `test(US5): T070 prove repeated Undo to empty board [AC-US5-HISTORIAL-010 AC-US5-HISTORIAL-011]`
+- [ ] T071 [US5] [OWNER:domain] [AC:AC-US5-HISTORIAL-010,AC-US5-HISTORIAL-011] [GREEN] Conservar entradas anteriores y retirar solo la última por `UNDO` en `src/domain/game.ts`; comandos `npm run test:unit -- --testNamePattern='AC-US5-HISTORIAL-01[0-1]'` y `npm run test:unit`; evidencia `.swarm/handoffs/domain/T071.md`; Expected commit: `feat(US5): T071 consume Undo history one entry at a time [AC-US5-HISTORIAL-010 AC-US5-HISTORIAL-011]`
+- [ ] T072 [US5] [OWNER:domain] [AC:AC-US5-UNWANTED-012,AC-US5-UNWANTED-013,AC-US5-UNWANTED-014] [RED] Añadir en `src/domain/game.test.ts` `AC-US5-UNWANTED-012 conserva por separado el tablero con historial vacío`, `AC-US5-UNWANTED-013 conserva por separado el status con historial vacío` y `AC-US5-UNWANTED-014 mantiene canUndo falso tras UNDO vacío`; comando `npm run test:unit -- --testNamePattern='AC-US5-UNWANTED-01[2-4]'`; evidencia `.swarm/handoffs/domain/T072.md`; Expected commit: `test(US5): T072 prove deterministic empty-history no-op [AC-US5-UNWANTED-012 AC-US5-UNWANTED-013 AC-US5-UNWANTED-014]`
+- [ ] T073 [US5] [OWNER:domain] [AC:AC-US5-UNWANTED-012,AC-US5-UNWANTED-013,AC-US5-UNWANTED-014] [GREEN] Implementar el no-op vacío y exportar `canUndo(state)` en `src/domain/game.ts`; comandos `npm run test:unit -- --testNamePattern='AC-US5-UNWANTED-01[2-4]'` y `npm run test:unit`; evidencia `.swarm/handoffs/domain/T073.md`; Expected commit: `feat(US5): T073 expose deterministic empty-history guard [AC-US5-UNWANTED-012 AC-US5-UNWANTED-013 AC-US5-UNWANTED-014]`
+
+### Reset
+
+- [ ] T074 [US5] [OWNER:domain] [AC:AC-US5-RESET-018,AC-US5-RESET-019,AC-US5-RESET-020] [RED] Añadir en `src/domain/game.test.ts` `AC-US5-RESET-018 RESET deja nueve celdas vacías`, `AC-US5-RESET-019 RESET restaura PLAYING_X` y `AC-US5-RESET-020 RESET elimina historial y deja canUndo falso`; comando `npm run test:unit -- --testNamePattern='AC-US5-RESET-0(18|19|20)'`; evidencia `.swarm/handoffs/domain/T074.md`; Expected commit: `test(US5): T074 prove RESET destroys prior history [AC-US5-RESET-018 AC-US5-RESET-019 AC-US5-RESET-020]`
+- [ ] T075 [US5] [OWNER:domain] [AC:AC-US5-RESET-018,AC-US5-RESET-019,AC-US5-RESET-020] [GREEN] Hacer que `RESET` produzca estado inicial e historial vacío en `src/domain/game.ts`; comandos `npm run test:unit -- --testNamePattern='AC-US5-RESET-0(18|19|20)'`, `npm run test:unit` y `npm run build`; evidencia `.swarm/handoffs/domain/T075.md`; Expected commit: `feat(US5): T075 reset board status and history atomically [AC-US5-RESET-018 AC-US5-RESET-019 AC-US5-RESET-020]`
+
+## Phase 4: US-005 Interfaz — `OWNER:interfaz` (paralelo con domain)
+
+### Control Undo
+
+- [ ] T076 [P] [US5] [OWNER:interfaz] [AC:AC-US5-DISPONIBILIDAD-003,AC-US5-DISPONIBILIDAD-004,AC-US5-A11Y-028,AC-US5-VISUAL-034] [RED] Crear `src/components/UndoButton.test.tsx` con `AC-US5-DISPONIBILIDAD-003 expone disponible el control cuando available es true`, `AC-US5-DISPONIBILIDAD-004 expone semántica no disponible cuando available es false`, `AC-US5-A11Y-028 tiene nombre visible y accesible exacto Deshacer jugada` y `AC-US5-VISUAL-034 comunica No disponible sin depender solo del color`; comando `npm run test:component -- --testNamePattern='AC-US5-(DISPONIBILIDAD-00[3-4]|A11Y-028|VISUAL-034)'`; evidencia `.swarm/handoffs/interfaz/T076.md`; Expected commit: `test(US5): T076 prove Undo control states and name [AC-US5-DISPONIBILIDAD-003 AC-US5-DISPONIBILIDAD-004 AC-US5-A11Y-028 AC-US5-VISUAL-034]`
+- [ ] T077 [P] [US5] [OWNER:interfaz] [AC:AC-US5-DISPONIBILIDAD-003,AC-US5-DISPONIBILIDAD-004,AC-US5-A11Y-028,AC-US5-VISUAL-034] [GREEN] Crear `src/components/UndoButton.tsx` como botón nativo controlado por `available`/`onUndo`, con texto exacto, `aria-disabled`, guard e indicación `No disponible`; comandos `npm run test:component -- --testNamePattern='AC-US5-(DISPONIBILIDAD-00[3-4]|A11Y-028|VISUAL-034)'` y `npm run test:component`; evidencia `.swarm/handoffs/interfaz/T077.md`; Expected commit: `feat(US5): T077 render accessible Undo control states [AC-US5-DISPONIBILIDAD-003 AC-US5-DISPONIBILIDAD-004 AC-US5-A11Y-028 AC-US5-VISUAL-034]`
+- [ ] T078 [US5] [OWNER:interfaz] [AC:AC-US5-PUNTERO-021,AC-US5-TECLADO-023,AC-US5-TECLADO-024,AC-US5-FOCO-025] [RED] Añadir en `src/components/UndoButton.test.tsx` `AC-US5-PUNTERO-021 una activación de puntero invoca onUndo una vez`, `AC-US5-TECLADO-023 Enter invoca onUndo una vez con historial`, `AC-US5-TECLADO-024 Espacio invoca onUndo una vez con historial` y `AC-US5-FOCO-025 conserva el mismo botón enfocado tras activación y rerender`; comando `npm run test:component -- --testNamePattern='AC-US5-(PUNTERO-021|TECLADO-02[3-4]|FOCO-025)'`; evidencia `.swarm/handoffs/interfaz/T078.md`; Expected commit: `test(US5): T078 prove native Undo activation and focus [AC-US5-PUNTERO-021 AC-US5-TECLADO-023 AC-US5-TECLADO-024 AC-US5-FOCO-025]`
+- [ ] T079 [US5] [OWNER:interfaz] [AC:AC-US5-PUNTERO-021,AC-US5-TECLADO-023,AC-US5-TECLADO-024,AC-US5-FOCO-025] [GREEN] Completar activación nativa y nodo estable en `src/components/UndoButton.tsx`, sin listeners globales ni foco programático; comandos `npm run test:component -- --testNamePattern='AC-US5-(PUNTERO-021|TECLADO-02[3-4]|FOCO-025)'`, `npm run test:component` y `npm run build`; evidencia `.swarm/handoffs/interfaz/T079.md`; Expected commit: `feat(US5): T079 preserve native activation and focused node [AC-US5-PUNTERO-021 AC-US5-TECLADO-023 AC-US5-TECLADO-024 AC-US5-FOCO-025]`
+
+### Contrato compatible de GameStatus
+
+- [ ] T095 [US5] [OWNER:interfaz] [AC:AC-US5-A11Y-029,AC-US5-A11Y-030] [RED] Añadir en `src/components/GameStatus.test.tsx` `AC-US5-A11Y-029 acepta anuncio exacto Jugada deshecha Turno de X` y `AC-US5-A11Y-030 acepta anuncio exacto Jugada deshecha Turno de O`, conservando tests del fallback con `status` solamente; comando `npm run test:component -- --testNamePattern='AC-US5-A11Y-0(29|30)'`; evidencia `.swarm/handoffs/interfaz/T095.md`; Expected commit: `test(US5): T095 prove compatible GameStatus announcements [AC-US5-A11Y-029 AC-US5-A11Y-030]`
+- [ ] T096 [US5] [OWNER:interfaz] [AC:AC-US5-A11Y-029,AC-US5-A11Y-030] [GREEN] Extender solo `src/components/GameStatus.tsx` con `announcement?: string`, conservar `status` requerido, un único `role=status` y fallback canónico; comandos `npm run test:component -- --testNamePattern='AC-US5-A11Y-0(29|30)'`, `npm run test:component` y `npm run build`; evidencia `.swarm/handoffs/interfaz/T096.md`; Expected commit: `feat(US5): T096 preserve compatible GameStatus contract [AC-US5-A11Y-029 AC-US5-A11Y-030]`
+
+**Parallel checkpoint**: domain e interfaz parten del mismo `BASE_SHA_SWARM`, no comparten archivos
+y entregan handoffs. El orquestador integra primero domain, ejecuta unit/build, integra interfaz y
+ejecuta component/build/baseline. E2E no nace antes de ambos merges verdes.
+
+## Phase 5: US-005 Integración y E2E — `OWNER:e2e`
+
+### Bloque RED completo, sin modificar App ni estilos
+
+- [ ] T080 [US5] [OWNER:e2e] [AC:AC-US5-INTERACCION-001,AC-US5-INTERACCION-002,AC-US5-DISPONIBILIDAD-003,AC-US5-DISPONIBILIDAD-004,AC-US5-FOCO-026] [RED] Crear `src/components/App.integration.test.tsx` con tests literales para visibilidad en cinco estados, ubicación entre tablero/reset, disponibilidad con/sin historial y orden nueve celdas→Undo→Reset; comando `npm run test:component -- --testNamePattern='AC-US5-(INTERACCION-00[1-2]|DISPONIBILIDAD-00[3-4]|FOCO-026)'`; evidencia `.swarm/handoffs/e2e/T080.md`; Expected commit: `test(US5): T080 prove Undo shell availability and order [AC-US5-INTERACCION-001 AC-US5-INTERACCION-002 AC-US5-DISPONIBILIDAD-003 AC-US5-DISPONIBILIDAD-004 AC-US5-FOCO-026]`
+- [ ] T081 [US5] [OWNER:e2e] [AC:AC-US5-DOMINIO-005,AC-US5-ESTADO-006,AC-US5-ESTADO-007,AC-US5-DOMINIO-008] [RED] Añadir en `src/components/App.integration.test.tsx` tests literales que separan tablero, estado, turno y una sola marca tras Undo; comando `npm run test:component -- --testNamePattern='AC-US5-(DOMINIO-(005|008)|ESTADO-00[6-7])'`; evidencia `.swarm/handoffs/e2e/T081.md`; Expected commit: `test(US5): T081 prove composed single-move restoration [AC-US5-DOMINIO-005 AC-US5-ESTADO-006 AC-US5-ESTADO-007 AC-US5-DOMINIO-008]`
+- [ ] T082 [US5] [OWNER:e2e] [AC:AC-US5-TERMINAL-009,AC-US5-HISTORIAL-010,AC-US5-HISTORIAL-011,AC-US5-UNWANTED-012,AC-US5-UNWANTED-013,AC-US5-UNWANTED-014] [RED] Añadir en `tests/e2e/game.spec.ts` tests literales para `WON_X`, `WON_O`, `DRAW`, Undo repetido hasta vacío y no-op vacío separado en tablero/status/disponibilidad; comando `npm run test:e2e -- --grep='AC-US5-(TERMINAL-009|HISTORIAL-01[0-1]|UNWANTED-01[2-4])'`; evidencia `.swarm/handoffs/e2e/T082.md`; Expected commit: `test(US5): T082 prove terminal repeated and empty Undo flows [AC-US5-TERMINAL-009 AC-US5-HISTORIAL-010 AC-US5-HISTORIAL-011 AC-US5-UNWANTED-012 AC-US5-UNWANTED-013 AC-US5-UNWANTED-014]`
+- [ ] T083 [US5] [OWNER:e2e] [AC:AC-US5-HISTORIAL-015,AC-US5-HISTORIAL-016,AC-US5-HISTORIAL-017,AC-US5-RESET-018,AC-US5-RESET-019,AC-US5-RESET-020] [RED] Añadir en `tests/e2e/game.spec.ts` tests literales para punto de historial legal, intentos rechazados y reset irreversible de tablero/status/historial; comando `npm run test:e2e -- --grep='AC-US5-(HISTORIAL-01[5-7]|RESET-0(18|19|20))'`; evidencia `.swarm/handoffs/e2e/T083.md`; Expected commit: `test(US5): T083 prove legal history and irreversible reset flows [AC-US5-HISTORIAL-015 AC-US5-HISTORIAL-016 AC-US5-HISTORIAL-017 AC-US5-RESET-018 AC-US5-RESET-019 AC-US5-RESET-020]`
+- [ ] T084 [US5] [OWNER:e2e] [AC:AC-US5-PUNTERO-021,AC-US5-PUNTERO-022,AC-US5-TECLADO-023,AC-US5-TECLADO-024,AC-US5-FOCO-025,AC-US5-A11Y-028,AC-US5-A11Y-029,AC-US5-A11Y-030,AC-US5-A11Y-031] [RED] Añadir en `src/components/App.integration.test.tsx` y `tests/e2e/game.spec.ts` tests literales para clic/toque/Enter/Espacio, permanencia de foco, nombre exacto, anuncios exactos X/O y ausencia de anuncio falso; comandos `npm run test:component -- --testNamePattern='AC-US5-(PUNTERO-021|TECLADO-02[3-4]|FOCO-025|A11Y-0(28|29|30|31))'` y `npm run test:e2e -- --grep='AC-US5-PUNTERO-022'`; evidencia `.swarm/handoffs/e2e/T084.md`; Expected commit: `test(US5): T084 prove composed input focus and announcements [AC-US5-PUNTERO-021 AC-US5-PUNTERO-022 AC-US5-TECLADO-023 AC-US5-TECLADO-024 AC-US5-FOCO-025 AC-US5-A11Y-028 AC-US5-A11Y-029 AC-US5-A11Y-030 AC-US5-A11Y-031]`
+- [ ] T085 [US5] [OWNER:e2e] [AC:AC-US5-FOCO-027,AC-US5-RESPONSIVE-032,AC-US5-RESPONSIVE-033,AC-US5-VISUAL-034] [RED] Añadir en `tests/e2e/game.spec.ts` tests literales para foco visible, señal textual no cromática, 320/768/1280/1920 px y zoom 200 %; comando `npm run test:e2e -- --grep='AC-US5-(FOCO-027|RESPONSIVE-03[2-3]|VISUAL-034)'`; evidencia `.swarm/handoffs/e2e/T085.md`; Expected commit: `test(US5): T085 prove focus responsive and non-color boundaries [AC-US5-FOCO-027 AC-US5-RESPONSIVE-032 AC-US5-RESPONSIVE-033 AC-US5-VISUAL-034]`
+
+### GREEN granulares posteriores a todas las RED
+
+- [ ] T086 [US5] [OWNER:e2e] [AC:AC-US5-INTERACCION-001,AC-US5-INTERACCION-002,AC-US5-DISPONIBILIDAD-003,AC-US5-DISPONIBILIDAD-004,AC-US5-FOCO-026] [GREEN] Integrar `UndoButton` en `src/App.tsx` después del tablero y antes de Reset, con `available={canUndo(state)}` y orden DOM estable; comandos `npm run test:component -- --testNamePattern='AC-US5-(INTERACCION-00[1-2]|DISPONIBILIDAD-00[3-4]|FOCO-026)'` y `npm run test:component`; evidencia `.swarm/handoffs/e2e/T086.md`; Expected commit: `feat(US5): T086 compose Undo shell availability and order [AC-US5-INTERACCION-001 AC-US5-INTERACCION-002 AC-US5-DISPONIBILIDAD-003 AC-US5-DISPONIBILIDAD-004 AC-US5-FOCO-026]`
+- [ ] T087 [US5] [OWNER:e2e] [AC:AC-US5-DOMINIO-005,AC-US5-ESTADO-006,AC-US5-ESTADO-007,AC-US5-DOMINIO-008] [GREEN] Conectar en `src/App.tsx` un único callback `dispatch({type:'UNDO'})` y restaurar tablero/status exclusivamente mediante el dominio; comandos `npm run test:component -- --testNamePattern='AC-US5-(DOMINIO-(005|008)|ESTADO-00[6-7])'` y `npm run test:component`; evidencia `.swarm/handoffs/e2e/T087.md`; Expected commit: `feat(US5): T087 connect exact Undo restoration [AC-US5-DOMINIO-005 AC-US5-ESTADO-006 AC-US5-ESTADO-007 AC-US5-DOMINIO-008]`
+- [ ] T103 [US5] [OWNER:e2e] [AC:AC-US5-UNWANTED-012,AC-US5-UNWANTED-013,AC-US5-UNWANTED-014,AC-US5-HISTORIAL-015,AC-US5-HISTORIAL-016,AC-US5-HISTORIAL-017] [GREEN] Conservar en `src/App.tsx` la disponibilidad derivada de `canUndo(state)` sin deducir historial, cubriendo jugadas legales, intentos rechazados y no-op vacío; comandos `npm run test:e2e -- --grep='AC-US5-(UNWANTED-01[2-4]|HISTORIAL-01[5-7])'` y `npm run test:e2e`; evidencia `.swarm/handoffs/e2e/T103.md`; Expected commit: `feat(US5): T103 compose legal and empty history boundaries [AC-US5-UNWANTED-012 AC-US5-UNWANTED-013 AC-US5-UNWANTED-014 AC-US5-HISTORIAL-015 AC-US5-HISTORIAL-016 AC-US5-HISTORIAL-017]`
+- [ ] T104 [US5] [OWNER:e2e] [AC:AC-US5-PUNTERO-021,AC-US5-PUNTERO-022,AC-US5-TECLADO-023,AC-US5-TECLADO-024] [GREEN] Usar el mismo callback nativo de `UndoButton` en `src/App.tsx` para clic, toque, Enter y Espacio sin listeners alternativos; comandos `npm run test:component -- --testNamePattern='AC-US5-(PUNTERO-021|TECLADO-02[3-4])'`, `npm run test:e2e -- --grep='AC-US5-PUNTERO-022'` y suites component/E2E; evidencia `.swarm/handoffs/e2e/T104.md`; Expected commit: `feat(US5): T104 compose native Undo input paths [AC-US5-PUNTERO-021 AC-US5-PUNTERO-022 AC-US5-TECLADO-023 AC-US5-TECLADO-024]`
+- [ ] T093 [US5] [OWNER:e2e] [AC:AC-US5-TERMINAL-009,AC-US5-HISTORIAL-010,AC-US5-HISTORIAL-011,AC-US5-RESET-018,AC-US5-RESET-019,AC-US5-RESET-020] [GREEN] Completar en `src/App.tsx` la composición de terminales, repetición y reset usando exclusivamente transiciones del dominio; comandos `npm run test:e2e -- --grep='AC-US5-(TERMINAL-009|HISTORIAL-01[0-1]|RESET-0(18|19|20))'` y `npm run test:e2e`; evidencia `.swarm/handoffs/e2e/T093.md`; Expected commit: `feat(US5): T093 compose terminal repeated and reset flows [AC-US5-TERMINAL-009 AC-US5-HISTORIAL-010 AC-US5-HISTORIAL-011 AC-US5-RESET-018 AC-US5-RESET-019 AC-US5-RESET-020]`
+- [ ] T094 [US5] [OWNER:e2e] [AC:AC-US5-FOCO-025,AC-US5-A11Y-028,AC-US5-A11Y-029,AC-US5-A11Y-030,AC-US5-A11Y-031] [GREEN] Entregar desde `src/App.tsx` el anuncio exacto una sola vez al `GameStatus` ya integrado, no crear evento en Undo vacío y mantener el nodo Undo enfocado; comandos `npm run test:component -- --testNamePattern='AC-US5-(FOCO-025|A11Y-0(28|29|30|31))'`, `npm run test:component` y `npm run build`; evidencia `.swarm/handoffs/e2e/T094.md`; Expected commit: `feat(US5): T094 compose Undo focus and exact announcements [AC-US5-FOCO-025 AC-US5-A11Y-028 AC-US5-A11Y-029 AC-US5-A11Y-030 AC-US5-A11Y-031]`
+- [ ] T101 [US5] [OWNER:e2e] [AC:AC-US5-FOCO-027,AC-US5-RESPONSIVE-032,AC-US5-RESPONSIVE-033,AC-US5-VISUAL-034] [GREEN] Ajustar `src/styles.css` para contorno continuo, señal textual visible, acciones sin overflow entre 320–1920 px y sin solapamiento al 200 %; comandos `npm run test:e2e -- --grep='AC-US5-(FOCO-027|RESPONSIVE-03[2-3]|VISUAL-034)'`, `npm run test:e2e` y `npm run build`; evidencia `.swarm/handoffs/e2e/T101.md`; Expected commit: `feat(US5): T101 enforce focus responsive and non-color boundaries [AC-US5-FOCO-027 AC-US5-RESPONSIVE-032 AC-US5-RESPONSIVE-033 AC-US5-VISUAL-034]`
+
+## Phase 6: Consolidación, release y auditoría
+
+- [ ] T097 [OWNER:orchestrator] [GREEN] Después de integrar domain e interfaz, consolidar SHAs/evidencia de `.swarm/handoffs/domain/**` y `.swarm/handoffs/interfaz/**` únicamente en `specs/002-undo/tasks.md` y `specs/002-undo/traceability.md`; ejecutar unit, component, build y `node scripts/verify-traceability.mjs --phase=tasks`; Expected commit: `docs(traceability): T097 consolidate parallel worker evidence`
+- [ ] T098 [OWNER:orchestrator] [GREEN] Después de integrar e2e, consolidar `.swarm/handoffs/e2e/**`, ejecutar `$speckit-converge` y volver a Tasks/Analyze si añade trabajo; archivos `specs/002-undo/tasks.md` y `specs/002-undo/traceability.md`; comando `node scripts/verify-traceability.mjs --phase=tasks`; Expected commit: `docs(traceability): T098 consolidate e2e evidence`
+- [ ] T099 [OWNER:orchestrator] [GREEN] Con cero tareas obligatorias pendientes y cero `PENDING`, cambiar `specs/002-undo/traceability.md` a `Release_Candidate` y ejecutar en orden unit, component, e2e, build y traceability final; Expected commit: `docs(traceability): T099 enter release candidate`
+- [ ] T100 [OWNER:orchestrator] [GREEN] Tras el PASS de candidata, cambiar `specs/002-undo/traceability.md` a `Verified`, repetir `npm run verify:traceability` y confirmar árbol limpio; Expected commit: `docs(traceability): T100 verify feature 002 release`
+- [ ] T102 [OWNER:reviewer] [GREEN] Auditar read-only spec, plan, tasks, contratos, commits, ownership, 34 AC, ambos gates y regresión de los 42 AC de feature 001; leer `specs/002-undo/**`, `specs/001-tres-en-raya-web/**` y `git log`; comando `npm run verify`; Expected commit: `N/A — reviewer read-only`
+
+## Dependencies and merge order
 
 ```text
-Tasks repair + ledger Planned
-              ↓
-       --phase=tasks PASS
-              ↓
-    Analyze B GO limitado
-              ↓
-         T088 → T089
-              ↓
-   Tasks ampliadas + Analyze C
-              ↓
- domain ║ interfaz → merges → e2e
+T088 → T089 → Tasks ampliadas → Analyze C
+                                  ↓ GO
+                            T090 → T091 → T092
+                                  ↓ baseline + prepare
+                    domain T064–T075 ║ interfaz T076–T079,T095–T096
+                                  ↓ merge domain, sensores
+                                  ↓ merge interfaz, sensores
+                                 T097
+                                  ↓
+                       e2e RED T080–T085
+                                  ↓
+                    e2e GREEN T086,T087,T103,T104,T093,T094,T101
+                                  ↓
+                        T098 → T099 → T100 → T102
 ```
 
-### Canonical RED/GREEN blocks
+- `[P]` solo indica que el primer bloque de domain y el primer bloque de interfaz pueden comenzar
+  desde la misma base; dentro de cada track las tareas son secuenciales porque comparten archivos.
+- `e2e` depende explícitamente de ambos merges; si detecta un defecto ajeno, registra hallazgo y
+  devuelve el trabajo al owner.
+- Ningún worker toca `tasks.md` o `traceability.md`; T097/T098 consolidan desde la sesión principal.
 
-- `T062 → T063`
-- `T088 → T089`
-- `T064 → T065`
-- `T066 → T067`
-- `T068 → T069`
-- `T070 → T071`
-- `T072 → T073`
-- `T074 → T075`
-- `T076 → T077`
-- `T078 → T079`
-- `T080 → T081`
-- `T082 → T083`
-- `T084 → T085`
-- `T086 → T087`
+## Coverage audit
 
-Cada bloque contiene AC relacionados, un único RED canónico y un único GREEN canónico. No existe
-ningún segundo par para el mismo AC en este bootstrap.
+| AC-ID | RED task(s) | GREEN task(s) | Test previsto | OWNER |
+|---|---|---|---|---|
+| AC-US5-INTERACCION-001 | T080 | T086 | `App.integration.test.tsx` visibilidad cinco estados | e2e |
+| AC-US5-INTERACCION-002 | T080 | T086 | `App.integration.test.tsx` ubicación | e2e |
+| AC-US5-DISPONIBILIDAD-003 | T076, T080 | T077, T086 | `UndoButton.test.tsx`; integración disponible | interfaz/e2e |
+| AC-US5-DISPONIBILIDAD-004 | T076, T080 | T077, T086 | `UndoButton.test.tsx`; integración no disponible | interfaz/e2e |
+| AC-US5-DOMINIO-005 | T066, T081 | T067, T087 | unit e integración tablero | domain/e2e |
+| AC-US5-ESTADO-006 | T066, T081 | T067, T087 | unit e integración estado | domain/e2e |
+| AC-US5-ESTADO-007 | T066, T081 | T067, T087 | unit e integración turno | domain/e2e |
+| AC-US5-DOMINIO-008 | T066, T081 | T067, T087 | unit e integración una marca | domain/e2e |
+| AC-US5-TERMINAL-009 | T068, T082 | T069, T093 | unit y E2E tres terminales | domain/e2e |
+| AC-US5-HISTORIAL-010 | T070, T082 | T071, T093 | unit y E2E repetición | domain/e2e |
+| AC-US5-HISTORIAL-011 | T070, T082 | T071, T093 | unit y E2E tablero vacío | domain/e2e |
+| AC-US5-UNWANTED-012 | T072, T082 | T073, T103 | unit y E2E tablero no-op | domain/e2e |
+| AC-US5-UNWANTED-013 | T072, T082 | T073, T103 | unit y E2E estado no-op | domain/e2e |
+| AC-US5-UNWANTED-014 | T072, T082 | T073, T103 | unit y E2E disponibilidad no-op | domain/e2e |
+| AC-US5-HISTORIAL-015 | T064, T083 | T065, T103 | unit y E2E jugada legal | domain/e2e |
+| AC-US5-HISTORIAL-016 | T064, T083 | T065, T103 | unit y E2E celda ocupada | domain/e2e |
+| AC-US5-HISTORIAL-017 | T064, T083 | T065, T103 | unit y E2E terminal rechazado | domain/e2e |
+| AC-US5-RESET-018 | T074, T083 | T075, T093 | unit y E2E tablero reset | domain/e2e |
+| AC-US5-RESET-019 | T074, T083 | T075, T093 | unit y E2E estado reset | domain/e2e |
+| AC-US5-RESET-020 | T074, T083 | T075, T093 | unit y E2E historial reset | domain/e2e |
+| AC-US5-PUNTERO-021 | T078, T084 | T079, T104 | componente e integración clic | interfaz/e2e |
+| AC-US5-PUNTERO-022 | T084 | T104 | E2E toque | e2e |
+| AC-US5-TECLADO-023 | T078, T084 | T079, T104 | componente/integración Enter | interfaz/e2e |
+| AC-US5-TECLADO-024 | T078, T084 | T079, T104 | componente/integración Espacio | interfaz/e2e |
+| AC-US5-FOCO-025 | T078, T084 | T079, T094 | componente/integración foco | interfaz/e2e |
+| AC-US5-FOCO-026 | T080 | T086 | integración orden de foco | e2e |
+| AC-US5-FOCO-027 | T085 | T101 | E2E contorno | e2e |
+| AC-US5-A11Y-028 | T076, T084 | T077, T094 | componente/integración nombre | interfaz/e2e |
+| AC-US5-A11Y-029 | T095, T084 | T096, T094 | GameStatus/integración anuncio X | interfaz/e2e |
+| AC-US5-A11Y-030 | T095, T084 | T096, T094 | GameStatus/integración anuncio O | interfaz/e2e |
+| AC-US5-A11Y-031 | T084 | T094 | integración sin anuncio falso | e2e |
+| AC-US5-RESPONSIVE-032 | T085 | T101 | E2E 320–1920 px | e2e |
+| AC-US5-RESPONSIVE-033 | T085 | T101 | E2E zoom 200 % | e2e |
+| AC-US5-VISUAL-034 | T076, T085 | T077, T101 | componente/E2E señal textual | interfaz/e2e |
 
-## Parallel opportunities after Analyze C
-
-Domain e interfaz pueden avanzar como tracks paralelos desde la misma base verde porque sus archivos
-son disjuntos:
-
-```text
-domain:    T064 → T065 → T066 → T067 → T068 → T069 → T070 → T071 → T072 → T073 → T074 → T075
-interfaz:  T076 → T077 → T078 → T079
-```
-
-No se marca `[P]` en tasks individuales porque cada track comparte archivos internos y cada GREEN
-depende de su RED. El track de composición/browser depende explícitamente de ambos merges y solo se
-ordena definitivamente en el segundo pase.
-
-## Implementation strategy
-
-### MVP
-
-Solo existe `US-005` P1. El MVP completo requiere dominio, interfaz, composición, navegador,
-regresión de los 42 AC y trazabilidad multi-feature; el bootstrap no constituye un incremento
-entregable.
-
-### Incremental checkpoints
-
-1. `T063`: descubrimiento multi-feature y ciclo de vida listos.
-2. `T089`: bloques TDD multi-familia representables.
-3. Pase ampliado + Analyze C: grafo ejecutable, contratos congelados y baseline verde.
-4. Domain: historial, UNDO y RESET verdes.
-5. Interfaz: control y `GameStatus` compatibles.
-6. E2E: composición, anuncios, terminales, repetición, reset, teclado y responsive.
-7. Release: cero `PENDING`, feature 001 verde y ledger `VERIFIED`.
-
-## Coverage audit — bootstrap canonical pairs
-
-| AC-ID | RED | GREEN | Test previsto | OWNER |
-|---|---:|---:|---|---|
-| `AC-US5-INTERACCION-001` | T080 | T081 | `src/components/App.integration.test.tsx` — `AC-US5-INTERACCION-001 muestra Deshacer jugada en cada estado canónico` | e2e |
-| `AC-US5-INTERACCION-002` | T080 | T081 | `src/components/App.integration.test.tsx` — `AC-US5-INTERACCION-002 ubica Undo entre tablero y Reiniciar partida` | e2e |
-| `AC-US5-DISPONIBILIDAD-003` | T076 | T077 | `src/components/UndoButton.test.tsx` — `AC-US5-DISPONIBILIDAD-003 expone disponible el control cuando available es true` | interfaz |
-| `AC-US5-DISPONIBILIDAD-004` | T076 | T077 | `src/components/UndoButton.test.tsx` — `AC-US5-DISPONIBILIDAD-004 expone semántica no disponible cuando available es false` | interfaz |
-| `AC-US5-DOMINIO-005` | T066 | T067 | `src/domain/game.test.ts` — `AC-US5-DOMINIO-005 restaura exactamente las nueve celdas del último snapshot` | domain |
-| `AC-US5-ESTADO-006` | T066 | T067 | `src/domain/game.test.ts` — `AC-US5-ESTADO-006 restaura por separado el estado canónico del último snapshot` | domain |
-| `AC-US5-ESTADO-007` | T066 | T067 | `src/domain/game.test.ts` — `AC-US5-ESTADO-007 devuelve el turno al jugador cuya jugada se retira` | domain |
-| `AC-US5-DOMINIO-008` | T066 | T067 | `src/domain/game.test.ts` — `AC-US5-DOMINIO-008 elimina una sola marca por acción UNDO` | domain |
-| `AC-US5-TERMINAL-009` | T068 | T069 | `src/domain/game.test.ts` — `AC-US5-TERMINAL-009 restaura PLAYING desde WON_X WON_O y DRAW` | domain |
-| `AC-US5-HISTORIAL-010` | T070 | T071 | `src/domain/game.test.ts` — `AC-US5-HISTORIAL-010 deshace repetidamente la siguiente jugada más reciente` | domain |
-| `AC-US5-HISTORIAL-011` | T070 | T071 | `src/domain/game.test.ts` — `AC-US5-HISTORIAL-011 llega a nueve celdas vacías al consumir el historial` | domain |
-| `AC-US5-UNWANTED-012` | T072 | T073 | `src/domain/game.test.ts` — `AC-US5-UNWANTED-012 conserva por separado el tablero con historial vacío` | domain |
-| `AC-US5-UNWANTED-013` | T072 | T073 | `src/domain/game.test.ts` — `AC-US5-UNWANTED-013 conserva por separado el status con historial vacío` | domain |
-| `AC-US5-UNWANTED-014` | T072 | T073 | `src/domain/game.test.ts` — `AC-US5-UNWANTED-014 mantiene canUndo falso tras UNDO vacío` | domain |
-| `AC-US5-HISTORIAL-015` | T064 | T065 | `src/domain/game.test.ts` — `AC-US5-HISTORIAL-015 añade exactamente un snapshot por jugada legal` | domain |
-| `AC-US5-HISTORIAL-016` | T064 | T065 | `src/domain/game.test.ts` — `AC-US5-HISTORIAL-016 no añade historial por intento en celda ocupada` | domain |
-| `AC-US5-HISTORIAL-017` | T064 | T065 | `src/domain/game.test.ts` — `AC-US5-HISTORIAL-017 no añade historial por intento en estado terminal` | domain |
-| `AC-US5-RESET-018` | T074 | T075 | `src/domain/game.test.ts` — `AC-US5-RESET-018 RESET deja nueve celdas vacías` | domain |
-| `AC-US5-RESET-019` | T074 | T075 | `src/domain/game.test.ts` — `AC-US5-RESET-019 RESET restaura PLAYING_X` | domain |
-| `AC-US5-RESET-020` | T074 | T075 | `src/domain/game.test.ts` — `AC-US5-RESET-020 RESET elimina historial y deja canUndo falso` | domain |
-| `AC-US5-PUNTERO-021` | T078 | T079 | `src/components/UndoButton.test.tsx` — `AC-US5-PUNTERO-021 una activación de puntero invoca onUndo una vez` | interfaz |
-| `AC-US5-PUNTERO-022` | T084 | T085 | `tests/e2e/game.spec.ts` — `AC-US5-PUNTERO-022 toque real deshace una jugada legal` | e2e |
-| `AC-US5-TECLADO-023` | T078 | T079 | `src/components/UndoButton.test.tsx` — `AC-US5-TECLADO-023 Enter invoca onUndo una vez con historial` | interfaz |
-| `AC-US5-TECLADO-024` | T078 | T079 | `src/components/UndoButton.test.tsx` — `AC-US5-TECLADO-024 Espacio invoca onUndo una vez con historial` | interfaz |
-| `AC-US5-FOCO-025` | T078 | T079 | `src/components/UndoButton.test.tsx` — `AC-US5-FOCO-025 conserva el mismo botón enfocado tras activación y rerender` | interfaz |
-| `AC-US5-FOCO-026` | T080 | T081 | `src/components/App.integration.test.tsx` — `AC-US5-FOCO-026 ordena nueve celdas Undo y Reiniciar en la secuencia de foco` | e2e |
-| `AC-US5-FOCO-027` | T086 | T087 | `tests/e2e/game.spec.ts` — `AC-US5-FOCO-027 muestra contorno continuo al enfocar Deshacer jugada` | e2e |
-| `AC-US5-A11Y-028` | T076 | T077 | `src/components/UndoButton.test.tsx` — `AC-US5-A11Y-028 tiene nombre visible y accesible exacto Deshacer jugada` | interfaz |
-| `AC-US5-A11Y-029` | T082 | T083 | `src/components/App.integration.test.tsx` — `AC-US5-A11Y-029 anuncia exactamente Jugada deshecha Turno de X` | e2e |
-| `AC-US5-A11Y-030` | T082 | T083 | `src/components/App.integration.test.tsx` — `AC-US5-A11Y-030 anuncia exactamente Jugada deshecha Turno de O` | e2e |
-| `AC-US5-A11Y-031` | T082 | T083 | `src/components/App.integration.test.tsx` — `AC-US5-A11Y-031 no cambia la región de estado al intentar Undo vacío` | e2e |
-| `AC-US5-RESPONSIVE-032` | T086 | T087 | `tests/e2e/game.spec.ts` — `AC-US5-RESPONSIVE-032 evita overflow horizontal entre 320 y 1920 px` | e2e |
-| `AC-US5-RESPONSIVE-033` | T086 | T087 | `tests/e2e/game.spec.ts` — `AC-US5-RESPONSIVE-033 evita superposición de controles con zoom 200 por ciento` | e2e |
-| `AC-US5-VISUAL-034` | T076 | T077 | `src/components/UndoButton.test.tsx` — `AC-US5-VISUAL-034 comunica No disponible sin depender solo del color` | interfaz |
-
-## Gate coverage audit
+## Gate audit
 
 | GATE-ID | RED | GREEN | Test previsto | OWNER |
-|---|---:|---:|---|---|
-| `GATE-MULTIFEATURE-001` | T062 | T063 | `scripts/verify-traceability.test.mjs` — tests con nombre literal `GATE-MULTIFEATURE-001` | orchestrator |
-| `GATE-MULTIFEATURE-001` | T088 | T089 | `scripts/verify-traceability.test.mjs` — bloque multi-familia y compatibilidad legacy | orchestrator |
+|---|---|---|---|---|
+| GATE-MULTIFEATURE-001 | T062, T088 | T063, T089 | `scripts/verify-traceability.test.mjs` | orchestrator |
+| GATE-SWARM-001 | T090 | T091 | `scripts/swarm.test.mjs` | orchestrator |
 
-## Bootstrap metrics
+## Metrics
 
-- 28 Task IDs globalmente únicos: `T062–T089`.
-- 4 tooling tasks: dos pares RED/GREEN para `GATE-MULTIFEATURE-001`; T062/T063 están completadas y
-  T088/T089 pendientes.
-- 24 tasks de `US5`: 12 RED y 12 GREEN.
-- 34/34 AC con un par canónico y un test previsto con AC-ID literal.
-- 0 pares suplementarios; se añaden únicamente después de T063.
-- 42 AC de feature 001 preservados como regresión obligatoria del segundo pase y del cierre.
+- 43 Task IDs de feature 002, todos globalmente únicos.
+- 6 tareas de tooling, 32 tareas de producto/lifecycle/consolidación y una auditoría read-only.
+- 34/34 AC con al menos un RED y un GREEN; toda evidencia de producto contiene AC-ID literal.
+- 2 gates con pares RED/GREEN y test previsto.
+- 42 AC de feature 001 son regresión obligatoria en baseline, candidata, verificación y review.

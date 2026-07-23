@@ -241,3 +241,19 @@ familia.
   satisfacer por accidente tests futuros aún no escritos.
 - Un único commit GREEN para App y estilos: rechazado porque agrupa observables no relacionados y
   dificulta auditar sus AC.
+
+## 17. Raíz única de prompts para el swarm
+
+**Decision**: `scripts/swarm.sh` usa `.prompts/` como raíz única y `GATE-SWARM-001`, implementado con
+un test Node sin dependencias, valida la ruta y la presencia de los prompts domain e interfaz antes
+del fan-out.
+
+**Rationale**: Los prompts existentes están versionados bajo `.prompts/`. Una ruta distinta permite
+que baseline y `prepare` pasen, pero hace fallar `launch-parallel` después de crear worktrees. El
+preflight aislado detecta esa divergencia sin lanzar Codex ni crear estado externo.
+
+**Alternatives considered**:
+
+- Copiar los prompts a `prompts/`: rechazado porque duplicaría fuentes y permitiría divergencia.
+- Detectar ambas rutas con fallback: rechazado porque ocultaría una configuración incoherente.
+- Descubrir el fallo durante `launch-parallel`: rechazado porque ocurre después de mutar worktrees.

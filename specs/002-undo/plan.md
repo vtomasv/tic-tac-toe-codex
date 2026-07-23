@@ -21,6 +21,10 @@ ciclo de vida y evidencia suplementaria. Después se regenera Tasks sin renumera
 commiteado, se valida el modelo ampliado y se repite Analyze. El fan-out de producto comienza
 únicamente con el segundo Analyze en GO y el baseline completo en verde.
 
+El pase ampliado también incorpora `GATE-SWARM-001`: un preflight TDD del runner que exige resolver
+los prompts versionados desde `.prompts/` antes de crear worktrees. Este gate es operacional,
+pertenece al orquestador y no modifica contratos ni código de producto.
+
 ## Technical Context
 
 **Language/Version**: TypeScript estricto sobre Node.js `24.18.0`  
@@ -193,6 +197,24 @@ compatibilidad. Un valor ausente o desconocido es error determinista.
 Ningún worker edita el ledger. El orquestador completa evidencias desde handoffs y `git log`; nunca
 inventa ni reconstruye retrospectivamente el mapeo.
 
+## Swarm Runner Gate
+
+`GATE-SWARM-001` protege la frontera previa a `launch-parallel` sin añadir dependencias:
+
+- un test Node en `scripts/swarm.test.mjs` inspecciona `scripts/swarm.sh` y exige que
+  `PROMPT_ROOT` apunte a `.prompts/`;
+- el test exige que existan los prompts versionados
+  `.prompts/09-speckit-implement-domain.md` y
+  `.prompts/10-speckit-implement-interfaz.md`;
+- RED debe fallar por la ruta legacy `prompts/`, antes de modificar el runner;
+- GREEN cambia únicamente la resolución de ruta y el texto de ayuda asociado;
+- el gate queda verde y con SHAs reales antes de cambiar el ledger a `IMPLEMENTING`;
+- `launch-parallel` conserva sus comprobaciones de rama, árbol limpio y baseline completo antes de
+  crear worktrees o invocar Codex.
+
+El test del gate no lanza agentes ni crea worktrees. Su única responsabilidad es demostrar que el
+runner localiza de forma determinista los prompts que ya pertenecen al repositorio.
+
 ### Descubrimiento
 
 - Enumerar directorios inmediatos de `specs/` que coincidan con `NNN-*`, ordenados lexicográficamente.
@@ -237,7 +259,7 @@ RED precede a GREEN y se conserva en commits separados. El contrato `contracts/t
 | Component | interfaz | visibilidad controlada, disponibilidad, nombre, puntero/teclado, foco propio, señal no cromática | `npm run test:component` |
 | Integration | e2e | composición real, disponibilidad, restauración, orden/permanencia de foco, anuncios exactos y ausencia de anuncio falso | `npm run test:component` |
 | E2E | e2e | toque, los tres terminales, repetición hasta vacío, reset irreversible, secuencia solo teclado, zoom, cuatro anchos y regresión | `npm run test:e2e` |
-| Gate | orquestador | descubrimiento multi-feature, unicidad global, unión de commits, errores y exit code | `node --test scripts/verify-traceability.test.mjs` y `npm run verify:traceability` |
+| Gate | orquestador | descubrimiento multi-feature, unicidad global, unión de commits, errores, exit code y resolución de prompts del swarm | `node --test scripts/verify-traceability.test.mjs`, `node --test scripts/swarm.test.mjs` y `npm run verify:traceability` |
 
 Los escenarios con tablero y estado restaurados mantienen assertions separadas. Los escenarios sin historial prueban por separado tablero, estado, indisponibilidad y ausencia de anuncio. La suite final incluye los 42 criterios de la feature 001 sin editar sus IDs ni su spec.
 
@@ -274,7 +296,8 @@ Después del segundo pase Tasks y del segundo Analyze en GO, antes del fan-out s
 - `contracts/domain-contract.md`: tipos, acciones, selector, invariantes y tabla de transiciones.
 - `contracts/ui-contract.md`: props, DOM, firma opcional compatible de `GameStatus`, accesibilidad,
   foco, anuncio e integración.
-- `contracts/traceability-contract.md`: IDs, RED/GREEN, matriz AC-test y gate multi-feature.
+- `contracts/traceability-contract.md`: IDs, RED/GREEN, matriz AC-test, gate multi-feature y
+  preflight del swarm.
 
 Después del freeze, cualquier cambio material de firma o semántica detiene el trabajo y vuelve a Plan/Analyze; ningún agente adapta el contrato unilateralmente.
 
@@ -330,7 +353,9 @@ tests/e2e/
 
 scripts/
 ├── verify-traceability.mjs
-└── verify-traceability.test.mjs
+├── verify-traceability.test.mjs
+├── swarm.sh
+└── swarm.test.mjs
 ```
 
 **Structure Decision**: Se mantiene la estructura actual. No se crean capas, paquetes ni dependencias nuevas. El único componente nuevo es presentacional; el historial permanece dentro del modelo de dominio existente.

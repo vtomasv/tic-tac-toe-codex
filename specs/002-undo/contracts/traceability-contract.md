@@ -2,18 +2,21 @@
 
 ## Scope
 
-Este contrato define la cadena obligatoria criterio → tarea → commit → test para `US-005` y el gate
-compartido. Plan no crea `tasks.md` ni `traceability.md`. El primer pase Tasks produce la forma
+Este contrato define la cadena obligatoria criterio → tarea → commit → test para `US-005`, el gate
+multi-feature y el preflight operacional del swarm. Plan no crea `tasks.md` ni `traceability.md`. El primer pase Tasks produce la forma
 bootstrap compatible con el verificador vigente; después de `T063`, un segundo pase añade la
 evidencia suplementaria y vuelve a Analyze antes del fan-out.
 
 ## Global identity rules
 
 - Los AC de producto usan exclusivamente `AC-US5-CATEGORIA-nnn` y los 34 IDs definidos en `spec.md`.
-- El gate nuevo usa exclusivamente `GATE-MULTIFEATURE-001`.
+- El gate de trazabilidad usa `GATE-MULTIFEATURE-001`.
+- El preflight del runner usa `GATE-SWARM-001`.
 - El máximo previo es `T061`; esta feature continúa con `T062`.
 - `T062` queda reservado para RED de `GATE-MULTIFEATURE-001`.
 - `T063` queda reservado para GREEN de `GATE-MULTIFEATURE-001`.
+- `T088/T089` completan el modelo multi-familia del mismo gate.
+- `T090/T091` quedan reservados para RED/GREEN de `GATE-SWARM-001`.
 - Tasks asignará IDs consecutivos desde `T064` al trabajo de producto, sin reutilizar IDs de feature 001.
 - Ningún AC, GATE o Task ID puede redefinirse en otra feature.
 
@@ -40,6 +43,8 @@ test(US5): Tnnn descripción [AC-US5-...]
 feat(US5): Tnnn descripción [AC-US5-...]
 test(tooling): T062 descripción [GATE-MULTIFEATURE-001]
 feat(tooling): T063 descripción [GATE-MULTIFEATURE-001]
+test(tooling): T090 descripción [GATE-SWARM-001]
+fix(tooling): T091 descripción [GATE-SWARM-001]
 ```
 
 Una task no mezcla tooling y producto. Un commit no reclama IDs que su task no declara.
@@ -160,6 +165,10 @@ Los tests `GATE-MULTIFEATURE-001` cubren como mínimo:
 
 No se añaden dependencias: se reutiliza `node:test`, archivos temporales y las funciones exportadas del verificador.
 
+Los tests `GATE-SWARM-001` cubren la raíz canónica `.prompts/`, la presencia de los prompts domain
+e interfaz consumidos por `launch-parallel` y la ausencia de fallback a una raíz paralela. El gate
+no lanza agentes ni crea worktrees.
+
 ## Ledger lifecycle and obligations
 
 ### Pase bootstrap y primer Analyze
@@ -173,9 +182,10 @@ Inmediatamente después del primer Tasks, `traceability.md` declara `PLANNED` y 
 - estado de evidencia `PENDING`;
 - notas solo si no sustituyen evidencia.
 
-Debe haber 35 filas estructurales: 34 AC y `GATE-MULTIFEATURE-001`. No se introducen todavía pares
-suplementarios para el mismo AC. El verificador vigente en `--phase=tasks` debe aceptar esta forma
-antes del primer Analyze. Ese Analyze en GO autoriza únicamente `T062/T063`.
+El bootstrap histórico contiene 35 filas estructurales: 34 AC y `GATE-MULTIFEATURE-001`. No
+introduce todavía pares suplementarios para el mismo AC. El verificador vigente en `--phase=tasks`
+debe aceptar esa forma antes del primer Analyze. El pase ampliado conserva esas filas, añade los
+pares suplementarios y agrega `GATE-SWARM-001` antes del segundo Analyze.
 
 ### Modelo instalado por el gate
 
@@ -215,7 +225,8 @@ Después de integrar `T062/T063`:
 - Ningún worker modifica el ledger.
 - El orquestador actualiza exclusivamente las filas cubiertas después de cada merge, usando el
   handoff y SHA observados en `git log`.
-- La fila del gate se completa al integrar `T062/T063`, antes del fan-out.
+- Las filas de `GATE-MULTIFEATURE-001` se completan al integrar `T062/T063` y `T088/T089`.
+- La fila de `GATE-SWARM-001` se completa al integrar `T090/T091`, antes del fan-out.
 - Las filas domain, interfaz e integración/E2E se completan después de sus merges respectivos.
 - Con cero `PENDING`, el orquestador cambia a `RELEASE_CANDIDATE` y ejecuta la validación final.
 - Solo después de PASS cambia a `VERIFIED` y repite la validación final.

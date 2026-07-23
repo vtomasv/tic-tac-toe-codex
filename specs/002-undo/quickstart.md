@@ -50,8 +50,8 @@ Después del segundo Analyze en GO y antes del fan-out, el orquestador registra 
 - `data-model.md`.
 
 El freeze incluye `GameState.history` requerido, `GameAction.UNDO`, `canUndo`, props del botón,
-`GameStatus(status, announcement?)`, anuncio único, ciclo del ledger, `GATE-MULTIFEATURE-001` y orden
-de merges.
+`GameStatus(status, announcement?)`, anuncio único, ciclo del ledger, `GATE-MULTIFEATURE-001`,
+`GATE-SWARM-001` y orden de merges.
 
 ## Stage 0: Bootstrap ledger and Analyze A
 
@@ -99,10 +99,13 @@ Con el gate integrado, el orquestador:
 4. actualiza el ledger con el esquema ampliado, todavía en `PLANNED`;
 5. ejecuta el nuevo `--phase=tasks`;
 6. repite `speckit-analyze` como Analyze B;
-7. si Analyze B está en GO, congela contratos, cambia el ledger a `IMPLEMENTING` y commitea esa
-   transición mediante su task de orquestador;
-8. ejecuta unit, component, E2E, build y traceability sobre ese commit exacto;
-9. crea los worktrees de producto solo si todo el baseline está verde.
+7. si Analyze B está en GO, ejecuta RED/GREEN de `GATE-SWARM-001` para demostrar que
+   `scripts/swarm.sh` resuelve los prompts desde `.prompts/`, sin lanzar agentes ni crear worktrees;
+8. congela contratos, cambia el ledger a `IMPLEMENTING` y commitea esa transición mediante su task
+   de orquestador;
+9. ejecuta unit, component, E2E, build y traceability sobre ese commit exacto;
+10. ejecuta `scripts/swarm.sh prepare` y crea los worktrees de producto solo si todo el baseline
+    está verde.
 
 En la validación final de baseline, feature 002 sigue descubierta, participa en unicidad global y en
 la unión de tasks, pero su evidencia futura `PENDING` no se trata como evidencia de release. Feature
