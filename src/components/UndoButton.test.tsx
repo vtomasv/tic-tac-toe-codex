@@ -38,4 +38,50 @@ describe('UndoButton', () => {
     expect(screen.getByText('No disponible')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Deshacer jugada' })).toBeInTheDocument();
   });
+
+  test('AC-US5-PUNTERO-021 una activación de puntero invoca onUndo una vez', async () => {
+    const user = userEvent.setup();
+    const onUndo = vi.fn();
+    render(<UndoButton available onUndo={onUndo} />);
+
+    await user.click(screen.getByRole('button', { name: 'Deshacer jugada' }));
+
+    expect(onUndo).toHaveBeenCalledTimes(1);
+  });
+
+  test('AC-US5-TECLADO-023 Enter invoca onUndo una vez con historial', async () => {
+    const user = userEvent.setup();
+    const onUndo = vi.fn();
+    render(<UndoButton available onUndo={onUndo} />);
+    screen.getByRole('button', { name: 'Deshacer jugada' }).focus();
+
+    await user.keyboard('{Enter}');
+
+    expect(onUndo).toHaveBeenCalledTimes(1);
+  });
+
+  test('AC-US5-TECLADO-024 Espacio invoca onUndo una vez con historial', async () => {
+    const user = userEvent.setup();
+    const onUndo = vi.fn();
+    render(<UndoButton available onUndo={onUndo} />);
+    screen.getByRole('button', { name: 'Deshacer jugada' }).focus();
+
+    await user.keyboard(' ');
+
+    expect(onUndo).toHaveBeenCalledTimes(1);
+  });
+
+  test('AC-US5-FOCO-025 conserva el mismo botón enfocado tras activación y rerender', async () => {
+    const user = userEvent.setup();
+    const onUndo = vi.fn();
+    const view = render(<UndoButton available onUndo={onUndo} />);
+    const button = screen.getByRole('button', { name: 'Deshacer jugada' });
+    button.focus();
+
+    await user.keyboard('{Enter}');
+    view.rerender(<UndoButton available={false} onUndo={onUndo} />);
+
+    expect(screen.getByRole('button', { name: 'Deshacer jugada' })).toBe(button);
+    expect(button).toHaveFocus();
+  });
 });
