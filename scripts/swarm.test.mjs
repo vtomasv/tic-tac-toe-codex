@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const script = readFileSync(path.join(root, 'scripts', 'swarm.sh'), 'utf8');
+const gitignore = readFileSync(path.join(root, '.gitignore'), 'utf8');
 const domainPrompt = readFileSync(
   path.join(root, '.prompts', '09-speckit-implement-domain.md'),
   'utf8',
@@ -58,4 +59,12 @@ test('GATE-SWARM-001 rejects nounset-unsafe dependent local declarations', () =>
     script,
     /local role="\$1"\n\s+local branch="swarm\/\$\{FEATURE_SLUG\}-\$\{role\}"\n\s+local path="\$WT_ROOT\/\$role"/,
   );
+});
+
+test('GATE-SWARM-001 grants linked worktree writes and propagates blocked handoffs', () => {
+  assert.match(script, /--add-dir "\$ROOT\/\.git"/);
+  assert.match(script, /--add-dir "\$ROOT\/node_modules"/);
+  assert.match(script, /REQUEST_ORCHESTRATOR/);
+  assert.match(gitignore, /^node_modules$/m);
+  assert.doesNotMatch(gitignore, /^node_modules\/$/m);
 });
