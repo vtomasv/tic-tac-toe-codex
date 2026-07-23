@@ -266,3 +266,10 @@ de crear cada worktree; el enlace también es ignorado y no altera commits.
   0.145.0; la política se expresa con `-c 'approval_policy="never"'`.
 - Declarar `role`, `branch` y `path` en una sola sentencia `local`: rechazado porque Bash expande
   `${role}` antes de completar la asignación y `set -u` aborta con “unbound variable”.
+- Limitar `workspace-write` al worktree: rechazado porque un linked worktree necesita escribir en
+  el Git común para crear `index.lock` y objetos, y Vite necesita su caché temporal bajo el
+  `node_modules` enlazado. Ambos directorios se añaden explícitamente como raíces escribibles.
+- Conservar `node_modules/` como único patrón de ignore: rechazado porque Git no lo aplica al enlace
+  simbólico del worktree; el patrón `node_modules` cubre tanto el directorio raíz como el enlace.
+- Confiar solo en el exit code de `codex exec`: rechazado porque un agente puede devolver
+  `REQUEST_ORCHESTRATOR` con exit `0`; el runner debe convertir ese handoff bloqueante en fallo.

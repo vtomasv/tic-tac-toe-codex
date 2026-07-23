@@ -20,6 +20,8 @@ evidencia suplementaria y vuelve a Analyze antes del fan-out.
 - `T105/T106` completan el mismo gate con dependencias y frontera explícita de workers.
 - `T110/T111` completan el gate con el contrato soportado de Codex CLI.
 - `T113/T114` completan el gate con inicialización segura bajo `set -u`.
+- `T116/T117` completan el gate con permisos de linked worktree, ignore del enlace y propagación de
+  handoffs bloqueantes.
 - Tasks asignará IDs consecutivos desde `T064` al trabajo de producto, sin reutilizar IDs de feature 001.
 - Ningún AC, GATE o Task ID puede redefinirse en otra feature.
 
@@ -173,7 +175,9 @@ e interfaz, el enlace local de `node_modules` para domain/interfaz/e2e y comando
 trazabilidad/ownership en los prompts paralelos. También rechazan opciones CLI inexistentes y
 exigen la política no interactiva mediante configuración soportada. El gate no lanza agentes ni
 crea worktrees. Una regresión adicional impide declaraciones locales dependientes en una única
-sentencia bajo `set -u`.
+sentencia bajo `set -u`. El último bloque exige raíces escribibles explícitas para el Git común y
+la caché Vite, ignora el enlace local de dependencias y convierte `REQUEST_ORCHESTRATOR` en un exit
+no cero del runner.
 
 ## Ledger lifecycle and obligations
 

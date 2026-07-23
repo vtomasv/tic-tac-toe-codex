@@ -216,6 +216,9 @@ inventa ni reconstruye retrospectivamente el mapeo.
   `-c 'approval_policy="never"'` junto con `--ephemeral` y `--sandbox`;
 - un cuarto par reproduce el preflight real bajo `set -u` y prohíbe declaraciones `local` que
   referencien una variable en la misma sentencia donde se inicializa;
+- un quinto par exige que el sandbox de cada worker pueda escribir el Git común y la caché temporal
+  de Vite, que el enlace `node_modules` quede ignorado y que un `REQUEST_ORCHESTRATOR` haga fallar
+  explícitamente el runner;
 - el gate queda verde y con SHAs reales antes de cambiar el ledger a `IMPLEMENTING`;
 - `launch-parallel` conserva sus comprobaciones de rama, árbol limpio y baseline completo antes de
   crear worktrees o invocar Codex.

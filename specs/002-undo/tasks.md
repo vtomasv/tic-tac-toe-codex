@@ -2,7 +2,8 @@
 
 **Input**: `specs/002-undo/spec.md`, plan, research, data-model, quickstart y contratos congelados.
 
-**Lifecycle**: `IMPLEMENTING` después de Analyze F y los gates T113/T114 GREEN.
+**Lifecycle**: `PLANNED` durante la reparación de permisos del linked worktree; vuelve a
+`IMPLEMENTING` solo después de Analyze G y T116/T117.
 
 **Global numbering**: Se preservan `T062–T089`; los nuevos IDs continúan en `T090+`. El orden de
 ejecución se define por fases y dependencias, no por orden numérico, porque `T064–T087` ya estaban
@@ -35,6 +36,8 @@ Las tareas completadas conservan evidencia y SHAs reales. Analyze C debe dar GO 
 - [x] T111 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [GREEN] Sustituir en `scripts/swarm.sh` la opción inexistente `--ask-for-approval never` por `-c 'approval_policy="never"'`, sin cambiar sandbox ni prompts; ejecutar `codex exec --strict-config -c 'approval_policy="never"' --version`, `node --test scripts/swarm.test.mjs`, `bash -n scripts/swarm.sh` y trazabilidad tasks/final; evidencia `.swarm/handoffs/orchestrator/T111.md`; Expected commit: `fix(tooling): T111 use supported Codex CLI contract [GATE-SWARM-001]`
 - [x] T113 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [RED] Añadir a `scripts/swarm.test.mjs` `GATE-SWARM-001 rejects nounset-unsafe dependent local declarations`, exigiendo que `mk_wt` asigne `role`, `branch` y `path` en sentencias separadas; comando `node --test --test-name-pattern='GATE-SWARM-001.*nounset|GATE-SWARM-001.*supported non-interactive' scripts/swarm.test.mjs`, exigir RED reproduciendo `role: unbound variable` y registrar `.swarm/handoffs/orchestrator/T113.md`; Expected commit: `test(tooling): T113 define nounset-safe swarm initialization [GATE-SWARM-001]`
 - [x] T114 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [GREEN] Separar las asignaciones dependientes de `mk_wt` en `scripts/swarm.sh`; ejecutar test del gate, `bash -n`, trazabilidad tasks/final y un preflight que confirme creación de worktrees sin lanzar Codex; evidencia `.swarm/handoffs/orchestrator/T114.md`; Expected commit: `fix(tooling): T114 make swarm initialization nounset-safe [GATE-SWARM-001]`
+- [ ] T116 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [RED] Añadir a `scripts/swarm.test.mjs` `GATE-SWARM-001 grants linked worktree writes and propagates blocked handoffs`, exigiendo `--add-dir` para el Git común y `node_modules`, detección de `REQUEST_ORCHESTRATOR` y que `.gitignore` ignore también el enlace `node_modules`; comando `node --test --test-name-pattern='GATE-SWARM-001.*linked worktree|GATE-SWARM-001.*nounset' scripts/swarm.test.mjs`, exigir RED por permisos y propagación ausentes y registrar `.swarm/handoffs/orchestrator/T116.md`; Expected commit: `test(tooling): T116 define linked worktree execution contract [GATE-SWARM-001]`
+- [ ] T117 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [GREEN] Añadir a `scripts/swarm.sh` raíces escribibles explícitas para `$ROOT/.git` y `$ROOT/node_modules`, rechazar `REQUEST_ORCHESTRATOR` después de esperar ambos agentes y cambiar `.gitignore` a un patrón que ignore directorio y enlace; ejecutar el gate, `bash -n`, trazabilidad tasks/final y preflight de status limpio en ambos worktrees; evidencia `.swarm/handoffs/orchestrator/T117.md`; Expected commit: `fix(tooling): T117 support linked worktree agent writes [GATE-SWARM-001]`
 
 **Checkpoint**: Ambos gates están GREEN, feature 001 y 002 pasan juntas y los contratos conservan
 sus hashes congelados.
@@ -45,6 +48,7 @@ sus hashes congelados.
 - [x] T109 [OWNER:orchestrator] [GREEN] Después de Analyze D y T105/T106 GREEN, revalidar hashes congelados, registrar sus SHAs en `specs/002-undo/traceability.md`, marcar T105/T106/T109 completadas, cambiar `**Phase**` de `Planned` a `Implementing` y ejecutar `node scripts/verify-traceability.mjs --phase=tasks`; evidencia `.swarm/handoffs/orchestrator/T109.md`; Expected commit: `docs(traceability): T109 re-enter implementing lifecycle`
 - [x] T112 [OWNER:orchestrator] [GREEN] Después de Analyze E y T110/T111 GREEN, revalidar hashes, registrar sus SHAs, marcar T110/T111/T112 completadas, cambiar `**Phase**` de `Planned` a `Implementing` y ejecutar trazabilidad tasks; evidencia `.swarm/handoffs/orchestrator/T112.md`; Expected commit: `docs(traceability): T112 finalize swarm implementing lifecycle`
 - [x] T115 [OWNER:orchestrator] [GREEN] Después de Analyze F y T113/T114 GREEN, registrar SHAs, marcar T113/T114/T115 completadas, restaurar `Implementing` y ejecutar trazabilidad tasks; evidencia `.swarm/handoffs/orchestrator/T115.md`; Expected commit: `docs(traceability): T115 finalize launch-parallel lifecycle`
+- [ ] T118 [OWNER:orchestrator] [GREEN] Después de Analyze G y T116/T117 GREEN, registrar SHAs, marcar T116/T117/T118 completadas, restaurar `Implementing`, actualizar ambos worktrees por fast-forward conservando sus RED preparados y ejecutar trazabilidad tasks; evidencia `.swarm/handoffs/orchestrator/T118.md`; Expected commit: `docs(traceability): T118 resume linked worktree lifecycle`
 
 Después del commit T092, el orquestador ejecuta, sobre árbol limpio:
 
@@ -144,6 +148,8 @@ T088 → T089 → Tasks ampliadas → Analyze C → T090 → T091 → T092
                                            Plan/Tasks → Analyze E → T110 → T111 → T112
                                                                ↓ fallo real set -u
                                            Plan/Tasks → Analyze F → T113 → T114 → T115
+                                                               ↓ bloqueo de permisos
+                                           Plan/Tasks → Analyze G → T116 → T117 → T118
                                   ↓ baseline + prepare
                     domain T064–T075 ║ interfaz T076–T079,T095–T096
                                   ↓ merge domain, sensores
@@ -207,12 +213,12 @@ T088 → T089 → Tasks ampliadas → Analyze C → T090 → T091 → T092
 | GATE-ID | RED | GREEN | Test previsto | OWNER |
 |---|---|---|---|---|
 | GATE-MULTIFEATURE-001 | T062, T088 | T063, T089 | `scripts/verify-traceability.test.mjs` | orchestrator |
-| GATE-SWARM-001 | T090, T105, T110, T113 | T091, T106, T111, T114 | `scripts/swarm.test.mjs` | orchestrator |
+| GATE-SWARM-001 | T090, T105, T110, T113, T116 | T091, T106, T111, T114, T117 | `scripts/swarm.test.mjs` | orchestrator |
 
 ## Metrics
 
-- 52 Task IDs de feature 002, todos globalmente únicos.
-- 12 tareas de tooling, 35 tareas de producto/lifecycle/consolidación y una auditoría read-only.
+- 55 Task IDs de feature 002, todos globalmente únicos.
+- 14 tareas de tooling, 36 tareas de producto/lifecycle/consolidación y una auditoría read-only.
 - 34/34 AC con al menos un RED y un GREEN; toda evidencia de producto contiene AC-ID literal.
 - 2 gates con pares RED/GREEN y test previsto.
 - 42 AC de feature 001 son regresión obligatoria en baseline, candidata, verificación y review.
