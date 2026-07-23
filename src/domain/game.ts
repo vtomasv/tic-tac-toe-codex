@@ -18,6 +18,7 @@ export interface GameState {
 
 export type GameAction =
   | { readonly type: 'PLAY_CELL'; readonly index: number }
+  | { readonly type: 'UNDO' }
   | { readonly type: 'RESET' };
 
 const EMPTY_BOARD: Board = Object.freeze([
@@ -56,6 +57,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
   if (state.status === 'WON_X' || state.status === 'WON_O' || state.status === 'DRAW') {
     return state;
+  }
+
+  if (action.type === 'UNDO') {
+    const snapshot = state.history.at(-1);
+    if (snapshot === undefined) {
+      return state;
+    }
+
+    return {
+      board: snapshot.board,
+      status: snapshot.status,
+      history: Object.freeze(state.history.slice(0, -1)),
+    };
   }
 
   if (state.board[action.index] !== null) {
