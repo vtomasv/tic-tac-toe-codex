@@ -168,11 +168,15 @@ Analyze B:
    200 %.
 3. Separa esas RED por familia observable y ejecuta component/E2E para registrar que fallan por
    ausencia de composición, no por setup.
-4. Implementa GREEN pequeñas en este orden de responsabilidad: shell/orden/disponibilidad;
-   conexión Undo al dominio; anuncio/foco; estilos responsive/no cromáticos.
-5. Conserva una sola región viva, consume una vez el evento Undo aceptado y mantiene el foco.
-6. Ejecuta component, E2E y build completos en GREEN después de cada bloque aplicable.
-7. Entrega commits y handoff; no modifica reducer ni decide reglas.
+4. Crea el RED de compatibilidad del conteo de controles de `AC-US4-RESPONSIVE-013`, conservando su
+   prueba de no solapamiento.
+5. Implementa una GREEN cohesiva de App: control, disponibilidad derivada y callback real de Undo.
+   No introduzcas callbacks temporales ni commits sin cambio de producción.
+6. Implementa en una GREEN separada el anuncio exacto y conserva el foco.
+7. Modifica estilos solo si un RED responsive/zoom/foco/señal continúa fallando después de la
+   composición.
+8. Ejecuta component, E2E y build completos al cerrar la última GREEN.
+9. Entrega commits y handoff; no modifica reducer ni decide reglas.
 
 No existe una GREEN temprana de visibilidad con callback temporal. Ningún cableado de Undo en App ni
 estilo asociado precede a los dos grupos RED.

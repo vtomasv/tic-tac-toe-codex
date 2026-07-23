@@ -221,17 +221,22 @@ verificador antiguo un modelo que todavía no conoce.
 - Registrar tests adicionales sin tasks/commits propios: rechazado porque rompe la cadena
   criterio → tarea → commit → test.
 
-## 16. Bloque RED previo y GREEN granular de composición
+## 16. Bloque RED previo y composición GREEN cohesiva
 
-**Decision**: En el pase ampliado, e2e separa las RED por familia observable y confirma todas antes de
-modificar App o estilos. Las GREEN se particionan en shell/orden/disponibilidad, conexión Undo al
-dominio, anuncio/foco y estilos responsive/no cromáticos. Ningún commit GREEN reclama todas las
-familias por una sola modificación incidental.
+**Decision**: En el pase ampliado, e2e separa y confirma todas las RED antes de modificar App. Tras
+esa evidencia, la composición mínima válida de `UndoButton` se trata como una GREEN cohesiva:
+control visible, `canUndo(state)` y callback real `dispatch(UNDO)` entran juntos. El anuncio conserva
+una GREEN separada. Estilos solo se modifican si un RED específico permanece rojo después de la
+composición.
 
-**Rationale**: Una GREEN temprana puede volver verdes tests futuros que todavía no han demostrado
-fallo; una GREEN monolítica con decenas de AC pierde auditabilidad. Un bloque RED completo seguido de
-GREEN pequeñas mantiene el orden TDD y permite atribuir qué enlace de producción satisface cada
-familia.
+Antes de la GREEN cohesiva se añade un RED de compatibilidad para
+`AC-US4-RESPONSIVE-013`: el test legacy deja de fijar diez botones y pasa a incluir la acción Undo
+obligatoria. Su observable de no solapamiento no cambia.
+
+**Rationale**: La ejecución real demostró que añadir el contrato controlado mínimo vuelve verdes a
+la vez shell, restauración, historial, entradas, terminales, reset y los límites responsive. Dividir
+esa única conexión exigiría un callback no-op o commits sin cambio de producción. Los anuncios sí
+tienen estado/evento adicional y permanecen auditables en un commit propio.
 
 **Alternatives considered**:
 
@@ -239,8 +244,9 @@ familia.
   incompleta y hace ambiguo qué GREEN satisface el contrato.
 - Alternar RED/GREEN por cada detalle de App: rechazado porque una conexión compartida puede
   satisfacer por accidente tests futuros aún no escritos.
-- Un único commit GREEN para App y estilos: rechazado porque agrupa observables no relacionados y
-  dificulta auditar sus AC.
+- Mantener GREEN documentales posteriores para la misma conexión: rechazado porque nacerían verdes
+  y no tendrían un cambio de producción atribuible.
+- Añadir CSS aunque los RED responsive ya pasen: rechazado como implementación especulativa.
 
 ## 17. Raíz única de prompts para el swarm
 

@@ -292,19 +292,32 @@ depende de esa composición:
 2. RED E2E para toque, `WON_X`, `WON_O`, `DRAW`, Undo repetido hasta vacío, reset irreversible,
    secuencia completa solo teclado, señal no cromática y responsive/zoom.
 3. Confirmación de que ambos grupos fallan por ausencia de la composición Undo, no por setup.
-4. Solo entonces GREEN de `src/App.tsx` y estilos, seguido de ambos sensores completos.
+4. Antes del GREEN, migración RED del test legacy `AC-US4-RESPONSIVE-013`: el conteo esperado pasa
+   de diez a once botones porque la nueva acción visible es obligatoria; la semántica responsive de
+   feature 001 no cambia.
+5. Solo entonces un GREEN cohesivo de composición en `src/App.tsx`: montar `UndoButton` con
+   `available={canUndo(state)}` y el callback real `dispatch({type:'UNDO'})`. El contrato controlado
+   no permite separar honestamente botón, disponibilidad y callback mediante estados temporales.
+6. GREEN separado para el evento de anuncio y permanencia de foco.
+7. Ejecutar component, E2E y build completos; no crear un commit de estilos si los RED responsive,
+   zoom, foco y señal no cromática ya quedan verdes con la composición y estilos existentes.
 
 Las RED se separan por familia observable: shell/orden/disponibilidad, restauración, terminales,
 repetición/vacío, reset, puntero/toque, teclado, foco/anuncios y responsive/señal no cromática.
-Todas preceden al bloque GREEN. Las GREEN se dividen por responsabilidad de producción:
+Todas preceden al bloque GREEN. La ejecución demostró que el mínimo contrato válido de App es una
+unidad: `UndoButton` visible, disponibilidad derivada y callback real. Introducir un callback no-op
+o commits sin cambios solo para sostener particiones documentales está prohibido. Por ello las GREEN
+se dividen por cambios de producción reales:
 
-1. shell, orden y disponibilidad;
-2. conexión única `onUndo` → dominio para restauración y flujos;
-3. anuncio y permanencia de foco;
-4. estilos responsive y señal no cromática.
+1. composición cohesiva de control, selector y acción de dominio, incluyendo los flujos que esa
+   única conexión vuelve verdes y la migración del conteo legacy preparada en RED;
+2. anuncio exacto y permanencia de foco;
+3. estilos únicamente si un RED específico permanece rojo después de la composición.
 
-El ledger ampliado puede enlazar varios pares a un AC y varias GREEN a un bloque RED cohesivo, pero
-ningún commit reclama comportamientos no declarados en su task ni agrupa familias no relacionadas.
+Los sensores intermedios se filtran al bloque que la GREEN pretende cerrar; los RED planificados de
+anuncio pueden seguir rojos hasta su GREEN. Las suites completas son obligatorias al cerrar el
+último bloque. El ledger puede enlazar la GREEN cohesiva a varios AC solo cuando todos cambian por la
+misma composición atómica observada; no se crean commits vacíos ni implementación especulativa.
 
 ## Contracts Freeze
 
