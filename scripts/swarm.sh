@@ -54,8 +54,18 @@ run_prompt(){
   need_file "$prompt_file"
   (
     cd "$wt"
-    codex exec --ephemeral --sandbox "$sandbox" -c 'approval_policy="never"' "$(cat "$prompt_file")"
+    codex exec --ephemeral --sandbox "$sandbox" \
+      --add-dir "$ROOT/.git" \
+      --add-dir "$ROOT/node_modules" \
+      -c 'approval_policy="never"' "$(cat "$prompt_file")"
   ) >"$LOG_ROOT/${role}.out" 2>"$LOG_ROOT/${role}.err"
+}
+
+reject_blocked_handoff(){
+  local role="$1"
+  local output="$LOG_ROOT/${role}.out"
+  grep -q '^REQUEST_ORCHESTRATOR' "$output" &&
+    fail "$role devolvió REQUEST_ORCHESTRATOR; revisa $output"
 }
 
 case "$ACTION" in
@@ -78,8 +88,14 @@ case "$ACTION" in
     link_dependencies "$WT_ROOT/interfaz"
     run_prompt domain workspace-write "$PROMPT_ROOT/09-speckit-implement-domain.md" "$WT_ROOT/domain" & p_domain=$!
     run_prompt interfaz workspace-write "$PROMPT_ROOT/10-speckit-implement-interfaz.md" "$WT_ROOT/interfaz" & p_ui=$!
-    wait "$p_domain"
-    wait "$p_ui"
+    domain_status=0
+    interfaz_status=0
+    wait "$p_domain" || domain_status=$?
+    wait "$p_ui" || interfaz_status=$?
+    [[ "$domain_status" -eq 0 ]] || fail "domain terminó con exit $domain_status."
+    [[ "$interfaz_status" -eq 0 ]] || fail "interfaz terminó con exit $interfaz_status."
+    reject_blocked_handoff domain
+    reject_blocked_handoff interfaz
     printf 'domain e interfaz terminaron. Revisa %s antes de integrar.\n' "$LOG_ROOT"
     ;;
 
@@ -102,6 +118,7 @@ case "$ACTION" in
     mk_wt e2e
     link_dependencies "$WT_ROOT/e2e"
     run_prompt e2e workspace-write "$PROMPT_ROOT/11-speckit-implement-e2e.md" "$WT_ROOT/e2e"
+    reject_blocked_handoff e2e
     printf 'e2e terminó. Revisa %s/e2e.out antes de integrar.\n' "$LOG_ROOT"
     ;;
 
