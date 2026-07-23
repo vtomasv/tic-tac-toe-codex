@@ -52,7 +52,7 @@ run_prompt(){
   need_file "$prompt_file"
   (
     cd "$wt"
-    codex exec --ephemeral --sandbox "$sandbox" --ask-for-approval never "$(cat "$prompt_file")"
+    codex exec --ephemeral --sandbox "$sandbox" -c 'approval_policy="never"' "$(cat "$prompt_file")"
   ) >"$LOG_ROOT/${role}.out" 2>"$LOG_ROOT/${role}.err"
 }
 
