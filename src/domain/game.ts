@@ -55,10 +55,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     return INITIAL_STATE;
   }
 
-  if (state.status === 'WON_X' || state.status === 'WON_O' || state.status === 'DRAW') {
-    return state;
-  }
-
   if (action.type === 'UNDO') {
     const snapshot = state.history.at(-1);
     if (snapshot === undefined) {
@@ -70,6 +66,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       status: snapshot.status,
       history: Object.freeze(state.history.slice(0, -1)),
     };
+  }
+
+  if (state.status === 'WON_X' || state.status === 'WON_O' || state.status === 'DRAW') {
+    return state;
   }
 
   if (state.board[action.index] !== null) {
