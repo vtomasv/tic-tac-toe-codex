@@ -273,3 +273,7 @@ de crear cada worktree; el enlace también es ignorado y no altera commits.
   simbólico del worktree; el patrón `node_modules` cubre tanto el directorio raíz como el enlace.
 - Confiar solo en el exit code de `codex exec`: rechazado porque un agente puede devolver
   `REQUEST_ORCHESTRATOR` con exit `0`; el runner debe convertir ese handoff bloqueante en fallo.
+- Mantener repetición como un RED independiente después de implementar la retirada de una entrada:
+  rechazado porque esa implementación ya satisface ambas aserciones y el test nace verde. Repetición
+  y límite vacío forman un bloque RED cohesivo; el guard `canUndo` ausente conserva el RED real sin
+  degradar una implementación ya correcta.

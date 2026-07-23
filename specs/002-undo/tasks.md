@@ -2,7 +2,8 @@
 
 **Input**: `specs/002-undo/spec.md`, plan, research, data-model, quickstart y contratos congelados.
 
-**Lifecycle**: `IMPLEMENTING` después de Analyze G y los gates T116/T117 GREEN.
+**Lifecycle**: `PLANNED` durante la reparación del bloque TDD domain de repetición/límite vacío;
+vuelve a `IMPLEMENTING` solo después de Analyze H y T119.
 
 **Global numbering**: Se preservan `T062–T089`; los nuevos IDs continúan en `T090+`. El orden de
 ejecución se define por fases y dependencias, no por orden numérico, porque `T064–T087` ya estaban
@@ -48,6 +49,7 @@ sus hashes congelados.
 - [x] T112 [OWNER:orchestrator] [GREEN] Después de Analyze E y T110/T111 GREEN, revalidar hashes, registrar sus SHAs, marcar T110/T111/T112 completadas, cambiar `**Phase**` de `Planned` a `Implementing` y ejecutar trazabilidad tasks; evidencia `.swarm/handoffs/orchestrator/T112.md`; Expected commit: `docs(traceability): T112 finalize swarm implementing lifecycle`
 - [x] T115 [OWNER:orchestrator] [GREEN] Después de Analyze F y T113/T114 GREEN, registrar SHAs, marcar T113/T114/T115 completadas, restaurar `Implementing` y ejecutar trazabilidad tasks; evidencia `.swarm/handoffs/orchestrator/T115.md`; Expected commit: `docs(traceability): T115 finalize launch-parallel lifecycle`
 - [x] T118 [OWNER:orchestrator] [GREEN] Después de Analyze G y T116/T117 GREEN, registrar SHAs, marcar T116/T117/T118 completadas, restaurar `Implementing`, actualizar ambos worktrees por fast-forward conservando sus RED preparados y ejecutar trazabilidad tasks; evidencia `.swarm/handoffs/orchestrator/T118.md`; Expected commit: `docs(traceability): T118 resume linked worktree lifecycle`
+- [ ] T119 [OWNER:orchestrator] [GREEN] Después de Analyze H, restaurar `Implementing`, rebasar domain e interfaz sobre el contrato de tareas corregido conservando sus commits y RED preparados, ejecutar trazabilidad tasks y registrar `.swarm/handoffs/orchestrator/T119.md`; Expected commit: `docs(traceability): T119 resume cohesive domain TDD lifecycle`
 
 Después del commit T092, el orquestador ejecuta, sobre árbol limpio:
 
@@ -78,15 +80,13 @@ Solo un PASS completo autoriza `scripts/swarm.sh launch-parallel`.
 
 - [ ] T068 [US5] [OWNER:domain] [AC:AC-US5-TERMINAL-009] [RED] Añadir `AC-US5-TERMINAL-009 restaura PLAYING desde WON_X WON_O y DRAW` con tres secuencias legales en `src/domain/game.test.ts`; comando `npm run test:unit -- --testNamePattern='AC-US5-TERMINAL-009'`; evidencia `.swarm/handoffs/domain/T068.md`; Expected commit: `test(US5): T068 prove terminal recovery is missing [AC-US5-TERMINAL-009]`
 - [ ] T069 [US5] [OWNER:domain] [AC:AC-US5-TERMINAL-009] [GREEN] Resolver `UNDO` antes del bloqueo terminal en `src/domain/game.ts`; comandos `npm run test:unit -- --testNamePattern='AC-US5-TERMINAL-009'` y `npm run test:unit`; evidencia `.swarm/handoffs/domain/T069.md`; Expected commit: `feat(US5): T069 restore play from terminal states [AC-US5-TERMINAL-009]`
-- [ ] T070 [US5] [OWNER:domain] [AC:AC-US5-HISTORIAL-010,AC-US5-HISTORIAL-011] [RED] Añadir en `src/domain/game.test.ts` `AC-US5-HISTORIAL-010 deshace repetidamente la siguiente jugada más reciente` y `AC-US5-HISTORIAL-011 llega a nueve celdas vacías al consumir el historial`; comando `npm run test:unit -- --testNamePattern='AC-US5-HISTORIAL-01[0-1]'`; evidencia `.swarm/handoffs/domain/T070.md`; Expected commit: `test(US5): T070 prove repeated Undo to empty board [AC-US5-HISTORIAL-010 AC-US5-HISTORIAL-011]`
-- [ ] T071 [US5] [OWNER:domain] [AC:AC-US5-HISTORIAL-010,AC-US5-HISTORIAL-011] [GREEN] Conservar entradas anteriores y retirar solo la última por `UNDO` en `src/domain/game.ts`; comandos `npm run test:unit -- --testNamePattern='AC-US5-HISTORIAL-01[0-1]'` y `npm run test:unit`; evidencia `.swarm/handoffs/domain/T071.md`; Expected commit: `feat(US5): T071 consume Undo history one entry at a time [AC-US5-HISTORIAL-010 AC-US5-HISTORIAL-011]`
-- [ ] T072 [US5] [OWNER:domain] [AC:AC-US5-UNWANTED-012,AC-US5-UNWANTED-013,AC-US5-UNWANTED-014] [RED] Añadir en `src/domain/game.test.ts` `AC-US5-UNWANTED-012 conserva por separado el tablero con historial vacío`, `AC-US5-UNWANTED-013 conserva por separado el status con historial vacío` y `AC-US5-UNWANTED-014 mantiene canUndo falso tras UNDO vacío`; comando `npm run test:unit -- --testNamePattern='AC-US5-UNWANTED-01[2-4]'`; evidencia `.swarm/handoffs/domain/T072.md`; Expected commit: `test(US5): T072 prove deterministic empty-history no-op [AC-US5-UNWANTED-012 AC-US5-UNWANTED-013 AC-US5-UNWANTED-014]`
-- [ ] T073 [US5] [OWNER:domain] [AC:AC-US5-UNWANTED-012,AC-US5-UNWANTED-013,AC-US5-UNWANTED-014] [GREEN] Implementar el no-op vacío y exportar `canUndo(state)` en `src/domain/game.ts`; comandos `npm run test:unit -- --testNamePattern='AC-US5-UNWANTED-01[2-4]'` y `npm run test:unit`; evidencia `.swarm/handoffs/domain/T073.md`; Expected commit: `feat(US5): T073 expose deterministic empty-history guard [AC-US5-UNWANTED-012 AC-US5-UNWANTED-013 AC-US5-UNWANTED-014]`
+- [ ] T070 [US5] [OWNER:domain] [AC:AC-US5-HISTORIAL-010,AC-US5-HISTORIAL-011,AC-US5-UNWANTED-012,AC-US5-UNWANTED-013,AC-US5-UNWANTED-014] [RED] Completar en `src/domain/game.test.ts` el bloque cohesivo `AC-US5-HISTORIAL-010 deshace repetidamente la siguiente jugada más reciente`, `AC-US5-HISTORIAL-011 llega a nueve celdas vacías al consumir el historial`, `AC-US5-UNWANTED-012 conserva por separado el tablero con historial vacío`, `AC-US5-UNWANTED-013 conserva por separado el status con historial vacío` y `AC-US5-UNWANTED-014 mantiene canUndo falso tras UNDO vacío`; comando `npm run test:unit -- --testNamePattern='AC-US5-(HISTORIAL-01[0-1]|UNWANTED-01[2-4])'`; exigir RED real por `canUndo` ausente; evidencia `.swarm/handoffs/domain/T070.md`; Expected commit: `test(US5): T070 prove repeated Undo and empty guard [AC-US5-HISTORIAL-010 AC-US5-HISTORIAL-011 AC-US5-UNWANTED-012 AC-US5-UNWANTED-013 AC-US5-UNWANTED-014]`
+- [ ] T071 [US5] [OWNER:domain] [AC:AC-US5-HISTORIAL-010,AC-US5-HISTORIAL-011,AC-US5-UNWANTED-012,AC-US5-UNWANTED-013,AC-US5-UNWANTED-014] [GREEN] Conservar entradas anteriores, retirar solo la última por `UNDO`, mantener el no-op vacío y exportar `canUndo(state)` en `src/domain/game.ts`; comandos `npm run test:unit -- --testNamePattern='AC-US5-(HISTORIAL-01[0-1]|UNWANTED-01[2-4])'` y `npm run test:unit`; evidencia `.swarm/handoffs/domain/T071.md`; Expected commit: `feat(US5): T071 close repeated Undo and empty guard [AC-US5-HISTORIAL-010 AC-US5-HISTORIAL-011 AC-US5-UNWANTED-012 AC-US5-UNWANTED-013 AC-US5-UNWANTED-014]`
 
 ### Reset
 
-- [ ] T074 [US5] [OWNER:domain] [AC:AC-US5-RESET-018,AC-US5-RESET-019,AC-US5-RESET-020] [RED] Añadir en `src/domain/game.test.ts` `AC-US5-RESET-018 RESET deja nueve celdas vacías`, `AC-US5-RESET-019 RESET restaura PLAYING_X` y `AC-US5-RESET-020 RESET elimina historial y deja canUndo falso`; comando `npm run test:unit -- --testNamePattern='AC-US5-RESET-0(18|19|20)'`; evidencia `.swarm/handoffs/domain/T074.md`; Expected commit: `test(US5): T074 prove RESET destroys prior history [AC-US5-RESET-018 AC-US5-RESET-019 AC-US5-RESET-020]`
-- [ ] T075 [US5] [OWNER:domain] [AC:AC-US5-RESET-018,AC-US5-RESET-019,AC-US5-RESET-020] [GREEN] Hacer que `RESET` produzca estado inicial e historial vacío en `src/domain/game.ts`; comandos `npm run test:unit -- --testNamePattern='AC-US5-RESET-0(18|19|20)'`, `npm run test:unit` y `npm run build`; evidencia `.swarm/handoffs/domain/T075.md`; Expected commit: `feat(US5): T075 reset board status and history atomically [AC-US5-RESET-018 AC-US5-RESET-019 AC-US5-RESET-020]`
+- [ ] T072 [US5] [OWNER:domain] [AC:AC-US5-RESET-018,AC-US5-RESET-019,AC-US5-RESET-020] [RED] Añadir en `src/domain/game.test.ts` `AC-US5-RESET-018 RESET deja nueve celdas vacías`, `AC-US5-RESET-019 RESET restaura PLAYING_X` y `AC-US5-RESET-020 RESET elimina historial y deja canUndo falso`; comando `npm run test:unit -- --testNamePattern='AC-US5-RESET-0(18|19|20)'`; evidencia `.swarm/handoffs/domain/T072.md`; Expected commit: `test(US5): T072 prove RESET destroys prior history [AC-US5-RESET-018 AC-US5-RESET-019 AC-US5-RESET-020]`
+- [ ] T073 [US5] [OWNER:domain] [AC:AC-US5-RESET-018,AC-US5-RESET-019,AC-US5-RESET-020] [GREEN] Hacer que `RESET` produzca estado inicial e historial vacío en `src/domain/game.ts`; comandos `npm run test:unit -- --testNamePattern='AC-US5-RESET-0(18|19|20)'`, `npm run test:unit` y `npm run build`; evidencia `.swarm/handoffs/domain/T073.md`; Expected commit: `feat(US5): T073 reset board status and history atomically [AC-US5-RESET-018 AC-US5-RESET-019 AC-US5-RESET-020]`
 
 ## Phase 4: US-005 Interfaz — `OWNER:interfaz` (paralelo con domain)
 
@@ -150,7 +150,7 @@ T088 → T089 → Tasks ampliadas → Analyze C → T090 → T091 → T092
                                                                ↓ bloqueo de permisos
                                            Plan/Tasks → Analyze G → T116 → T117 → T118
                                   ↓ baseline + prepare
-                    domain T064–T075 ║ interfaz T076–T079,T095–T096
+                    domain T064–T073 ║ interfaz T076–T079,T095–T096
                                   ↓ merge domain, sensores
                                   ↓ merge interfaz, sensores
                                  T097
@@ -183,15 +183,15 @@ T088 → T089 → Tasks ampliadas → Analyze C → T090 → T091 → T092
 | AC-US5-TERMINAL-009 | T068, T082 | T069, T093 | unit y E2E tres terminales | domain/e2e |
 | AC-US5-HISTORIAL-010 | T070, T082 | T071, T093 | unit y E2E repetición | domain/e2e |
 | AC-US5-HISTORIAL-011 | T070, T082 | T071, T093 | unit y E2E tablero vacío | domain/e2e |
-| AC-US5-UNWANTED-012 | T072, T082 | T073, T103 | unit y E2E tablero no-op | domain/e2e |
-| AC-US5-UNWANTED-013 | T072, T082 | T073, T103 | unit y E2E estado no-op | domain/e2e |
-| AC-US5-UNWANTED-014 | T072, T082 | T073, T103 | unit y E2E disponibilidad no-op | domain/e2e |
+| AC-US5-UNWANTED-012 | T070, T082 | T071, T103 | unit y E2E tablero no-op | domain/e2e |
+| AC-US5-UNWANTED-013 | T070, T082 | T071, T103 | unit y E2E estado no-op | domain/e2e |
+| AC-US5-UNWANTED-014 | T070, T082 | T071, T103 | unit y E2E disponibilidad no-op | domain/e2e |
 | AC-US5-HISTORIAL-015 | T064, T083 | T065, T103 | unit y E2E jugada legal | domain/e2e |
 | AC-US5-HISTORIAL-016 | T064, T083 | T065, T103 | unit y E2E celda ocupada | domain/e2e |
 | AC-US5-HISTORIAL-017 | T064, T083 | T065, T103 | unit y E2E terminal rechazado | domain/e2e |
-| AC-US5-RESET-018 | T074, T083 | T075, T093 | unit y E2E tablero reset | domain/e2e |
-| AC-US5-RESET-019 | T074, T083 | T075, T093 | unit y E2E estado reset | domain/e2e |
-| AC-US5-RESET-020 | T074, T083 | T075, T093 | unit y E2E historial reset | domain/e2e |
+| AC-US5-RESET-018 | T072, T083 | T073, T093 | unit y E2E tablero reset | domain/e2e |
+| AC-US5-RESET-019 | T072, T083 | T073, T093 | unit y E2E estado reset | domain/e2e |
+| AC-US5-RESET-020 | T072, T083 | T073, T093 | unit y E2E historial reset | domain/e2e |
 | AC-US5-PUNTERO-021 | T078, T084 | T079, T104 | componente e integración clic | interfaz/e2e |
 | AC-US5-PUNTERO-022 | T084 | T104 | E2E toque | e2e |
 | AC-US5-TECLADO-023 | T078, T084 | T079, T104 | componente/integración Enter | interfaz/e2e |
@@ -216,8 +216,8 @@ T088 → T089 → Tasks ampliadas → Analyze C → T090 → T091 → T092
 
 ## Metrics
 
-- 55 Task IDs de feature 002, todos globalmente únicos.
-- 14 tareas de tooling, 36 tareas de producto/lifecycle/consolidación y una auditoría read-only.
+- 54 Task IDs de feature 002, todos globalmente únicos; T074/T075 quedan retirados y no se reutilizan.
+- 14 tareas de tooling, 35 tareas de producto/lifecycle/consolidación y una auditoría read-only.
 - 34/34 AC con al menos un RED y un GREEN; toda evidencia de producto contiene AC-ID literal.
 - 2 gates con pares RED/GREEN y test previsto.
 - 42 AC de feature 001 son regresión obligatoria en baseline, candidata, verificación y review.
