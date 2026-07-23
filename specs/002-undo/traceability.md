@@ -1,4 +1,4 @@
-# Traceability Ledger: Feature 002 Undo — bootstrap
+# Traceability Ledger: Feature 002 Undo — reparación del gate
 
 **Phase**: Planned
 
@@ -19,17 +19,18 @@ Los contratos quedan congelados después de T063 con estos SHA-256:
 Cualquier cambio posterior de contenido o firma requiere retorno explícito a Plan/Tasks y un nuevo
 Analyze antes del fan-out.
 
-Este ledger representa exclusivamente el pase bootstrap anterior a Analyze A. Contiene una fila
-canónica por cada uno de los 34 AC y una fila para `GATE-MULTIFEATURE-001`. Cada AC tiene exactamente
-un par RED/GREEN; no existe todavía evidencia suplementaria. La fila del gate registra T062/T063
-completadas con evidencia y SHAs observados. Las filas de producto permanecen `PENDING` y no están
-autorizadas por este pase.
+Este ledger representa el pase de reparación anterior al grafo ampliado. Contiene una fila canónica
+por cada uno de los 34 AC y dos pares para `GATE-MULTIFEATURE-001`. Cada AC conserva exactamente un
+par RED/GREEN; no existe todavía evidencia suplementaria de producto. El primer par del gate
+registra T062/T063 completadas; el segundo reserva T088/T089 para cerrar el modelo de bloques TDD
+multi-familia. Las filas de producto permanecen `PENDING` y no están autorizadas por este pase.
 
 ## Foundational Quality Gates
 
 | GATE-ID | RED task | GREEN task | Test file | RED evidence | Test commit | Implementation commit | Status |
 |---------|----------|------------|-----------|--------------|-------------|-----------------------|--------|
 | GATE-MULTIFEATURE-001 | T062 | T063 | `scripts/verify-traceability.test.mjs` | `2026-07-22: node --test --test-name-pattern='GATE-MULTIFEATURE-001' scripts/verify-traceability.test.mjs -> exit 1; 11 tests failed because multi-feature lifecycle capabilities were absent` | 587accca01f3fc9675d72bd9262a3827ae29800d | 4035eaced59f8933a970b9c238c663bf677fc157 | VERIFIED |
+| GATE-MULTIFEATURE-001 | T088 | T089 | `scripts/verify-traceability.test.mjs` | PENDING | PENDING | PENDING | PENDING |
 
 ## Canonical acceptance evidence
 
@@ -72,9 +73,9 @@ autorizadas por este pase.
 
 ## Bootstrap update policy
 
-- Analyze A valida esta estructura con `node scripts/verify-traceability.mjs --phase=tasks`.
-- Un Analyze A en GO autoriza solo `T062/T063`.
+- Analyze B valida esta estructura con `node scripts/verify-traceability.mjs --phase=tasks`.
+- Un Analyze B en GO limitado autoriza solo `T088/T089`.
 - T062/T063 ya están integradas y su fila contiene evidencia y SHAs reales.
-- El segundo pase preserva los pares canónicos, añade evidencia suplementaria con IDs nuevos y
-  mantiene la fase `Planned` hasta Analyze B.
+- Después de T089, el pase ampliado preserva los pares canónicos, añade evidencia suplementaria con
+  IDs nuevos y mantiene la fase `Planned` hasta Analyze C.
 - Ningún worker edita este archivo; solo el orquestador consolida evidencia observada.

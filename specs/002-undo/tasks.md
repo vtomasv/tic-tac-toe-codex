@@ -1,4 +1,4 @@
-# Tasks: Deshacer la última jugada — pase bootstrap
+# Tasks: Deshacer la última jugada — reparación del gate previo al pase ampliado
 
 **Input**: Artefactos de diseño de `specs/002-undo/`
 
@@ -6,12 +6,14 @@
 `contracts/domain-contract.md`, `contracts/ui-contract.md`,
 `contracts/traceability-contract.md` y `quickstart.md`
 
-**Lifecycle**: `PLANNED` — primer pase compatible con el verificador vigente.
+**Lifecycle**: `PLANNED` — pase de reparación compatible con el verificador vigente.
 
-**Scope guard**: Este pase asigna exactamente un par RED/GREEN canónico a cada AC y reserva
-`T062/T063` para `GATE-MULTIFEATURE-001`. Analyze A puede autorizar exclusivamente `T062/T063`.
-Ninguna task de producto `T064–T087` puede ejecutarse ni abrir un worktree antes de integrar el gate,
-regenerar el pase ampliado, obtener Analyze B en GO y confirmar el baseline verde.
+**Scope guard**: Los pares canónicos de producto `T064–T087` continúan reservados. El preflight del
+pase ampliado detectó que T063 no representa todavía varias familias RED no relacionadas abiertas
+antes de GREEN granulares, como exige el plan. Analyze B puede autorizar exclusivamente `T088/T089`
+para completar `GATE-MULTIFEATURE-001`. Ninguna task de producto puede ejecutarse ni abrir un
+worktree antes de integrar T089, regenerar el pase ampliado, obtener Analyze C en GO y confirmar el
+baseline verde.
 
 **Tests**: Todo nombre de test indicado contiene literalmente su AC-ID o GATE-ID. Cada RED debe
 ejecutarse y registrar fallo por comportamiento ausente antes de su GREEN.
@@ -53,6 +55,23 @@ Tasks/ledger mediante el pase ampliado y repite Analyze. No ejecuta T064 todaví
 
 ---
 
+## Phase 2B: Foundational gate repair — cohesive multi-family TDD
+
+**Purpose**: Completar el modelo prometido por T063 para que el pase ampliado pueda declarar varias
+familias RED consecutivas antes de GREEN granulares sin relajar el rechazo legacy de un RED ajeno no
+declarado como parte del bloque.
+
+**Blocking rule**: Solo `T088/T089` pueden ejecutarse después de Analyze B en GO limitado. T089 debe
+estar verde antes de regenerar el pase ampliado; no se crean worktrees de producto.
+
+- [ ] T088 [OWNER:orchestrator] [GATE:GATE-MULTIFEATURE-001] [RED] Añadir en `scripts/verify-traceability.test.mjs` tests con nombre literal `GATE-MULTIFEATURE-001` que demuestren que un ledger con fase declarada acepta familias RED consecutivas enlazadas por sus filas a GREEN granulares posteriores, conserva el orden RED→GREEN de cada par y mantiene el rechazo legacy de un RED ajeno sin modelo de ciclo de vida; ejecutar `node --test --test-name-pattern='GATE-MULTIFEATURE-001.*multi-family|GATE-TRACEABILITY-001.*unrelated RED' scripts/verify-traceability.test.mjs`, exigir RED por el diagnóstico `unrelated RED block is open` y registrar salida en `.swarm/handoffs/orchestrator/T088.md`; Expected commit: `test(tooling): T088 define cohesive multi-family TDD blocks [GATE-MULTIFEATURE-001]`
+- [ ] T089 [OWNER:orchestrator] [GATE:GATE-MULTIFEATURE-001] [GREEN] Ajustar `validateCohesiveBlocks` en `scripts/verify-traceability.mjs` para usar los enlaces RED→GREEN del ledger con fase declarada, permitir que cada RED permanezca abierto hasta completar todas sus GREEN vinculadas y conservar la regla legacy cuando la fase no está declarada; ejecutar `node --test scripts/verify-traceability.test.mjs`, `node scripts/verify-traceability.mjs --phase=tasks` y `npm run verify:traceability`, exigir GREEN y registrar salida en `.swarm/handoffs/orchestrator/T089.md`; Expected commit: `fix(tooling): T089 support cohesive multi-family TDD blocks [GATE-MULTIFEATURE-001]`
+
+**Checkpoint**: Después de T089, el orquestador completa la segunda fila del gate con SHAs reales,
+regenera Tasks/ledger con toda la evidencia suplementaria y ejecuta Analyze C. No ejecuta T064.
+
+---
+
 ## Phase 3: US-005 — Pares canónicos reservados (Priority: P1) 🎯 MVP
 
 **Goal**: Añadir “Deshacer jugada” con dominio puro, control accesible, composición real y
@@ -62,8 +81,8 @@ compatibilidad con los 42 AC previos.
 una jugada por activación hasta vacío, rechazar Undo vacío, eliminar historial con RESET, operar por
 puntero/teclado, conservar foco/anuncios exactos y mantener responsive entre 320–1920 px y al 200 %.
 
-**Bootstrap restriction**: Los pares siguientes son la evidencia primaria mínima para Analyze A.
-Permanecen reservados hasta que el segundo pase inserte la evidencia suplementaria y Analyze B dé GO.
+**Bootstrap restriction**: Los pares siguientes son la evidencia primaria mínima y permanecen
+reservados hasta que T089 permita insertar la evidencia suplementaria y Analyze C dé GO.
 
 ### Domain track — `OWNER:domain`
 
@@ -134,8 +153,8 @@ Permanecen reservados hasta que el segundo pase inserte la evidencia suplementar
 - [ ] T087 [US5] [OWNER:e2e] [AC:AC-US5-FOCO-027,AC-US5-RESPONSIVE-032,AC-US5-RESPONSIVE-033] [GREEN] Ajustar `src/styles.css` para contorno continuo, bloque de acciones sin overflow a 320/768/1280/1920 px y ausencia de solapamiento al 200 %, sin ocultar textos ni controles; ejecutar `npm run test:e2e -- --grep='AC-US5-(FOCO-027|RESPONSIVE-03[2-3])'`, `npm run test:e2e` y `npm run build`, exigir GREEN y registrar salida en `.swarm/handoffs/e2e/T087.md`; Expected commit: `feat(US5): T087 enforce focus and responsive boundaries [AC-US5-FOCO-027 AC-US5-RESPONSIVE-032 AC-US5-RESPONSIVE-033]`
 
 **Checkpoint US5 reservado**: Los 34 AC tienen evidencia primaria prevista, pero ninguna task
-T064–T087 se ejecuta con este pase. El segundo pase preservará estos IDs, añadirá evidencia
-suplementaria con IDs nuevos y resolverá el orden TDD de composición antes de Analyze B.
+T064–T087 se ejecuta con este pase. El pase ampliado posterior a T089 preservará estos IDs, añadirá
+evidencia suplementaria con IDs nuevos y resolverá el orden TDD de composición antes de Analyze C.
 
 ---
 
@@ -147,9 +166,9 @@ No hay tasks adicionales en este pase. El orquestador ejecuta de forma read-only
 node scripts/verify-traceability.mjs --phase=tasks
 ```
 
-Después ejecuta `$speckit-analyze`. Un GO autoriza solo `T062/T063`; cualquier CRITICAL/HIGH vuelve a
-Plan o Tasks. La consolidación, transiciones `IMPLEMENTING`/`RELEASE_CANDIDATE`/`VERIFIED`,
-regresión completa y reviewer se incorporan en el segundo pase.
+Después ejecuta `$speckit-analyze`. Un GO autoriza solo `T088/T089`; cualquier CRITICAL/HIGH vuelve
+a Plan o Tasks. La consolidación, transiciones `IMPLEMENTING`/`RELEASE_CANDIDATE`/`VERIFIED`,
+regresión completa y reviewer se incorporan en el pase ampliado posterior.
 
 ---
 
@@ -159,21 +178,22 @@ regresión completa y reviewer se incorporan en el segundo pase.
 
 1. Esta generación deja `tasks.md` y `traceability.md` en forma canónica `Planned`.
 2. `node scripts/verify-traceability.mjs --phase=tasks` debe pasar con el verificador vigente.
-3. Analyze A debe resultar GO.
-4. Solo entonces se ejecuta `T062 → T063`.
-5. Después de T063 se regenera Tasks/ledger, se añade evidencia suplementaria y se repite Analyze.
-6. Ninguna task T064–T087 ni worktree de producto comienza antes de Analyze B y baseline verde.
+3. T062/T063 permanecen integradas y verificadas.
+4. Analyze B debe dar GO limitado para `T088/T089`.
+5. Solo entonces se ejecuta `T088 → T089`.
+6. Después de T089 se regenera Tasks/ledger, se añade evidencia suplementaria y se repite Analyze.
+7. Ninguna task T064–T087 ni worktree de producto comienza antes de Analyze C y baseline verde.
 
 ```text
-Tasks bootstrap + ledger Planned
+Tasks repair + ledger Planned
               ↓
        --phase=tasks PASS
               ↓
-         Analyze A GO
+    Analyze B GO limitado
               ↓
-         T062 → T063
+         T088 → T089
               ↓
-   Tasks ampliadas + Analyze B
+   Tasks ampliadas + Analyze C
               ↓
  domain ║ interfaz → merges → e2e
 ```
@@ -181,6 +201,7 @@ Tasks bootstrap + ledger Planned
 ### Canonical RED/GREEN blocks
 
 - `T062 → T063`
+- `T088 → T089`
 - `T064 → T065`
 - `T066 → T067`
 - `T068 → T069`
@@ -197,7 +218,7 @@ Tasks bootstrap + ledger Planned
 Cada bloque contiene AC relacionados, un único RED canónico y un único GREEN canónico. No existe
 ningún segundo par para el mismo AC en este bootstrap.
 
-## Parallel opportunities after Analyze B
+## Parallel opportunities after Analyze C
 
 Domain e interfaz pueden avanzar como tracks paralelos desde la misma base verde porque sus archivos
 son disjuntos:
@@ -221,12 +242,13 @@ entregable.
 
 ### Incremental checkpoints
 
-1. `T063`: gate multi-feature y ciclo de vida listos.
-2. Segundo Tasks + Analyze B: grafo ejecutable, contratos congelados y baseline verde.
-3. Domain: historial, UNDO y RESET verdes.
-4. Interfaz: control y `GameStatus` compatibles.
-5. E2E: composición, anuncios, terminales, repetición, reset, teclado y responsive.
-6. Release: cero `PENDING`, feature 001 verde y ledger `VERIFIED`.
+1. `T063`: descubrimiento multi-feature y ciclo de vida listos.
+2. `T089`: bloques TDD multi-familia representables.
+3. Pase ampliado + Analyze C: grafo ejecutable, contratos congelados y baseline verde.
+4. Domain: historial, UNDO y RESET verdes.
+5. Interfaz: control y `GameStatus` compatibles.
+6. E2E: composición, anuncios, terminales, repetición, reset, teclado y responsive.
+7. Release: cero `PENDING`, feature 001 verde y ledger `VERIFIED`.
 
 ## Coverage audit — bootstrap canonical pairs
 
@@ -272,11 +294,13 @@ entregable.
 | GATE-ID | RED | GREEN | Test previsto | OWNER |
 |---|---:|---:|---|---|
 | `GATE-MULTIFEATURE-001` | T062 | T063 | `scripts/verify-traceability.test.mjs` — tests con nombre literal `GATE-MULTIFEATURE-001` | orchestrator |
+| `GATE-MULTIFEATURE-001` | T088 | T089 | `scripts/verify-traceability.test.mjs` — bloque multi-familia y compatibilidad legacy | orchestrator |
 
 ## Bootstrap metrics
 
-- 26 Task IDs globalmente únicos: `T062–T087`.
-- 2 tooling tasks: un RED y un GREEN para `GATE-MULTIFEATURE-001`.
+- 28 Task IDs globalmente únicos: `T062–T089`.
+- 4 tooling tasks: dos pares RED/GREEN para `GATE-MULTIFEATURE-001`; T062/T063 están completadas y
+  T088/T089 pendientes.
 - 24 tasks de `US5`: 12 RED y 12 GREEN.
 - 34/34 AC con un par canónico y un test previsto con AC-ID literal.
 - 0 pares suplementarios; se añaden únicamente después de T063.
