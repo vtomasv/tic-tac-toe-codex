@@ -41,3 +41,10 @@ test('GATE-SWARM-001 prepares self-contained worktrees with explicit boundaries'
   assert.match(domainPrompt, /src\/domain\/\*\*/);
   assert.match(interfacePrompt, /src\/components\/\*\*/);
 });
+
+test('GATE-SWARM-001 uses supported non-interactive Codex CLI options', () => {
+  assert.doesNotMatch(script, /--ask-for-approval/);
+  assert.match(script, /--ephemeral/);
+  assert.match(script, /--sandbox "\$sandbox"/);
+  assert.match(script, /-c 'approval_policy="never"'/);
+});
