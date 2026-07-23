@@ -15,7 +15,11 @@ Ejecuta solo las tareas pendientes de la feature activa 002 Undo cuyo OWNER sea 
 - Usa exactamente los asuntos de commit previstos.
 - Implementa únicamente src/domain/** asignado.
 - No modifiques App, componentes, E2E, scripts, package/lockfiles ni SDD.
-- Ejecuta test unitario filtrado, suite unit, build y gate de frontera.
+- Ejecuta test unitario filtrado, suite unit, build y
+  `node scripts/verify-traceability.mjs --phase=tasks`.
+- Antes del handoff ejecuta
+  `git diff --name-only "$(git merge-base HEAD feat/002-undo)"..HEAD` y confirma que cada ruta
+  pertenece a `src/domain/**` o `.swarm/handoffs/domain/**`.
 - Si necesitas cambiar un contrato o archivo ajeno, detente y devuelve REQUEST_ORCHESTRATOR.
 
 Termina con un handoff estructurado: ACs, tasks, commits, archivos, comandos/resultados y riesgos.

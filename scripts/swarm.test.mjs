@@ -32,7 +32,7 @@ test('GATE-SWARM-001 prepares self-contained worktrees with explicit boundaries'
   assert.match(script, /link_dependencies\(\)/);
   assert.match(script, /ln -s "\$ROOT\/node_modules" "\$path\/node_modules"/);
   for (const role of ['domain', 'interfaz', 'e2e']) {
-    assert.match(script, new RegExp(`link_dependencies "\\\\$WT_ROOT/${role}"`));
+    assert.ok(script.includes(`link_dependencies "$WT_ROOT/${role}"`));
   }
   for (const prompt of [domainPrompt, interfacePrompt]) {
     assert.match(prompt, /node scripts\/verify-traceability\.mjs --phase=tasks/);

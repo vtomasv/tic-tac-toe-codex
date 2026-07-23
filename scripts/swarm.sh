@@ -34,6 +34,19 @@ mk_wt(){
   fi
 }
 
+link_dependencies(){
+  local path="$1"
+  [[ -d "$ROOT/node_modules" ]] || fail "Falta $ROOT/node_modules; ejecuta npm ci antes del swarm."
+  if [[ -L "$path/node_modules" ]]; then
+    [[ "$(readlink "$path/node_modules")" == "$ROOT/node_modules" ]] ||
+      fail "$path/node_modules apunta a otra ubicación."
+  elif [[ -e "$path/node_modules" ]]; then
+    [[ -d "$path/node_modules" ]] || fail "$path/node_modules existe pero no es un directorio."
+  else
+    ln -s "$ROOT/node_modules" "$path/node_modules"
+  fi
+}
+
 run_prompt(){
   local role="$1" sandbox="$2" prompt_file="$3" wt="$4"
   need_file "$prompt_file"
@@ -59,6 +72,8 @@ case "$ACTION" in
     verify_baseline
     mk_wt domain
     mk_wt interfaz
+    link_dependencies "$WT_ROOT/domain"
+    link_dependencies "$WT_ROOT/interfaz"
     run_prompt domain workspace-write "$PROMPT_ROOT/09-speckit-implement-domain.md" "$WT_ROOT/domain" & p_domain=$!
     run_prompt interfaz workspace-write "$PROMPT_ROOT/10-speckit-implement-interfaz.md" "$WT_ROOT/interfaz" & p_ui=$!
     wait "$p_domain"
@@ -83,6 +98,7 @@ case "$ACTION" in
     need_branch
     verify_baseline
     mk_wt e2e
+    link_dependencies "$WT_ROOT/e2e"
     run_prompt e2e workspace-write "$PROMPT_ROOT/11-speckit-implement-e2e.md" "$WT_ROOT/e2e"
     printf 'e2e terminó. Revisa %s/e2e.out antes de integrar.\n' "$LOG_ROOT"
     ;;
