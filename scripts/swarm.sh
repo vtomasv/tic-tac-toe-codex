@@ -64,7 +64,7 @@ run_prompt(){
 reject_blocked_handoff(){
   local role="$1"
   local output="$LOG_ROOT/${role}.out"
-  if grep -Eq '^(REQUEST_ORCHESTRATOR|REQUEST_CHANGES)' "$output"; then
+  if grep -Eq '^[[:space:]`]*(REQUEST_ORCHESTRATOR|REQUEST_CHANGES)([[:space:]`]|$)' "$output"; then
     fail "$role devolvió un handoff bloqueante; revisa $output"
   fi
   return 0
