@@ -214,6 +214,8 @@ inventa ni reconstruye retrospectivamente el mapeo.
   de diff limitada a su ownership, en vez de referirse a un “gate de frontera” inexistente;
 - un tercer par valida el contrato de la CLI instalada: prohíbe `--ask-for-approval` y fija
   `-c 'approval_policy="never"'` junto con `--ephemeral` y `--sandbox`;
+- un cuarto par reproduce el preflight real bajo `set -u` y prohíbe declaraciones `local` que
+  referencien una variable en la misma sentencia donde se inicializa;
 - el gate queda verde y con SHAs reales antes de cambiar el ledger a `IMPLEMENTING`;
 - `launch-parallel` conserva sus comprobaciones de rama, árbol limpio y baseline completo antes de
   crear worktrees o invocar Codex.

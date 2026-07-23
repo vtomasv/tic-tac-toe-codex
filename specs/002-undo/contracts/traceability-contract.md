@@ -19,6 +19,7 @@ evidencia suplementaria y vuelve a Analyze antes del fan-out.
 - `T090/T091` quedan reservados para RED/GREEN de `GATE-SWARM-001`.
 - `T105/T106` completan el mismo gate con dependencias y frontera explícita de workers.
 - `T110/T111` completan el gate con el contrato soportado de Codex CLI.
+- `T113/T114` completan el gate con inicialización segura bajo `set -u`.
 - Tasks asignará IDs consecutivos desde `T064` al trabajo de producto, sin reutilizar IDs de feature 001.
 - Ningún AC, GATE o Task ID puede redefinirse en otra feature.
 
@@ -171,7 +172,8 @@ Los tests `GATE-SWARM-001` cubren la raíz canónica `.prompts/`, la presencia d
 e interfaz, el enlace local de `node_modules` para domain/interfaz/e2e y comandos explícitos de
 trazabilidad/ownership en los prompts paralelos. También rechazan opciones CLI inexistentes y
 exigen la política no interactiva mediante configuración soportada. El gate no lanza agentes ni
-crea worktrees.
+crea worktrees. Una regresión adicional impide declaraciones locales dependientes en una única
+sentencia bajo `set -u`.
 
 ## Ledger lifecycle and obligations
 

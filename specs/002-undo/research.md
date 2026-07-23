@@ -264,3 +264,5 @@ de crear cada worktree; el enlace también es ignorado y no altera commits.
   que la raíz ya pasó el baseline con el lockfile vigente.
 - Conservar `--ask-for-approval never`: rechazado porque esa opción no existe en `codex exec`
   0.145.0; la política se expresa con `-c 'approval_policy="never"'`.
+- Declarar `role`, `branch` y `path` en una sola sentencia `local`: rechazado porque Bash expande
+  `${role}` antes de completar la asignación y `set -u` aborta con “unbound variable”.
