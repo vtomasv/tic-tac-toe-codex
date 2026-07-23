@@ -178,3 +178,27 @@ describe('restauración de una jugada', () => {
     expect(restored.board.filter((cell) => cell !== null)).toHaveLength(1);
   });
 });
+
+describe('restauración desde estados terminales', () => {
+  test('AC-US5-TERMINAL-009 restaura PLAYING desde WON_X WON_O y DRAW', () => {
+    const scenarios = [
+      { moves: [0, 3, 1, 4, 2], terminal: 'WON_X', restored: 'PLAYING_X' },
+      { moves: [0, 3, 1, 4, 8, 5], terminal: 'WON_O', restored: 'PLAYING_O' },
+      { moves: [0, 1, 2, 4, 3, 5, 7, 6, 8], terminal: 'DRAW', restored: 'PLAYING_X' },
+    ] as const;
+
+    const results = scenarios.map((scenario) => {
+      const terminalState = scenario.moves.reduce(
+        (state, index) => gameReducer(state, { type: 'PLAY_CELL', index }),
+        INITIAL_STATE,
+      );
+
+      return {
+        terminal: terminalState.status,
+        restored: gameReducer(terminalState, { type: 'UNDO' }).status,
+      };
+    });
+
+    expect(results).toEqual(scenarios.map(({ terminal, restored }) => ({ terminal, restored })));
+  });
+});
