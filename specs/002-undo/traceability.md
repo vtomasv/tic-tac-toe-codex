@@ -1,6 +1,6 @@
 # Traceability Ledger: Feature 002 Undo
 
-**Phase**: Planned
+**Phase**: Implementing
 
 **Canonical criteria**: [spec.md](./spec.md)
 
@@ -27,7 +27,7 @@ amplió con `GATE-SWARM-001`. Dominio y UI no cambiaron.
 | GATE-SWARM-001 | T105 | T106 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; link_dependencies was absent` | 86a548a40f835d28b94f995c0b30ed56af7d97b2 | d17aeb7a887b49d1b6bd39ac6e851dc13e8dd8d1 | VERIFIED |
 | GATE-SWARM-001 | T110 | T111 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; unsupported --ask-for-approval remained` | b88d09d30bb1847b8121a4d1f040bf91481bb54c | e22e9c5593fc0f8f7d51c897060ffb2f02bb98ab | VERIFIED |
 | GATE-SWARM-001 | T113 | T114 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; nounset-unsafe dependent local declaration remained` | d70abc15b8f3cd7885c56a5dcffc48ed27017b03 | c2c4245cf8ec4317b16883c686ee16002b32c0cc | VERIFIED |
-| GATE-SWARM-001 | T116 | T117 | `scripts/swarm.test.mjs` | PENDING | PENDING | PENDING | PENDING |
+| GATE-SWARM-001 | T116 | T117 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; linked worktree writable roots and blocked-handoff propagation were absent` | e76f66e7f543df2da0ddb094b9498473c53fe361 | 5559190e25ea0c15801f914516d819c4306e5df8 | VERIFIED |
 
 ## Acceptance evidence
 
@@ -110,6 +110,6 @@ reemplazan la evidencia primaria.
   `set -u`; Analyze F dio GO y T113/T114/T115 restauraron `Implementing`.
 - El segundo fan-out alcanzó RED en ambos roles, pero los sandboxes no pudieron escribir el Git
   común ni la caché de Vite; ambos devolvieron `REQUEST_ORCHESTRATOR` con exit `0`. Este retorno
-  explícito vuelve a `Planned` hasta Analyze G y T116/T117/T118.
+  explícito volvió a `Planned`; Analyze G y T116/T117/T118 restauraron `Implementing`.
 - Los workers no editan este archivo; T097/T098 consolidan evidencia desde handoffs y git log.
 - `Release_Candidate` y `Verified` exigen cero `PENDING`.
