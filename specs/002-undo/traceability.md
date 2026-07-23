@@ -28,7 +28,7 @@ amplió con `GATE-SWARM-001`. Dominio y UI no cambiaron.
 | GATE-SWARM-001 | T110 | T111 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; unsupported --ask-for-approval remained` | b88d09d30bb1847b8121a4d1f040bf91481bb54c | e22e9c5593fc0f8f7d51c897060ffb2f02bb98ab | VERIFIED |
 | GATE-SWARM-001 | T113 | T114 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; nounset-unsafe dependent local declaration remained` | d70abc15b8f3cd7885c56a5dcffc48ed27017b03 | c2c4245cf8ec4317b16883c686ee16002b32c0cc | VERIFIED |
 | GATE-SWARM-001 | T116 | T117 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; linked worktree writable roots and blocked-handoff propagation were absent` | e76f66e7f543df2da0ddb094b9498473c53fe361 | 5559190e25ea0c15801f914516d819c4306e5df8 | VERIFIED |
-| GATE-SWARM-001 | T121 | T122 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; unblocked handoff returned failure under errexit` | PENDING | PENDING | PENDING |
+| GATE-SWARM-001 | T121 | T122 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; unblocked handoff returned failure under errexit` | 19e463fcc1512f2a0d839206cc6512310f5cd540 | PENDING | PENDING |
 
 ## Acceptance evidence
 

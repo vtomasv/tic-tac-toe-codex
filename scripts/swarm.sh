@@ -64,8 +64,10 @@ run_prompt(){
 reject_blocked_handoff(){
   local role="$1"
   local output="$LOG_ROOT/${role}.out"
-  grep -q '^REQUEST_ORCHESTRATOR' "$output" &&
+  if grep -q '^REQUEST_ORCHESTRATOR' "$output"; then
     fail "$role devolvió REQUEST_ORCHESTRATOR; revisa $output"
+  fi
+  return 0
 }
 
 case "$ACTION" in
