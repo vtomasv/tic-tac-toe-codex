@@ -9,7 +9,7 @@ FEATURE_SLUG="${FEATURE_SLUG:-002-undo}"
 BASE_BRANCH="${SWARM_BASE_BRANCH:-feat/${FEATURE_SLUG}}"
 WT_ROOT="${SWARM_WORKTREE_ROOT:-$(dirname "$ROOT")/.worktrees-${FEATURE_SLUG}}"
 LOG_ROOT="$ROOT/.swarm/logs/${FEATURE_SLUG}"
-PROMPT_ROOT="$ROOT/prompts"
+PROMPT_ROOT="$ROOT/.prompts"
 mkdir -p "$WT_ROOT" "$LOG_ROOT"
 
 fail(){ printf 'ERROR: %s\n' "$*" >&2; exit 1; }
@@ -117,7 +117,7 @@ Precondiciones:
 - Spec Kit ya creó/validó specs/002-undo y sus artefactos.
 - Analyze dio GO.
 - El orquestador implementó los gates fundacionales y congeló contratos.
-- Los prompts están copiados en ./prompts.
+- Los prompts versionados existen en ./.prompts.
 USAGE
     ;;
 esac
