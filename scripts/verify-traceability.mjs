@@ -225,10 +225,11 @@ function validateTaskPair(ref, field, tasks, rows, errors) {
   }
 }
 
-function validateCohesiveBlocks(tasks, acRows, errors) {
+function validateCohesiveBlocks(tasks, acRows, lifecycle, errors) {
   let pending = [];
   const completedGreen = new Set();
   const linkedGreens = new Map();
+  const lifecycleAware = lifecycle.phase !== null;
   for (const rows of acRows.values()) {
     for (const row of rows) {
       if (!linkedGreens.has(row.red)) linkedGreens.set(row.red, new Set());
@@ -241,13 +242,15 @@ function validateCohesiveBlocks(tasks, acRows, errors) {
       pending.push(task);
       continue;
     }
-    const unrelated = pending.filter(
-      (redTask) => !redTask.acs.some((ac) => task.acs.includes(ac)),
-    );
-    if (unrelated.length > 0) {
-      errors.push(
-        `[tasks] ${task.id}: unrelated RED block is open; found ${unrelated.map((redTask) => redTask.id).join(', ')}`,
+    if (!lifecycleAware) {
+      const unrelated = pending.filter(
+        (redTask) => !redTask.acs.some((ac) => task.acs.includes(ac)),
       );
+      if (unrelated.length > 0) {
+        errors.push(
+          `[tasks] ${task.id}: unrelated RED block is open; found ${unrelated.map((redTask) => redTask.id).join(', ')}`,
+        );
+      }
     }
     completedGreen.add(task.id);
     pending = pending.filter((redTask) => {
@@ -280,7 +283,7 @@ export function validateSnapshot({ spec, tasks, ledger, phase = 'tasks' }) {
       for (const ac of task.acs) if (!canonical.has(ac)) errors.push(`[tasks] ${task.id}: unknown AC-ID ${ac}`);
     }
     for (const ac of acIds) validateTaskPair(ac, 'acs', parsedTasks, parsedLedger.acRows.get(ac), errors);
-    validateCohesiveBlocks(parsedTasks, parsedLedger.acRows, errors);
+    validateCohesiveBlocks(parsedTasks, parsedLedger.acRows, parsedLedger.lifecycle, errors);
     if (parsedLedger.gateRows.size === 0) errors.push('[ledger] missing foundational quality gate row');
     for (const [gate, row] of parsedLedger.gateRows) validateTaskPair(gate, 'gates', parsedTasks, row, errors);
     for (const task of parsedTasks) {
