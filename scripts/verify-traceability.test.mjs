@@ -349,3 +349,33 @@ test('GATE-MULTIFEATURE-001 represents supplemental RED GREEN pairs without losi
   assert.deepEqual(result.errors, []);
   assert.equal(result.model.acRows.get('AC-US1-DOMINIO-001').length, 2);
 });
+
+test('GATE-MULTIFEATURE-001 accepts cohesive multi-family RED blocks before granular GREEN', () => {
+  const multiFamilyTasks = `
+- [ ] T001 [GATE:GATE-TRACEABILITY-001] [RED] Add test; Expected commit: \`test(tooling): T001 test gate [GATE-TRACEABILITY-001]\`
+- [ ] T002 [GATE:GATE-TRACEABILITY-001] [GREEN] Add implementation; Expected commit: \`feat(tooling): T002 implement gate [GATE-TRACEABILITY-001]\`
+- [ ] T003 [US1] [OWNER:domain] [AC:AC-US1-DOMINIO-001] [RED] Add domain test; Expected commit: \`test(US1): T003 test domain [AC-US1-DOMINIO-001]\`
+- [ ] T004 [US1] [OWNER:interfaz] [AC:AC-US1-INTERACCION-002] [RED] Add component test; Expected commit: \`test(US1): T004 test component [AC-US1-INTERACCION-002]\`
+- [ ] T005 [US1] [OWNER:domain] [AC:AC-US1-DOMINIO-001] [GREEN] Implement domain; Expected commit: \`feat(US1): T005 implement domain [AC-US1-DOMINIO-001]\`
+- [ ] T006 [US1] [OWNER:interfaz] [AC:AC-US1-INTERACCION-002] [GREEN] Implement component; Expected commit: \`feat(US1): T006 implement component [AC-US1-INTERACCION-002]\`
+`;
+  const multiFamilyLedger = `
+**Phase**: Implementing
+| GATE-ID | RED task | GREEN task | Test file | RED evidence | Test commit | Implementation commit | Status |
+|---|---|---|---|---|---|---|---|
+| GATE-TRACEABILITY-001 | T001 | T002 | \`scripts/gate.test.mjs\` | PENDING | PENDING | PENDING | PENDING |
+| AC-ID | RED task | GREEN task | Planned level | Test file | Exact planned test name | RED evidence | Test commit | Implementation commit | Status |
+|---|---|---|---|---|---|---|---|---|---|
+| AC-US1-DOMINIO-001 | T003 | T005 | Domain | \`src/domain/a.test.ts\` | \`AC-US1-DOMINIO-001 domain\` | PENDING | PENDING | PENDING | PENDING |
+| AC-US1-INTERACCION-002 | T004 | T006 | Component | \`src/components/a.test.tsx\` | \`AC-US1-INTERACCION-002 component\` | PENDING | PENDING | PENDING | PENDING |
+`;
+
+  const result = validateSnapshot({
+    spec,
+    tasks: multiFamilyTasks,
+    ledger: multiFamilyLedger,
+    phase: 'tasks',
+  });
+
+  assert.deepEqual(result.errors, []);
+});
