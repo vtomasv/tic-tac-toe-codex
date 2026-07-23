@@ -2,8 +2,7 @@
 
 **Input**: `specs/002-undo/spec.md`, plan, research, data-model, quickstart y contratos congelados.
 
-**Lifecycle**: `PLANNED` durante la incorporación de RESET al bloque cohesivo T070/T071; vuelve a
-`IMPLEMENTING` solo después de Analyze I y T120.
+**Lifecycle**: `IMPLEMENTING` después de Analyze I y T120.
 
 **Global numbering**: Se preservan `T062–T089`; los nuevos IDs continúan en `T090+`. El orden de
 ejecución se define por fases y dependencias, no por orden numérico, porque `T064–T087` ya estaban
@@ -50,7 +49,7 @@ sus hashes congelados.
 - [x] T115 [OWNER:orchestrator] [GREEN] Después de Analyze F y T113/T114 GREEN, registrar SHAs, marcar T113/T114/T115 completadas, restaurar `Implementing` y ejecutar trazabilidad tasks; evidencia `.swarm/handoffs/orchestrator/T115.md`; Expected commit: `docs(traceability): T115 finalize launch-parallel lifecycle`
 - [x] T118 [OWNER:orchestrator] [GREEN] Después de Analyze G y T116/T117 GREEN, registrar SHAs, marcar T116/T117/T118 completadas, restaurar `Implementing`, actualizar ambos worktrees por fast-forward conservando sus RED preparados y ejecutar trazabilidad tasks; evidencia `.swarm/handoffs/orchestrator/T118.md`; Expected commit: `docs(traceability): T118 resume linked worktree lifecycle`
 - [x] T119 [OWNER:orchestrator] [GREEN] Después de Analyze H, restaurar `Implementing`, rebasar domain e interfaz sobre el contrato de tareas corregido conservando sus commits y RED preparados, ejecutar trazabilidad tasks y registrar `.swarm/handoffs/orchestrator/T119.md`; Expected commit: `docs(traceability): T119 resume cohesive domain TDD lifecycle`
-- [ ] T120 [OWNER:orchestrator] [GREEN] Después de Analyze I, restaurar `Implementing`, rebasar ambos worktrees sobre el bloque cohesivo final y autorizar a domain a reconstruir únicamente sus commits locales T070/T071; ejecutar trazabilidad tasks y registrar `.swarm/handoffs/orchestrator/T120.md`; Expected commit: `docs(traceability): T120 finalize cohesive domain TDD lifecycle`
+- [x] T120 [OWNER:orchestrator] [GREEN] Después de Analyze I, restaurar `Implementing`, rebasar ambos worktrees sobre el bloque cohesivo final y autorizar a domain a reconstruir únicamente sus commits locales T070/T071; ejecutar trazabilidad tasks y registrar `.swarm/handoffs/orchestrator/T120.md`; Expected commit: `docs(traceability): T120 finalize cohesive domain TDD lifecycle`
 
 Después del commit T092, el orquestador ejecuta, sobre árbol limpio:
 

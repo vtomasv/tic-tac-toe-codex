@@ -1,6 +1,6 @@
 # Traceability Ledger: Feature 002 Undo
 
-**Phase**: Planned
+**Phase**: Implementing
 
 **Canonical criteria**: [spec.md](./spec.md)
 
@@ -115,7 +115,7 @@ reemplazan la evidencia primaria.
   obligación de T067. Este retorno explícito volvió a `Planned`; Analyze H y T119 reunieron
   repetición y límite vacío en un bloque RED cohesivo y restauraron `Implementing`.
 - Al reanudar, T070/T071 cerraron repetición y vacío, pero el RED RESET posterior nació verde
-  porque T065 y T071 ya lo satisfacían. Este retorno vuelve a `Planned` hasta Analyze I y T120;
-  RESET se incorpora al mismo bloque cohesivo y solo se reconstruyen los dos commits locales.
+  porque T065 y T071 ya lo satisfacían. Este retorno volvió a `Planned`; Analyze I y T120
+  incorporaron RESET al mismo bloque cohesivo y autorizaron reconstruir solo los dos commits locales.
 - Los workers no editan este archivo; T097/T098 consolidan evidencia desde handoffs y git log.
 - `Release_Candidate` y `Verified` exigen cero `PENDING`.
