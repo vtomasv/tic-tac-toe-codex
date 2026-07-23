@@ -4,7 +4,7 @@ type UndoButtonProps = Readonly<{
 }>;
 
 export function UndoButton({ available, onUndo }: UndoButtonProps) {
-  const handlePointerUp = () => {
+  const handleClick = () => {
     if (available) {
       onUndo();
     }
@@ -16,7 +16,7 @@ export function UndoButton({ available, onUndo }: UndoButtonProps) {
         type="button"
         className="undo-button"
         aria-disabled={available ? undefined : 'true'}
-        onPointerUp={handlePointerUp}
+        onClick={handleClick}
       >
         Deshacer jugada
       </button>
