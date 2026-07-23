@@ -212,13 +212,15 @@ inventa ni reconstruye retrospectivamente el mapeo.
   validado en la raíz, mediante un enlace local no versionado, antes de invocar Codex;
 - ese segundo par exige que los prompts domain/interfaz nombren el gate estructural y una auditoría
   de diff limitada a su ownership, en vez de referirse a un “gate de frontera” inexistente;
+- un tercer par valida el contrato de la CLI instalada: prohíbe `--ask-for-approval` y fija
+  `-c 'approval_policy="never"'` junto con `--ephemeral` y `--sandbox`;
 - el gate queda verde y con SHAs reales antes de cambiar el ledger a `IMPLEMENTING`;
 - `launch-parallel` conserva sus comprobaciones de rama, árbol limpio y baseline completo antes de
   crear worktrees o invocar Codex.
 
 Los tests del gate no lanzan agentes ni crean worktrees. Demuestran estáticamente que el runner
-localiza prompts versionados, prepara resolución de dependencias para cada rol y entrega comandos de
-frontera inequívocos.
+localiza prompts versionados, prepara dependencias, usa opciones aceptadas por Codex CLI y entrega
+comandos de frontera inequívocos.
 
 ### Descubrimiento
 

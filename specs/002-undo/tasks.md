@@ -2,8 +2,8 @@
 
 **Input**: `specs/002-undo/spec.md`, plan, research, data-model, quickstart y contratos congelados.
 
-**Lifecycle**: `PLANNED` durante la reparación de autosuficiencia de worktrees; vuelve a
-`IMPLEMENTING` solo después de Analyze D y T105/T106.
+**Lifecycle**: `PLANNED` durante la reparación final del contrato de Codex CLI; vuelve a
+`IMPLEMENTING` solo después de Analyze E y T110/T111.
 
 **Global numbering**: Se preservan `T062–T089`; los nuevos IDs continúan en `T090+`. El orden de
 ejecución se define por fases y dependencias, no por orden numérico, porque `T064–T087` ya estaban
@@ -32,6 +32,8 @@ Las tareas completadas conservan evidencia y SHAs reales. Analyze C debe dar GO 
 - [x] T091 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [GREEN] Cambiar solo la raíz de prompts y la ayuda asociada en `scripts/swarm.sh` para usar `.prompts/`; ejecutar `node --test scripts/swarm.test.mjs`, `bash -n scripts/swarm.sh`, `node scripts/verify-traceability.mjs --phase=tasks` y `npm run verify:traceability`, registrar `.swarm/handoffs/orchestrator/T091.md`; Expected commit: `fix(tooling): T091 resolve versioned swarm prompts [GATE-SWARM-001]`
 - [x] T105 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [RED] Ampliar `scripts/swarm.test.mjs` con tests literales `GATE-SWARM-001` que exijan enlace no destructivo del `node_modules` raíz en worktrees domain/interfaz/e2e y que `.prompts/09-speckit-implement-domain.md`/`.prompts/10-speckit-implement-interfaz.md` contengan `node scripts/verify-traceability.mjs --phase=tasks` más una auditoría `git diff --name-only` acotada al owner; comando `node --test --test-name-pattern='GATE-SWARM-001.*self-contained|GATE-SWARM-001.*versioned root' scripts/swarm.test.mjs`, exigir RED por preparación ausente y registrar `.swarm/handoffs/orchestrator/T105.md`; Expected commit: `test(tooling): T105 define self-contained swarm worktrees [GATE-SWARM-001]`
 - [x] T106 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [GREEN] Añadir en `scripts/swarm.sh` una función idempotente que enlace `$ROOT/node_modules` dentro de cada worktree domain/interfaz/e2e y falle si la raíz no existe; sustituir “gate de frontera” por comandos exactos de trazabilidad y diff permitido en `.prompts/09-speckit-implement-domain.md` y `.prompts/10-speckit-implement-interfaz.md`; ejecutar `node --test scripts/swarm.test.mjs`, `bash -n scripts/swarm.sh`, `node scripts/verify-traceability.mjs --phase=tasks` y `npm run verify:traceability`; evidencia `.swarm/handoffs/orchestrator/T106.md`; Expected commit: `fix(tooling): T106 prepare self-contained swarm worktrees [GATE-SWARM-001]`
+- [ ] T110 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [RED] Añadir a `scripts/swarm.test.mjs` `GATE-SWARM-001 uses supported non-interactive Codex CLI options`, exigiendo ausencia de `--ask-for-approval`, presencia de `--ephemeral`, `--sandbox` y `-c 'approval_policy="never"'`; comando `node --test --test-name-pattern='GATE-SWARM-001.*supported non-interactive|GATE-SWARM-001.*self-contained' scripts/swarm.test.mjs`, exigir RED por opción no soportada y registrar `.swarm/handoffs/orchestrator/T110.md`; Expected commit: `test(tooling): T110 define supported Codex CLI contract [GATE-SWARM-001]`
+- [ ] T111 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [GREEN] Sustituir en `scripts/swarm.sh` la opción inexistente `--ask-for-approval never` por `-c 'approval_policy="never"'`, sin cambiar sandbox ni prompts; ejecutar `codex exec --strict-config -c 'approval_policy="never"' --version`, `node --test scripts/swarm.test.mjs`, `bash -n scripts/swarm.sh` y trazabilidad tasks/final; evidencia `.swarm/handoffs/orchestrator/T111.md`; Expected commit: `fix(tooling): T111 use supported Codex CLI contract [GATE-SWARM-001]`
 
 **Checkpoint**: Ambos gates están GREEN, feature 001 y 002 pasan juntas y los contratos conservan
 sus hashes congelados.
@@ -40,6 +42,7 @@ sus hashes congelados.
 
 - [x] T092 [OWNER:orchestrator] [GREEN] Revalidar con `shasum -a 256` los contratos `specs/002-undo/contracts/domain-contract.md`, `ui-contract.md` y `traceability-contract.md`, cambiar exclusivamente `**Phase**` a `Implementing` en `specs/002-undo/traceability.md`, marcar T090–T092 completadas en `specs/002-undo/tasks.md`, registrar los SHAs reales de ambos gates y ejecutar `node scripts/verify-traceability.mjs --phase=tasks`; evidencia `.swarm/handoffs/orchestrator/T092.md`; Expected commit: `docs(traceability): T092 enter implementing lifecycle`
 - [x] T109 [OWNER:orchestrator] [GREEN] Después de Analyze D y T105/T106 GREEN, revalidar hashes congelados, registrar sus SHAs en `specs/002-undo/traceability.md`, marcar T105/T106/T109 completadas, cambiar `**Phase**` de `Planned` a `Implementing` y ejecutar `node scripts/verify-traceability.mjs --phase=tasks`; evidencia `.swarm/handoffs/orchestrator/T109.md`; Expected commit: `docs(traceability): T109 re-enter implementing lifecycle`
+- [ ] T112 [OWNER:orchestrator] [GREEN] Después de Analyze E y T110/T111 GREEN, revalidar hashes, registrar sus SHAs, marcar T110/T111/T112 completadas, cambiar `**Phase**` de `Planned` a `Implementing` y ejecutar trazabilidad tasks; evidencia `.swarm/handoffs/orchestrator/T112.md`; Expected commit: `docs(traceability): T112 finalize swarm implementing lifecycle`
 
 Después del commit T092, el orquestador ejecuta, sobre árbol limpio:
 
@@ -135,6 +138,8 @@ T088 → T089 → Tasks ampliadas → Analyze C → T090 → T091 → T092
                                       Plan/Tasks reparación → Analyze D
                                                                ↓ GO
                                                        T105 → T106 → T109
+                                                               ↓ preflight CLI
+                                           Plan/Tasks → Analyze E → T110 → T111 → T112
                                   ↓ baseline + prepare
                     domain T064–T075 ║ interfaz T076–T079,T095–T096
                                   ↓ merge domain, sensores
@@ -198,12 +203,12 @@ T088 → T089 → Tasks ampliadas → Analyze C → T090 → T091 → T092
 | GATE-ID | RED | GREEN | Test previsto | OWNER |
 |---|---|---|---|---|
 | GATE-MULTIFEATURE-001 | T062, T088 | T063, T089 | `scripts/verify-traceability.test.mjs` | orchestrator |
-| GATE-SWARM-001 | T090, T105 | T091, T106 | `scripts/swarm.test.mjs` | orchestrator |
+| GATE-SWARM-001 | T090, T105, T110 | T091, T106, T111 | `scripts/swarm.test.mjs` | orchestrator |
 
 ## Metrics
 
-- 46 Task IDs de feature 002, todos globalmente únicos.
-- 8 tareas de tooling, 33 tareas de producto/lifecycle/consolidación y una auditoría read-only.
+- 49 Task IDs de feature 002, todos globalmente únicos.
+- 10 tareas de tooling, 34 tareas de producto/lifecycle/consolidación y una auditoría read-only.
 - 34/34 AC con al menos un RED y un GREEN; toda evidencia de producto contiene AC-ID literal.
 - 2 gates con pares RED/GREEN y test previsto.
 - 42 AC de feature 001 son regresión obligatoria en baseline, candidata, verificación y review.

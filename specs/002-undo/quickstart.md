@@ -101,7 +101,8 @@ Con el gate integrado, el orquestador:
 6. repite `speckit-analyze` como Analyze B;
 7. si Analyze B está en GO, ejecuta RED/GREEN de `GATE-SWARM-001` para demostrar que
    `scripts/swarm.sh` resuelve prompts desde `.prompts/`, enlaza dependencias en cada worktree y
-   entrega auditorías de ownership explícitas, sin lanzar agentes ni crear worktrees durante tests;
+   usa opciones soportadas por Codex CLI, además de entregar auditorías de ownership explícitas,
+   sin lanzar agentes ni crear worktrees durante tests;
 8. congela contratos, cambia el ledger a `IMPLEMENTING` y commitea esa transición mediante su task
    de orquestador;
 9. ejecuta unit, component, E2E, build y traceability sobre ese commit exacto;

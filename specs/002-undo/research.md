@@ -246,8 +246,8 @@ familia.
 
 **Decision**: `scripts/swarm.sh` usa `.prompts/` como raíz única y `GATE-SWARM-001`, implementado con
 tests Node sin dependencias, valida la ruta, la presencia de prompts, el acceso de cada worktree al
-`node_modules` raíz ya validado y los comandos explícitos de frontera domain/interfaz antes del
-fan-out.
+`node_modules` raíz ya validado, las opciones admitidas por Codex CLI 0.145.0 y los comandos
+explícitos de frontera domain/interfaz antes del fan-out.
 
 **Rationale**: Los prompts existentes están versionados bajo `.prompts/`. Una ruta distinta permite
 que baseline y `prepare` pasen, pero hace fallar `launch-parallel` después de crear worktrees. El
@@ -262,3 +262,5 @@ de crear cada worktree; el enlace también es ignorado y no altera commits.
 - Descubrir el fallo durante `launch-parallel`: rechazado porque ocurre después de mutar worktrees.
 - Ejecutar `npm ci` dos veces en paralelo: rechazado porque duplica I/O y acceso de red después de
   que la raíz ya pasó el baseline con el lockfile vigente.
+- Conservar `--ask-for-approval never`: rechazado porque esa opción no existe en `codex exec`
+  0.145.0; la política se expresa con `-c 'approval_policy="never"'`.
