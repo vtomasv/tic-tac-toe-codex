@@ -48,3 +48,14 @@ test('GATE-SWARM-001 uses supported non-interactive Codex CLI options', () => {
   assert.match(script, /--sandbox "\$sandbox"/);
   assert.match(script, /-c 'approval_policy="never"'/);
 });
+
+test('GATE-SWARM-001 rejects nounset-unsafe dependent local declarations', () => {
+  assert.doesNotMatch(
+    script,
+    /local role="\$1" branch="swarm\/\$\{FEATURE_SLUG\}-\$\{role\}" path="\$WT_ROOT\/\$role"/,
+  );
+  assert.match(
+    script,
+    /local role="\$1"\n\s+local branch="swarm\/\$\{FEATURE_SLUG\}-\$\{role\}"\n\s+local path="\$WT_ROOT\/\$role"/,
+  );
+});
