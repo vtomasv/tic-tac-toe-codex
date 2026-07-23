@@ -64,8 +64,8 @@ run_prompt(){
 reject_blocked_handoff(){
   local role="$1"
   local output="$LOG_ROOT/${role}.out"
-  if grep -q '^REQUEST_ORCHESTRATOR' "$output"; then
-    fail "$role devolvió REQUEST_ORCHESTRATOR; revisa $output"
+  if grep -Eq '^(REQUEST_ORCHESTRATOR|REQUEST_CHANGES)' "$output"; then
+    fail "$role devolvió un handoff bloqueante; revisa $output"
   fi
   return 0
 }
@@ -119,7 +119,7 @@ case "$ACTION" in
     verify_baseline
     mk_wt e2e
     link_dependencies "$WT_ROOT/e2e"
-    run_prompt e2e workspace-write "$PROMPT_ROOT/11-speckit-implement-e2e.md" "$WT_ROOT/e2e"
+    run_prompt e2e danger-full-access "$PROMPT_ROOT/11-speckit-implement-e2e.md" "$WT_ROOT/e2e"
     reject_blocked_handoff e2e
     printf 'e2e terminó. Revisa %s/e2e.out antes de integrar.\n' "$LOG_ROOT"
     ;;
