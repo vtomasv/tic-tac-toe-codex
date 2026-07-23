@@ -100,3 +100,48 @@ test('GATE-SWARM-001 preserves success for an unblocked handoff under errexit', 
     rmSync(logRoot, { recursive: true, force: true });
   }
 });
+
+test('GATE-SWARM-001 provides browser-capable E2E execution and propagates change requests', () => {
+  const problems = [];
+  if (
+    !/run_prompt e2e danger-full-access "\$PROMPT_ROOT\/11-speckit-implement-e2e\.md"/.test(
+      script,
+    )
+  ) {
+    problems.push('launch-e2e must use danger-full-access so Playwright can start Chromium');
+  }
+  for (const role of ['domain', 'interfaz']) {
+    if (!new RegExp(`run_prompt ${role} workspace-write`).test(script)) {
+      problems.push(`${role} must remain restricted to workspace-write`);
+    }
+  }
+
+  const functionSource = script.match(/reject_blocked_handoff\(\)\{[\s\S]*?\n\}/)?.[0];
+  assert.ok(functionSource, 'reject_blocked_handoff must exist');
+  const logRoot = mkdtempSync(path.join(tmpdir(), 'swarm-change-request-'));
+  try {
+    writeFileSync(path.join(logRoot, 'e2e.out'), 'REQUEST_CHANGES\n');
+    const result = spawnSync(
+      'bash',
+      [
+        '-c',
+        [
+          'fail(){ exit 1; }',
+          'LOG_ROOT="$1"',
+          functionSource,
+          'reject_blocked_handoff e2e',
+        ].join('\n'),
+        'swarm-change-request-test',
+        logRoot,
+      ],
+      { encoding: 'utf8' },
+    );
+    if (result.status === 0) {
+      problems.push('REQUEST_CHANGES must produce a non-zero exit');
+    }
+  } finally {
+    rmSync(logRoot, { recursive: true, force: true });
+  }
+
+  assert.deepEqual(problems, []);
+});
