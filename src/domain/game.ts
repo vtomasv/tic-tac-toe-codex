@@ -50,6 +50,10 @@ export const INITIAL_STATE: GameState = Object.freeze({
   history: Object.freeze([]),
 });
 
+export function canUndo(state: GameState): boolean {
+  return state.history.length > 0;
+}
+
 export function gameReducer(state: GameState, action: GameAction): GameState {
   if (action.type === 'RESET') {
     return INITIAL_STATE;
