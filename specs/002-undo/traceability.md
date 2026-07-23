@@ -30,7 +30,7 @@ amplió con `GATE-SWARM-001`. Dominio y UI no cambiaron.
 | GATE-SWARM-001 | T116 | T117 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; linked worktree writable roots and blocked-handoff propagation were absent` | e76f66e7f543df2da0ddb094b9498473c53fe361 | 5559190e25ea0c15801f914516d819c4306e5df8 | VERIFIED |
 | GATE-SWARM-001 | T121 | T122 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; unblocked handoff returned failure under errexit` | 19e463fcc1512f2a0d839206cc6512310f5cd540 | f3e7ddb8dc875ff92f1618b67112d806d969b91e | VERIFIED |
 | GATE-SWARM-001 | T124 | T125 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; E2E sandbox blocked Chromium and REQUEST_CHANGES returned success` | a346493680bbc2808694e2a2661aa6ba8d51f652 | 317845d790e8676d5d8d12938e044da1ce2b4dc7 | VERIFIED |
-| GATE-SWARM-001 | T128 | T129 | `scripts/swarm.test.mjs` | `2026-07-23 expected RED: E2E resume rejects planned RED tests and Markdown marker bypasses propagation` | PENDING | PENDING | PENDING |
+| GATE-SWARM-001 | T128 | T129 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; E2E resume rejected planned RED tests and Markdown marker bypassed propagation` | 636d1aa8478688698a260abce2f44162cd9f363e | 4438b8f834630255a49b8bb5318fb82dab907ecf | VERIFIED |
 
 ## Acceptance evidence
 
@@ -134,6 +134,7 @@ reemplazan la evidencia primaria.
   árbol principal verde y transfiere este commit directamente a la rama e2e antes de reanudar T086.
 - Tras incorporar T127, el prompt E2E volvió a detenerse porque trataba los RED T080–T085 como un
   baseline inesperado y escribió el marcador entre comillas Markdown, forma que el runner no
-  propagó. T128/T129 reparan ambos contratos de reanudación sin tocar producto ni contratos.
+  propagó. T128/T129 repararon ambos contratos de reanudación sin tocar producto ni contratos;
+  Analyze L dio GO y T130 autorizó continuar T086 desde la historia RED existente.
 - Los workers no editan este archivo; T097/T098 consolidan evidencia desde handoffs y git log.
 - `Release_Candidate` y `Verified` exigen cero `PENDING`.
