@@ -6,6 +6,19 @@
 
 **Contract**: [traceability-contract.md](./contracts/traceability-contract.md)
 
+## Pre-swarm contract freeze
+
+Los contratos quedan congelados después de T063 con estos SHA-256:
+
+| Contract | SHA-256 |
+|---|---|
+| `contracts/domain-contract.md` | `d148f79d15827834867de57c86c4c545906194a6f2225e3d18de01200a3046e8` |
+| `contracts/ui-contract.md` | `58307ec5492446d4669dcb6b187b7a30988a61f09bd7f5c41ea47898d051d23e` |
+| `contracts/traceability-contract.md` | `736640a9f7b5e1e39241ca1572473d03018746e6af03f4b3370333502fda13f6` |
+
+Cualquier cambio posterior de contenido o firma requiere retorno explícito a Plan/Tasks y un nuevo
+Analyze antes del fan-out.
+
 Este ledger representa exclusivamente el pase bootstrap anterior a Analyze A. Contiene una fila
 canónica por cada uno de los 34 AC y una fila para `GATE-MULTIFEATURE-001`. Cada AC tiene exactamente
 un par RED/GREEN; no existe todavía evidencia suplementaria. La fila del gate registra T062/T063
