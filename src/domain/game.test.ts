@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 
 import {
+  canUndo,
   gameReducer,
   INITIAL_STATE,
   WINNING_LINES,
@@ -200,5 +201,69 @@ describe('restauración desde estados terminales', () => {
     });
 
     expect(results).toEqual(scenarios.map(({ terminal, restored }) => ({ terminal, restored })));
+  });
+});
+
+describe('restauración repetida', () => {
+  test('AC-US5-HISTORIAL-010 deshace repetidamente la siguiente jugada más reciente', () => {
+    const afterX = gameReducer(INITIAL_STATE, { type: 'PLAY_CELL', index: 0 });
+    const afterO = gameReducer(afterX, { type: 'PLAY_CELL', index: 1 });
+    const afterSecondX = gameReducer(afterO, { type: 'PLAY_CELL', index: 2 });
+
+    const afterFirstUndo = gameReducer(afterSecondX, { type: 'UNDO' });
+    const afterSecondUndo = gameReducer(afterFirstUndo, { type: 'UNDO' });
+
+    expect(afterFirstUndo.board).toEqual(afterO.board);
+    expect(afterSecondUndo.board).toEqual(afterX.board);
+  });
+
+  test('AC-US5-HISTORIAL-011 llega a nueve celdas vacías al consumir el historial', () => {
+    const played = [0, 1, 2].reduce(
+      (state, index) => gameReducer(state, { type: 'PLAY_CELL', index }),
+      INITIAL_STATE,
+    );
+    const restored = [0, 1, 2].reduce(
+      (state) => gameReducer(state, { type: 'UNDO' }),
+      played,
+    );
+
+    expect(restored.board).toEqual(Array(9).fill(null));
+  });
+
+  test('AC-US5-UNWANTED-012 conserva por separado el tablero con historial vacío', () => {
+    const restored = gameReducer(INITIAL_STATE, { type: 'UNDO' });
+
+    expect(restored.board).toBe(INITIAL_STATE.board);
+  });
+
+  test('AC-US5-UNWANTED-013 conserva por separado el status con historial vacío', () => {
+    const restored = gameReducer(INITIAL_STATE, { type: 'UNDO' });
+
+    expect(restored.status).toBe(INITIAL_STATE.status);
+  });
+
+  test('AC-US5-UNWANTED-014 mantiene canUndo falso tras UNDO vacío', () => {
+    const restored = gameReducer(INITIAL_STATE, { type: 'UNDO' });
+
+    expect(canUndo(restored)).toBe(false);
+  });
+});
+
+describe('reinicio con historial', () => {
+  const played = [0, 1, 2].reduce(
+    (state, index) => gameReducer(state, { type: 'PLAY_CELL', index }),
+    INITIAL_STATE,
+  );
+
+  test('AC-US5-RESET-018 RESET deja nueve celdas vacías', () => {
+    expect(gameReducer(played, { type: 'RESET' }).board).toEqual(Array(9).fill(null));
+  });
+
+  test('AC-US5-RESET-019 RESET restaura PLAYING_X', () => {
+    expect(gameReducer(played, { type: 'RESET' }).status).toBe('PLAYING_X');
+  });
+
+  test('AC-US5-RESET-020 RESET elimina historial y deja canUndo falso', () => {
+    expect(canUndo(gameReducer(played, { type: 'RESET' }))).toBe(false);
   });
 });
