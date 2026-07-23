@@ -3,9 +3,17 @@ export type Cell = Player | null;
 export type Board = readonly [Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell];
 export type GameStatus = 'PLAYING_X' | 'PLAYING_O' | 'WON_X' | 'WON_O' | 'DRAW';
 
+export interface GameSnapshot {
+  readonly board: Board;
+  readonly status: GameStatus;
+}
+
+export type GameHistory = readonly GameSnapshot[];
+
 export interface GameState {
   readonly board: Board;
   readonly status: GameStatus;
+  readonly history: GameHistory;
 }
 
 export type GameAction =
@@ -38,6 +46,7 @@ export const WINNING_LINES = Object.freeze([
 export const INITIAL_STATE: GameState = Object.freeze({
   board: EMPTY_BOARD,
   status: 'PLAYING_X',
+  history: Object.freeze([]),
 });
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -61,6 +70,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     board[first] === player && board[second] === player && board[third] === player,
   );
   const draw = !won && board.every((cell) => cell !== null);
+  const snapshot: GameSnapshot = Object.freeze({
+    board: state.board,
+    status: state.status,
+  });
 
   return {
     board: board as unknown as Board,
@@ -68,5 +81,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       ? player === 'X' ? 'WON_X' : 'WON_O'
       : draw ? 'DRAW'
       : player === 'X' ? 'PLAYING_O' : 'PLAYING_X',
+    history: Object.freeze([...state.history, snapshot]),
   };
 }

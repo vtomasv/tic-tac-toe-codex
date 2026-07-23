@@ -1,6 +1,17 @@
 import { describe, expect, test } from 'vitest';
 
-import { gameReducer, INITIAL_STATE, WINNING_LINES, type Board } from './game';
+import {
+  gameReducer,
+  INITIAL_STATE,
+  WINNING_LINES,
+  type Board,
+  type GameState,
+  type GameStatus,
+} from './game';
+
+function stateWithEmptyHistory(board: Board, status: GameStatus): GameState {
+  return { board, status, history: [] };
+}
 
 describe('estado inicial', () => {
   test('AC-US1-ESTADO-001 inicia en PLAYING_X', () => {
@@ -19,7 +30,10 @@ describe('resultados', () => {
       const board = Array(9).fill(null) as Array<'X' | null>;
       board[first] = 'X';
       board[second] = 'X';
-      const result = gameReducer({ board: board as unknown as Board, status: 'PLAYING_X' }, { type: 'PLAY_CELL', index: final });
+      const result = gameReducer(
+        stateWithEmptyHistory(board as unknown as Board, 'PLAYING_X'),
+        { type: 'PLAY_CELL', index: final },
+      );
       expect(result.status).toBe('WON_X');
     }
   });
@@ -30,30 +44,37 @@ describe('resultados', () => {
       const board = Array(9).fill(null) as Array<'O' | null>;
       board[first] = 'O';
       board[second] = 'O';
-      const result = gameReducer({ board: board as unknown as Board, status: 'PLAYING_O' }, { type: 'PLAY_CELL', index: final });
+      const result = gameReducer(
+        stateWithEmptyHistory(board as unknown as Board, 'PLAYING_O'),
+        { type: 'PLAY_CELL', index: final },
+      );
       expect(result.status).toBe('WON_O');
     }
   });
 
   test('AC-US2-DOMINIO-005 resuelve DRAW en la novena jugada sin línea ganadora', () => {
     const drawBoard = ['X', 'O', 'X', 'X', 'O', 'O', 'O', 'X', null] as const;
-    expect(gameReducer({ board: drawBoard, status: 'PLAYING_X' }, { type: 'PLAY_CELL', index: 8 }).status).toBe('DRAW');
+    expect(
+      gameReducer(stateWithEmptyHistory(drawBoard, 'PLAYING_X'), { type: 'PLAY_CELL', index: 8 }).status,
+    ).toBe('DRAW');
 
     const winningNinth = ['X', 'O', 'O', 'O', 'X', 'X', 'X', 'X', null] as const;
-    expect(gameReducer({ board: winningNinth, status: 'PLAYING_X' }, { type: 'PLAY_CELL', index: 8 }).status).toBe('WON_X');
+    expect(
+      gameReducer(stateWithEmptyHistory(winningNinth, 'PLAYING_X'), { type: 'PLAY_CELL', index: 8 }).status,
+    ).toBe('WON_X');
   });
 
   test('AC-US2-UNWANTED-007 conserva el tablero en estados terminales', () => {
     const board = [null, 'X', 'O', 'X', 'O', 'X', 'O', 'X', 'O'] as const;
     for (const status of ['WON_X', 'WON_O', 'DRAW'] as const) {
-      expect(gameReducer({ board, status }, { type: 'PLAY_CELL', index: 0 }).board).toEqual(board);
+      expect(gameReducer(stateWithEmptyHistory(board, status), { type: 'PLAY_CELL', index: 0 }).board).toEqual(board);
     }
   });
 
   test('AC-US2-UNWANTED-008 conserva el estado terminal vigente', () => {
     const board = [null, 'X', 'O', 'X', 'O', 'X', 'O', 'X', 'O'] as const;
     for (const status of ['WON_X', 'WON_O', 'DRAW'] as const) {
-      expect(gameReducer({ board, status }, { type: 'PLAY_CELL', index: 0 }).status).toBe(status);
+      expect(gameReducer(stateWithEmptyHistory(board, status), { type: 'PLAY_CELL', index: 0 }).status).toBe(status);
     }
   });
 });
@@ -64,13 +85,13 @@ describe('reinicio', () => {
 
   test('AC-US3-ESTADO-002 vacía las nueve celdas al reiniciar', () => {
     for (const status of statuses) {
-      expect(gameReducer({ board: markedBoard, status }, { type: 'RESET' }).board).toEqual(Array(9).fill(null));
+      expect(gameReducer(stateWithEmptyHistory(markedBoard, status), { type: 'RESET' }).board).toEqual(Array(9).fill(null));
     }
   });
 
   test('AC-US3-ESTADO-003 vuelve a PLAYING_X al reiniciar', () => {
     for (const status of statuses) {
-      expect(gameReducer({ board: markedBoard, status }, { type: 'RESET' }).status).toBe('PLAYING_X');
+      expect(gameReducer(stateWithEmptyHistory(markedBoard, status), { type: 'RESET' }).status).toBe('PLAYING_X');
     }
   });
 });
