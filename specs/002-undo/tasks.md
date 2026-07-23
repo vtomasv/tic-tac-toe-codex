@@ -53,6 +53,9 @@ sus hashes congelados.
 - [x] T121 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [RED] Añadir en `scripts/swarm.test.mjs` `GATE-SWARM-001 preserves success for an unblocked handoff under errexit`, ejecutando la función real bajo `set -e`; exigir RED porque la ausencia de `REQUEST_ORCHESTRATOR` devuelve exit 1; comando `node --test --test-name-pattern='GATE-SWARM-001.*unblocked handoff' scripts/swarm.test.mjs`; evidencia `.swarm/handoffs/orchestrator/T121.md`; Expected commit: `test(tooling): T121 define successful handoff exit contract [GATE-SWARM-001]`
 - [x] T122 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [GREEN] Hacer total `reject_blocked_handoff` en `scripts/swarm.sh`: fallar solo si existe `REQUEST_ORCHESTRATOR` y devolver éxito explícito en caso contrario; comandos `node --test scripts/swarm.test.mjs`, `bash -n scripts/swarm.sh`, trazabilidad tasks/final y `scripts/swarm.sh launch-parallel`; evidencia `.swarm/handoffs/orchestrator/T122.md`; Expected commit: `fix(tooling): T122 preserve success for unblocked handoffs [GATE-SWARM-001]`
 - [x] T123 [OWNER:orchestrator] [GREEN] Registrar en `specs/002-undo/traceability.md` los SHAs reales T121/T122, conservar `Implementing` y confirmar ambos worktrees listos para integración; comandos `node scripts/verify-traceability.mjs --phase=tasks` y `npm run verify:traceability`; evidencia `.swarm/handoffs/orchestrator/T123.md`; Expected commit: `docs(traceability): T123 resume successful launch lifecycle`
+- [ ] T124 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [RED] Añadir en `scripts/swarm.test.mjs` `GATE-SWARM-001 provides browser-capable E2E execution and propagates change requests`, exigiendo `danger-full-access` solo para `launch-e2e` y exit no cero ante `REQUEST_CHANGES`; comando `node --test --test-name-pattern='GATE-SWARM-001.*browser-capable E2E' scripts/swarm.test.mjs`; exigir RED porque E2E usa `workspace-write` y el handoff bloqueante se acepta; evidencia `.swarm/handoffs/orchestrator/T124.md`; Expected commit: `test(tooling): T124 define browser-capable E2E handoff contract [GATE-SWARM-001]`
+- [ ] T125 [OWNER:orchestrator] [GATE:GATE-SWARM-001] [GREEN] Cambiar solo `scripts/swarm.sh` para ejecutar e2e con `danger-full-access`, conservar domain/interfaz en `workspace-write` y rechazar tanto `REQUEST_ORCHESTRATOR` como `REQUEST_CHANGES`; comandos `node --test scripts/swarm.test.mjs`, `bash -n scripts/swarm.sh`, trazabilidad tasks/final y `scripts/swarm.sh launch-e2e`; evidencia `.swarm/handoffs/orchestrator/T125.md`; Expected commit: `fix(tooling): T125 enable browser-capable E2E handoffs [GATE-SWARM-001]`
+- [ ] T126 [OWNER:orchestrator] [GREEN] Después de Analyze J y T124/T125 GREEN, registrar sus SHAs en `specs/002-undo/traceability.md`, conservar `Implementing` y reanudar el worktree e2e sin reconstruir T080/T081; comandos `node scripts/verify-traceability.mjs --phase=tasks` y `npm run verify:traceability`; evidencia `.swarm/handoffs/orchestrator/T126.md`; Expected commit: `docs(traceability): T126 resume browser-capable E2E lifecycle`
 
 Después del commit T092, el orquestador ejecuta, sobre árbol limpio:
 
@@ -210,12 +213,12 @@ T088 → T089 → Tasks ampliadas → Analyze C → T090 → T091 → T092
 | GATE-ID | RED | GREEN | Test previsto | OWNER |
 |---|---|---|---|---|
 | GATE-MULTIFEATURE-001 | T062, T088 | T063, T089 | `scripts/verify-traceability.test.mjs` | orchestrator |
-| GATE-SWARM-001 | T090, T105, T110, T113, T116 | T091, T106, T111, T114, T117 | `scripts/swarm.test.mjs` | orchestrator |
+| GATE-SWARM-001 | T090, T105, T110, T113, T116, T121, T124 | T091, T106, T111, T114, T117, T122, T125 | `scripts/swarm.test.mjs` | orchestrator |
 
 ## Metrics
 
-- 53 Task IDs de feature 002, todos globalmente únicos; T072–T075 quedan retirados y no se reutilizan.
-- 14 tareas de tooling, 34 tareas de producto/lifecycle/consolidación y una auditoría read-only.
+- 59 Task IDs de feature 002, todos globalmente únicos; T072–T075 quedan retirados y no se reutilizan.
+- 18 tareas de tooling, 40 tareas de producto/lifecycle/consolidación y una auditoría read-only.
 - 34/34 AC con al menos un RED y un GREEN; toda evidencia de producto contiene AC-ID literal.
 - 2 gates con pares RED/GREEN y test previsto.
 - 42 AC de feature 001 son regresión obligatoria en baseline, candidata, verificación y review.

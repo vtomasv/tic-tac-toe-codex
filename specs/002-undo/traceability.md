@@ -29,6 +29,7 @@ amplió con `GATE-SWARM-001`. Dominio y UI no cambiaron.
 | GATE-SWARM-001 | T113 | T114 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; nounset-unsafe dependent local declaration remained` | d70abc15b8f3cd7885c56a5dcffc48ed27017b03 | c2c4245cf8ec4317b16883c686ee16002b32c0cc | VERIFIED |
 | GATE-SWARM-001 | T116 | T117 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; linked worktree writable roots and blocked-handoff propagation were absent` | e76f66e7f543df2da0ddb094b9498473c53fe361 | 5559190e25ea0c15801f914516d819c4306e5df8 | VERIFIED |
 | GATE-SWARM-001 | T121 | T122 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; unblocked handoff returned failure under errexit` | 19e463fcc1512f2a0d839206cc6512310f5cd540 | f3e7ddb8dc875ff92f1618b67112d806d969b91e | VERIFIED |
+| GATE-SWARM-001 | T124 | T125 | `scripts/swarm.test.mjs` | `2026-07-23 exit 1; E2E sandbox blocked Chromium and REQUEST_CHANGES returned success` | PENDING | PENDING | PENDING |
 
 ## Acceptance evidence
 
@@ -118,5 +119,8 @@ reemplazan la evidencia primaria.
 - Al reanudar, T070/T071 cerraron repetición y vacío, pero el RED RESET posterior nació verde
   porque T065 y T071 ya lo satisfacían. Este retorno volvió a `Planned`; Analyze I y T120
   incorporaron RESET al mismo bloque cohesivo y autorizaron reconstruir solo los dos commits locales.
+- El primer `launch-e2e` completó T080/T081, pero Chromium no pudo iniciar su rendezvous Mach bajo
+  `workspace-write` y el runner aceptó `REQUEST_CHANGES` con exit `0`; T124/T125 reparan el entorno
+  E2E y la propagación antes de reanudar T082, sin tocar contratos ni código de producto.
 - Los workers no editan este archivo; T097/T098 consolidan evidencia desde handoffs y git log.
 - `Release_Candidate` y `Verified` exigen cero `PENDING`.
