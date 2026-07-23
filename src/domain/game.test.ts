@@ -95,3 +95,35 @@ describe('jugadas legales', () => {
     expect(gameReducer(occupied, { type: 'PLAY_CELL', index: 0 }).status).toBe(occupied.status);
   });
 });
+
+describe('historial de jugadas legales', () => {
+  test('AC-US5-HISTORIAL-015 añade exactamente un snapshot por jugada legal', () => {
+    const result = gameReducer(INITIAL_STATE, { type: 'PLAY_CELL', index: 0 });
+
+    expect(result.history).toHaveLength(1);
+    expect(result.history[0]).toEqual({
+      board: INITIAL_STATE.board,
+      status: INITIAL_STATE.status,
+    });
+  });
+
+  test('AC-US5-HISTORIAL-016 no añade historial por intento en celda ocupada', () => {
+    const afterLegalMove = gameReducer(INITIAL_STATE, { type: 'PLAY_CELL', index: 0 });
+    const afterRejectedMove = gameReducer(afterLegalMove, { type: 'PLAY_CELL', index: 0 });
+
+    expect(afterRejectedMove).toBe(afterLegalMove);
+    expect(afterRejectedMove.history).toHaveLength(1);
+  });
+
+  test('AC-US5-HISTORIAL-017 no añade historial por intento en estado terminal', () => {
+    const terminalState = [0, 3, 1, 4, 2].reduce(
+      (state, index) => gameReducer(state, { type: 'PLAY_CELL', index }),
+      INITIAL_STATE,
+    );
+    const afterRejectedMove = gameReducer(terminalState, { type: 'PLAY_CELL', index: 5 });
+
+    expect(terminalState.status).toBe('WON_X');
+    expect(afterRejectedMove).toBe(terminalState);
+    expect(afterRejectedMove.history).toHaveLength(5);
+  });
+});
