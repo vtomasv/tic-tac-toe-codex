@@ -148,3 +148,33 @@ describe('historial de jugadas legales', () => {
     expect(afterRejectedMove.history).toHaveLength(5);
   });
 });
+
+describe('restauración de una jugada', () => {
+  test('AC-US5-DOMINIO-005 restaura exactamente las nueve celdas del último snapshot', () => {
+    const afterX = gameReducer(INITIAL_STATE, { type: 'PLAY_CELL', index: 0 });
+    const afterO = gameReducer(afterX, { type: 'PLAY_CELL', index: 1 });
+
+    expect(gameReducer(afterO, { type: 'UNDO' }).board).toEqual(afterX.board);
+  });
+
+  test('AC-US5-ESTADO-006 restaura por separado el estado canónico del último snapshot', () => {
+    const afterX = gameReducer(INITIAL_STATE, { type: 'PLAY_CELL', index: 0 });
+    const afterO = gameReducer(afterX, { type: 'PLAY_CELL', index: 1 });
+
+    expect(gameReducer(afterO, { type: 'UNDO' }).status).toBe(afterX.status);
+  });
+
+  test('AC-US5-ESTADO-007 devuelve el turno al jugador cuya jugada se retira', () => {
+    const afterX = gameReducer(INITIAL_STATE, { type: 'PLAY_CELL', index: 0 });
+
+    expect(gameReducer(afterX, { type: 'UNDO' }).status).toBe('PLAYING_X');
+  });
+
+  test('AC-US5-DOMINIO-008 elimina una sola marca por acción UNDO', () => {
+    const afterX = gameReducer(INITIAL_STATE, { type: 'PLAY_CELL', index: 0 });
+    const afterO = gameReducer(afterX, { type: 'PLAY_CELL', index: 1 });
+    const restored = gameReducer(afterO, { type: 'UNDO' });
+
+    expect(restored.board.filter((cell) => cell !== null)).toHaveLength(1);
+  });
+});
