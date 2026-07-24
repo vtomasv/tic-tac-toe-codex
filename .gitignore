@@ -1,4 +1,4 @@
-node_modules/
+node_modules
 dist/
 build/
 coverage/
@@ -13,3 +13,4 @@ Thumbs.db
 *.tsbuildinfo
 .vscode/
 .idea/
+.swarm/logs/

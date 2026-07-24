@@ -1,0 +1,8 @@
+# Configuración conservadora para Codex.
+# El paralelismo de escritura se implementa con `codex exec` + Git worktrees,
+# no depende de la variante experimental `multi_agent_v2`.
+model_reasoning_effort = "high"
+
+[features]
+multi_agent = true
+child_agents_md = true

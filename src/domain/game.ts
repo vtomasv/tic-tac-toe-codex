@@ -3,13 +3,22 @@ export type Cell = Player | null;
 export type Board = readonly [Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell];
 export type GameStatus = 'PLAYING_X' | 'PLAYING_O' | 'WON_X' | 'WON_O' | 'DRAW';
 
-export interface GameState {
+export interface GameSnapshot {
   readonly board: Board;
   readonly status: GameStatus;
 }
 
+export type GameHistory = readonly GameSnapshot[];
+
+export interface GameState {
+  readonly board: Board;
+  readonly status: GameStatus;
+  readonly history: GameHistory;
+}
+
 export type GameAction =
   | { readonly type: 'PLAY_CELL'; readonly index: number }
+  | { readonly type: 'UNDO' }
   | { readonly type: 'RESET' };
 
 const EMPTY_BOARD: Board = Object.freeze([
@@ -38,11 +47,29 @@ export const WINNING_LINES = Object.freeze([
 export const INITIAL_STATE: GameState = Object.freeze({
   board: EMPTY_BOARD,
   status: 'PLAYING_X',
+  history: Object.freeze([]),
 });
+
+export function canUndo(state: GameState): boolean {
+  return state.history.length > 0;
+}
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   if (action.type === 'RESET') {
     return INITIAL_STATE;
+  }
+
+  if (action.type === 'UNDO') {
+    const snapshot = state.history.at(-1);
+    if (snapshot === undefined) {
+      return state;
+    }
+
+    return {
+      board: snapshot.board,
+      status: snapshot.status,
+      history: Object.freeze(state.history.slice(0, -1)),
+    };
   }
 
   if (state.status === 'WON_X' || state.status === 'WON_O' || state.status === 'DRAW') {
@@ -61,6 +88,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     board[first] === player && board[second] === player && board[third] === player,
   );
   const draw = !won && board.every((cell) => cell !== null);
+  const snapshot: GameSnapshot = Object.freeze({
+    board: state.board,
+    status: state.status,
+  });
 
   return {
     board: board as unknown as Board,
@@ -68,5 +99,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       ? player === 'X' ? 'WON_X' : 'WON_O'
       : draw ? 'DRAW'
       : player === 'X' ? 'PLAYING_O' : 'PLAYING_X',
+    history: Object.freeze([...state.history, snapshot]),
   };
 }

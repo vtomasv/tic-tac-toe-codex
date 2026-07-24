@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -9,6 +9,9 @@ const AC_PATTERN = /^AC-US\d+-[A-Z0-9]+-\d{3}$/;
 const GATE_PATTERN = /^GATE-[A-Z0-9]+-\d{3}$/;
 const TASK_PATTERN = /^T\d{3}$/;
 const PHASES = new Set(['plan', 'tasks', 'final']);
+const LEDGER_PHASES = new Set(['PLANNED', 'IMPLEMENTING', 'RELEASE_CANDIDATE', 'VERIFIED']);
+const RELEASE_PHASES = new Set(['RELEASE_CANDIDATE', 'VERIFIED']);
+const FEATURE_PATTERN = /^\d{3}-[^/]+$/;
 
 function unique(values) {
   return [...new Set(values)];
@@ -27,6 +30,16 @@ function markdownCells(line) {
 
 function stripCode(value) {
   return value.replaceAll('`', '').trim();
+}
+
+function normalizeLedgerPhase(value) {
+  return value.trim().replace(/[\s-]+/g, '_').toUpperCase();
+}
+
+function parseLedgerPhase(content) {
+  const raw = content.match(/^\*\*Phase\*\*:\s*(.+?)\s*$/im)?.[1];
+  if (!raw) return { raw: null, phase: null };
+  return { raw: raw.trim(), phase: normalizeLedgerPhase(raw) };
 }
 
 function parseSpec(content, errors) {
@@ -118,6 +131,7 @@ function parseTasks(content, errors) {
 function parseLedger(content, errors) {
   const acRows = new Map();
   const gateRows = new Map();
+  const lifecycle = parseLedgerPhase(content);
   for (const [index, line] of content.split(/\r?\n/).entries()) {
     if (line.startsWith('| AC-')) {
       const cells = markdownCells(line);
@@ -127,8 +141,7 @@ function parseLedger(content, errors) {
         errors.push(`[ledger] line ${index + 1}: malformed AC-ID ${id}`);
         continue;
       }
-      if (acRows.has(id)) errors.push(`[ledger] line ${index + 1}: duplicate AC row ${id}`);
-      acRows.set(id, {
+      const row = {
         id,
         red: cells[1],
         green: cells[2],
@@ -139,7 +152,13 @@ function parseLedger(content, errors) {
         testCommit: cells[7],
         implementationCommit: cells[8],
         status: cells[9],
-      });
+      };
+      if (!acRows.has(id)) acRows.set(id, []);
+      const rows = acRows.get(id);
+      if (rows.some((candidate) => candidate.red === row.red && candidate.green === row.green)) {
+        errors.push(`[ledger] line ${index + 1}: duplicate AC pair ${id} ${row.red}/${row.green}`);
+      }
+      rows.push(row);
     }
     if (line.startsWith('| GATE-')) {
       const cells = markdownCells(line);
@@ -149,8 +168,7 @@ function parseLedger(content, errors) {
         errors.push(`[ledger] line ${index + 1}: malformed GATE-ID ${id}`);
         continue;
       }
-      if (gateRows.has(id)) errors.push(`[ledger] line ${index + 1}: duplicate gate row ${id}`);
-      gateRows.set(id, {
+      const row = {
         id,
         red: cells[1],
         green: cells[2],
@@ -159,17 +177,23 @@ function parseLedger(content, errors) {
         testCommit: cells[5],
         implementationCommit: cells[6],
         status: cells[7],
-      });
+      };
+      if (!gateRows.has(id)) gateRows.set(id, []);
+      const rows = gateRows.get(id);
+      if (rows.some((candidate) => candidate.red === row.red && candidate.green === row.green)) {
+        errors.push(`[ledger] line ${index + 1}: duplicate gate pair ${id} ${row.red}/${row.green}`);
+      }
+      rows.push(row);
     }
   }
-  return { acRows, gateRows };
+  return { acRows, gateRows, lifecycle };
 }
 
 function tasksFor(tasks, field, ref, phase) {
   return tasks.filter((task) => task.phase === phase && task[field].includes(ref));
 }
 
-function validateTaskPair(ref, field, tasks, row, errors) {
+function validateTaskPair(ref, field, tasks, rows, errors) {
   const red = tasksFor(tasks, field, ref, 'RED');
   const green = tasksFor(tasks, field, ref, 'GREEN');
   if (red.length === 0) errors.push(`[tasks] missing RED task for ${ref}`);
@@ -177,38 +201,65 @@ function validateTaskPair(ref, field, tasks, row, errors) {
   if (red.length > 0 && green.length > 0 && Math.min(...green.map((task) => task.index)) < Math.min(...red.map((task) => task.index))) {
     errors.push(`[tasks] GREEN precedes RED for ${ref}`);
   }
-  if (!row) return;
-  if (!TASK_PATTERN.test(row.red) || !red.some((task) => task.id === row.red)) {
-    errors.push(`[ledger] ${ref}: RED task ${row.red} is missing or does not reference the ID`);
+  if (!rows) return;
+  for (const row of rows) {
+    if (!TASK_PATTERN.test(row.red) || !red.some((task) => task.id === row.red)) {
+      errors.push(`[ledger] ${ref}: RED task ${row.red} is missing or does not reference the ID`);
+    }
+    if (!TASK_PATTERN.test(row.green) || !green.some((task) => task.id === row.green)) {
+      errors.push(`[ledger] ${ref}: GREEN task ${row.green} is missing or does not reference the ID`);
+    }
+    const redTask = tasks.find((task) => task.id === row.red);
+    const greenTask = tasks.find((task) => task.id === row.green);
+    if (redTask && greenTask && greenTask.index < redTask.index) {
+      errors.push(`[tasks] GREEN precedes RED for ${ref}: ${row.green} before ${row.red}`);
+    }
   }
-  if (!TASK_PATTERN.test(row.green) || !green.some((task) => task.id === row.green)) {
-    errors.push(`[ledger] ${ref}: GREEN task ${row.green} is missing or does not reference the ID`);
+  const coveredRed = new Set(rows.map((row) => row.red));
+  const coveredGreen = new Set(rows.map((row) => row.green));
+  for (const task of red) {
+    if (!coveredRed.has(task.id)) errors.push(`[ledger] ${ref}: RED task ${task.id} has no evidence pair`);
+  }
+  for (const task of green) {
+    if (!coveredGreen.has(task.id)) errors.push(`[ledger] ${ref}: GREEN task ${task.id} has no evidence pair`);
   }
 }
 
-function validateCohesiveBlocks(tasks, acRows, errors) {
+function validateCohesiveBlocks(tasks, acRows, lifecycle, errors) {
   let pending = [];
+  const completedGreen = new Set();
+  const linkedGreens = new Map();
+  const lifecycleAware = lifecycle.phase !== null;
+  for (const rows of acRows.values()) {
+    for (const row of rows) {
+      if (!linkedGreens.has(row.red)) linkedGreens.set(row.red, new Set());
+      linkedGreens.get(row.red).add(row.green);
+    }
+  }
   for (const task of tasks) {
     if (!task.story || !task.phase) continue;
     if (task.phase === 'RED') {
-      pending.push(task.id);
+      pending.push(task);
       continue;
     }
-
-    const expected = unique(
-      task.acs
-        .map((ac) => acRows.get(ac)?.red)
-        .filter((id) => typeof id === 'string'),
-    );
-    if (!sameValues(pending, expected)) {
-      errors.push(
-        `[tasks] ${task.id}: unrelated RED block is open; expected ${expected.join(', ') || 'none'}, found ${pending.join(', ') || 'none'}`,
+    if (!lifecycleAware) {
+      const unrelated = pending.filter(
+        (redTask) => !redTask.acs.some((ac) => task.acs.includes(ac)),
       );
+      if (unrelated.length > 0) {
+        errors.push(
+          `[tasks] ${task.id}: unrelated RED block is open; found ${unrelated.map((redTask) => redTask.id).join(', ')}`,
+        );
+      }
     }
-    pending = [];
+    completedGreen.add(task.id);
+    pending = pending.filter((redTask) => {
+      const expected = linkedGreens.get(redTask.id);
+      return expected && ![...expected].every((greenId) => completedGreen.has(greenId));
+    });
   }
   if (pending.length > 0) {
-    errors.push(`[tasks] unrelated RED block remains open: ${pending.join(', ')}`);
+    errors.push(`[tasks] unrelated RED block remains open: ${pending.map((task) => task.id).join(', ')}`);
   }
 }
 
@@ -232,7 +283,7 @@ export function validateSnapshot({ spec, tasks, ledger, phase = 'tasks' }) {
       for (const ac of task.acs) if (!canonical.has(ac)) errors.push(`[tasks] ${task.id}: unknown AC-ID ${ac}`);
     }
     for (const ac of acIds) validateTaskPair(ac, 'acs', parsedTasks, parsedLedger.acRows.get(ac), errors);
-    validateCohesiveBlocks(parsedTasks, parsedLedger.acRows, errors);
+    validateCohesiveBlocks(parsedTasks, parsedLedger.acRows, parsedLedger.lifecycle, errors);
     if (parsedLedger.gateRows.size === 0) errors.push('[ledger] missing foundational quality gate row');
     for (const [gate, row] of parsedLedger.gateRows) validateTaskPair(gate, 'gates', parsedTasks, row, errors);
     for (const task of parsedTasks) {
@@ -251,7 +302,7 @@ export function validateSnapshot({ spec, tasks, ledger, phase = 'tasks' }) {
       greenTasks: parsedTasks.filter((task) => task.phase === 'GREEN').length,
       gates: parsedLedger.gateRows.size,
     },
-    model: { tasks: parsedTasks, ...parsedLedger },
+    model: { acIds, tasks: parsedTasks, ...parsedLedger },
   };
 }
 
@@ -275,20 +326,6 @@ function readRequired(file, group, errors) {
   return readFileSync(file, 'utf8');
 }
 
-function resolveFeatureDir(root, errors) {
-  const featureFile = path.join(root, '.specify', 'feature.json');
-  const raw = readRequired(featureFile, 'config', errors);
-  if (!raw) return root;
-  try {
-    const value = JSON.parse(raw).feature_directory;
-    if (typeof value !== 'string' || value.length === 0) throw new Error('feature_directory is missing');
-    return path.resolve(root, value);
-  } catch (error) {
-    errors.push(`[config] invalid .specify/feature.json: ${error.message}`);
-    return root;
-  }
-}
-
 function splitLedgerFiles(value) {
   return value.split(';').map(stripCode).filter(Boolean);
 }
@@ -300,12 +337,21 @@ function declaredTestTitles(content) {
   return titles;
 }
 
-function validateFinalFiles(root, featureDir, result, errors) {
-  for (const row of result.model.acRows.values()) {
+function allRows(rowsById) {
+  return [...rowsById.values()].flat();
+}
+
+function validateEvidence(result, errors) {
+  for (const row of [...allRows(result.model.acRows), ...allRows(result.model.gateRows)]) {
     if (row.evidence === 'PENDING' || row.evidence.length === 0) errors.push(`[ledger] ${row.id}: missing RED evidence`);
     if (row.testCommit === 'PENDING') errors.push(`[ledger] ${row.id}: missing test commit`);
     if (row.implementationCommit === 'PENDING') errors.push(`[ledger] ${row.id}: missing implementation commit`);
     if (row.status !== 'VERIFIED') errors.push(`[ledger] ${row.id}: status must be VERIFIED`);
+  }
+}
+
+function validateTestFiles(root, result, errors) {
+  for (const row of allRows(result.model.acRows)) {
     for (const relativeFile of splitLedgerFiles(row.files)) {
       const file = path.join(root, relativeFile);
       const content = readRequired(file, 'tests', errors);
@@ -314,14 +360,12 @@ function validateFinalFiles(root, featureDir, result, errors) {
       }
     }
   }
-  for (const row of result.model.gateRows.values()) {
-    if (row.evidence === 'PENDING' || row.evidence.length === 0) errors.push(`[ledger] ${row.id}: missing RED evidence`);
-    if (row.testCommit === 'PENDING') errors.push(`[ledger] ${row.id}: missing test commit`);
-    if (row.implementationCommit === 'PENDING') errors.push(`[ledger] ${row.id}: missing implementation commit`);
-    if (row.status !== 'VERIFIED') errors.push(`[ledger] ${row.id}: status must be VERIFIED`);
+  for (const row of allRows(result.model.gateRows)) {
     for (const relativeFile of splitLedgerFiles(row.files)) readRequired(path.join(root, relativeFile), 'tests', errors);
   }
+}
 
+function validatePackage(root, errors) {
   const packageFile = path.join(root, 'package.json');
   const packageContent = readRequired(packageFile, 'config', errors);
   if (packageContent) {
@@ -334,7 +378,6 @@ function validateFinalFiles(root, featureDir, result, errors) {
       errors.push(`[config] invalid package.json: ${error.message}`);
     }
   }
-  validateGit(root, result, errors);
 }
 
 function subjectRefs(subject, prefix) {
@@ -342,7 +385,7 @@ function subjectRefs(subject, prefix) {
   return bracket.split(/\s+/).filter((value) => value.startsWith(prefix));
 }
 
-function validateGit(root, result, errors) {
+function validateGit(root, tasks, rows, errors) {
   const git = spawnSync('git', ['log', '--format=%H%x09%s', '--all'], { cwd: root, encoding: 'utf8' });
   if (git.status !== 0) {
     errors.push('[git] unable to read git log');
@@ -354,7 +397,7 @@ function validateGit(root, result, errors) {
       return [line.slice(0, separator), line.slice(separator + 1)];
     }),
   );
-  const taskById = new Map(result.model.tasks.map((task) => [task.id, task]));
+  const taskById = new Map(tasks.map((task) => [task.id, task]));
   for (const [hash, subject] of commits) {
     const product = subject.match(/^(test|feat|fix)\(US\d+\): (T\d{3}) .+ \[AC-[^\]]+\]$/);
     const tooling = subject.match(/^(test|feat|fix)\(tooling\): (T\d{3}) .+ \[GATE-[^\]]+\]$/);
@@ -369,7 +412,7 @@ function validateGit(root, result, errors) {
     const expected = product ? task.acs : task.gates;
     if (!sameValues(actual, expected)) errors.push(`[git] ${hash}: subject references do not match ${task.id}`);
   }
-  for (const row of [...result.model.acRows.values(), ...result.model.gateRows.values()]) {
+  for (const row of rows) {
     if (row.testCommit === 'PENDING' || row.implementationCommit === 'PENDING') continue;
     if (!commits.has(row.testCommit)) errors.push(`[git] ${row.id}: unknown test commit ${row.testCommit}`);
     if (!commits.has(row.implementationCommit)) errors.push(`[git] ${row.id}: unknown implementation commit ${row.implementationCommit}`);
@@ -386,17 +429,115 @@ function validateGit(root, result, errors) {
   }
 }
 
+function discoverFeatures(root, phase, errors) {
+  const specsDir = path.join(root, 'specs');
+  if (!existsSync(specsDir)) {
+    errors.push('[discovery] missing specs directory');
+    return [];
+  }
+  const entries = readdirSync(specsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && FEATURE_PATTERN.test(entry.name))
+    .sort((left, right) => left.name.localeCompare(right.name));
+  const features = [];
+  for (const entry of entries) {
+    const directory = path.join(specsDir, entry.name);
+    const missing = ['spec.md', 'tasks.md', 'traceability.md'].filter(
+      (name) => !existsSync(path.join(directory, name)),
+    );
+    if (missing.length > 0) {
+      if (phase === 'final') {
+        for (const name of missing) {
+          errors.push(`[feature:${entry.name}] [discovery] missing ${name}`);
+        }
+      }
+      continue;
+    }
+    features.push({ slug: entry.name, directory });
+  }
+  if (features.length === 0) errors.push('[discovery] no complete feature triplets found');
+  return features;
+}
+
+function duplicateDefinitions(features, errors) {
+  for (const [label, values] of [
+    ['AC-ID', features.flatMap((feature) => feature.result.model.acIds.map((id) => [id, feature.slug]))],
+    ['GATE-ID', features.flatMap((feature) => [...feature.result.model.gateRows.keys()].map((id) => [id, feature.slug]))],
+    ['Task ID', features.flatMap((feature) => feature.result.model.tasks.map((task) => [task.id, feature.slug]))],
+  ]) {
+    const definitions = new Map();
+    for (const [id, slug] of values) {
+      if (!definitions.has(id)) definitions.set(id, []);
+      definitions.get(id).push(slug);
+    }
+    for (const [id, slugs] of definitions) {
+      if (slugs.length > 1) {
+        errors.push(`[global] global duplicate ${label} ${id}: ${slugs.sort().join(', ')}`);
+      }
+    }
+  }
+}
+
+export function validateRepository({ root = process.cwd(), phase = 'final' } = {}) {
+  const errors = [];
+  if (!PHASES.has(phase)) {
+    return {
+      errors: [`[config] unsupported phase ${phase}`],
+      features: [],
+      counts: { acceptanceCriteria: 0, tasks: 0, redTasks: 0, greenTasks: 0, gates: 0 },
+      model: { tasks: [], rows: [] },
+    };
+  }
+  const discovered = discoverFeatures(root, phase, errors);
+  const features = [];
+  for (const feature of discovered) {
+    const spec = readFileSync(path.join(feature.directory, 'spec.md'), 'utf8');
+    const tasks = readFileSync(path.join(feature.directory, 'tasks.md'), 'utf8');
+    const ledger = readFileSync(path.join(feature.directory, 'traceability.md'), 'utf8');
+    const result = validateSnapshot({ spec, tasks, ledger, phase: phase === 'plan' ? 'plan' : 'tasks' });
+    const featureErrors = [...result.errors];
+    const { raw, phase: ledgerPhase } = result.model.lifecycle;
+    if (!raw) featureErrors.push('[ledger] missing **Phase** declaration');
+    else if (!LEDGER_PHASES.has(ledgerPhase)) {
+      featureErrors.push(`[ledger] unsupported ledger phase ${raw}`);
+    }
+    if (ledgerPhase && RELEASE_PHASES.has(ledgerPhase)) {
+      validateEvidence(result, featureErrors);
+      if (phase === 'final') validateTestFiles(root, result, featureErrors);
+    }
+    for (const error of unique(featureErrors).sort()) {
+      errors.push(`[feature:${feature.slug}] ${error}`);
+    }
+    features.push({ ...feature, lifecycle: ledgerPhase, result });
+  }
+
+  duplicateDefinitions(features, errors);
+  const tasks = features.flatMap((feature) => feature.result.model.tasks);
+  const rows = features.flatMap((feature) => [
+    ...allRows(feature.result.model.acRows),
+    ...allRows(feature.result.model.gateRows),
+  ]);
+  if (phase === 'final') {
+    validatePackage(root, errors);
+    validateGit(root, tasks, rows, errors);
+  }
+
+  const counts = features.reduce(
+    (total, feature) => {
+      for (const key of Object.keys(total)) total[key] += feature.result.counts[key];
+      return total;
+    },
+    { acceptanceCriteria: 0, tasks: 0, redTasks: 0, greenTasks: 0, gates: 0 },
+  );
+  return {
+    errors: unique(errors).sort(),
+    features,
+    counts,
+    model: { tasks, rows },
+  };
+}
+
 function printErrors(errors) {
-  const groups = new Map();
-  for (const error of unique(errors).sort()) {
-    const group = error.match(/^\[([^\]]+)\]/)?.[1] ?? 'general';
-    if (!groups.has(group)) groups.set(group, []);
-    groups.get(group).push(error.replace(/^\[[^\]]+\]\s*/, ''));
-  }
-  for (const [group, messages] of [...groups.entries()].sort()) {
-    console.error(`${group}:`);
-    for (const message of messages) console.error(`  - ${message}`);
-  }
+  for (const error of unique(errors).sort()) console.error(error);
 }
 
 export function runCli(argv = process.argv.slice(2)) {
@@ -407,20 +548,14 @@ export function runCli(argv = process.argv.slice(2)) {
     console.error(`config:\n  - ${error.message}`);
     return 1;
   }
-  const errors = [];
-  const featureDir = resolveFeatureDir(options.root, errors);
-  const spec = readRequired(path.join(featureDir, 'spec.md'), 'spec', errors);
-  const tasks = readRequired(path.join(featureDir, 'tasks.md'), 'tasks', errors);
-  const ledger = readRequired(path.join(featureDir, 'traceability.md'), 'ledger', errors);
-  const result = validateSnapshot({ spec, tasks, ledger, phase: options.phase });
-  errors.push(...result.errors);
-  if (options.phase === 'final') validateFinalFiles(options.root, featureDir, result, errors);
-  if (errors.length > 0) {
-    printErrors(errors);
+  const result = validateRepository(options);
+  if (result.errors.length > 0) {
+    printErrors(result.errors);
     return 1;
   }
   console.log(
-    `Traceability ${options.phase} PASS: ${result.counts.acceptanceCriteria} ACs, ` +
+    `Traceability ${options.phase} PASS: ${result.features.length} features, ` +
+      `${result.counts.acceptanceCriteria} ACs, ` +
       `${result.counts.gates} gates, ${result.counts.redTasks} RED tasks, ` +
       `${result.counts.greenTasks} GREEN tasks.`,
   );

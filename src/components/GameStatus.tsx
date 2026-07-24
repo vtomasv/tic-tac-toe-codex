@@ -8,14 +8,15 @@ const STATUS_TEXT: Record<Status, string> = {
   DRAW: 'Empate',
 };
 
-interface GameStatusProps {
-  readonly status: Status;
-}
+type GameStatusProps = Readonly<{
+  status: Status;
+  announcement?: string;
+}>;
 
-export function GameStatus({ status }: GameStatusProps) {
+export function GameStatus({ status, announcement }: GameStatusProps) {
   return (
     <p aria-atomic="true" aria-live="polite" className="game-status" role="status">
-      {STATUS_TEXT[status]}
+      {announcement ?? STATUS_TEXT[status]}
     </p>
   );
 }
